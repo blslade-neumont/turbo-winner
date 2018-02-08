@@ -17,6 +17,10 @@ var defaultConfig = {
             path.join(__dirname, '../../src'),
             path.join(__dirname, '../../public/assets')
         ],
+        alias: {
+            "engine$": path.join(__dirname, '../../../engine/src'),
+            "game-client$": path.join(__dirname, '../../../game-client/src')
+        },
         extensions: ['.ts', '.js']
     },
     

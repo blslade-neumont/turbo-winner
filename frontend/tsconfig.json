@@ -3,7 +3,11 @@
         "module": "commonjs",
         "target": "es5",
         "outDir": "dist",
-        "rootDir": ".",
+        "rootDirs": [
+            "src",
+            "../engine/src",
+            "../game-client/src"
+        ],
         "sourceMap": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -19,7 +23,9 @@
         "lib": ["es6", "dom"],
         "baseUrl": ".",
         "paths": {
-            "*": ["node_modules/*", "src/*", "public/assets/*"]
+            "*": ["node_modules/*", "src/*", "public/assets/*"],
+            "engine": ["../engine/src"],
+            "game-client": ["../game-client/src"]
         },
         "types": [
             "core-js",

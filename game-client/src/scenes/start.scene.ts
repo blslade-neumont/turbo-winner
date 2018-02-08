@@ -24,6 +24,6 @@ export class StartScene extends GameScene {
         
         this.blue += delta * 120;
         let actualBlue = Math.abs(Math.floor(this.blue % 512) - 256);
-        if (this.initialized) this.camera.clearColor = `rgb(0, 0, ${actualBlue})`;
+        if (this.initialized) this.camera!.clearColor = `rgb(0, 0, ${actualBlue})`;
     }
 }

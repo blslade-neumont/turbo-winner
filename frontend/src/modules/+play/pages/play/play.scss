@@ -1,0 +1,26 @@
+
+
+.full-size, .canvas-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    background: black;
+    overflow: hidden;
+}
+
+.full-size .canvas-pad {
+    height: 0;
+}
+.full-size .canvas-container > canvas {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
