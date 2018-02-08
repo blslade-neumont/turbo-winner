@@ -13,4 +13,16 @@ git submodule update --init --recursive
 git submodule foreach "yarn && yarn build"
 ```
 
-Development instructions for the game client and frontend angular application coming soon.
+Next, install all missing dependencies:
+
+```
+cd game && yarn && cd ..
+cd frontend && yarn && cd ..
+```
+
+### To start the frontend/game client:
+
+```
+cd frontend
+yarn start
+```

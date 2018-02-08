@@ -1,13 +1,29 @@
 language: node_js
+sudo: false
 node_js:
   - "7"
 
 before_script:
   - git submodule update --init --recursive
-  - git submodule foreach yarn
-  - git submodule foreach yarn build
+  - git submodule foreach "yarn && yarn build"
   - cd game
   - yarn
+  - cd ../frontend
+  - yarn
+  - cd ..
 
 script:
-  - yarn travis
+  - cd game && yarn travis && cd ..
+  - cd frontend && yarn travis && cd ..
+
+deploy:
+ - provider: script
+   script:
+     - cd frontend
+     - NODE_ENV=production yarn build
+     - cd ..
+   skip_cleanup: true
+ - provider: surge
+   project: ./frontend/dist
+   domain: turbo-winner.surge.sh
+   skip_cleanup: true
