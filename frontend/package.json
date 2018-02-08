@@ -1,7 +1,7 @@
 {
-    "name": "angular-seed",
+    "name": "turbo-winner",
     "version": "0.0.0",
-    "description": "A simple starter angular project",
+    "description": "An MMO game where you play as a bounty-hunter for a specific mark",
     "scripts": {
         "lint": "bash ./scripts/lint.sh",
         "build": "yarn copy-assets && bash ./scripts/build.sh",
@@ -15,11 +15,13 @@
         "test-watch": "bash ./scripts/test.sh watch",
         "travis": "bash ./scripts/travis.sh"
     },
-    "author": {
-        "name": "Brandon Slade",
-        "email": "brandonyoyoslade@gmail.com",
-        "url": "http://brandonslade.me"
-    },
+    "contributors": [
+        {
+            "name": "Brandon Slade",
+            "email": "brandonyoyoslade@gmail.com",
+            "url": "http://brandonslade.me"
+        }
+    ],
     "license": "MIT",
     "devDependencies": {
         "@types/jasmine": "^2.5.46",
@@ -78,14 +80,20 @@
         "zone.js": "^0.8.20"
     },
     "keywords": [
-        "angular-seed"
+        "html5",
+        "massively-multiplayer",
+        "mmo",
+        "game",
+        "socket.io",
+        "websockets",
+        "angular"
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/aboveyou00/angular-seed.git"
+        "url": "git+https://github.com/blslade-neumont/turbo-winner.git"
     },
     "bugs": {
-        "url": "https://github.com/aboveyou00/angular-seed/issues"
+        "url": "https://github.com/blslade-neumont/turbo-winner/issues"
     },
-    "homepage": "https://github.com/aboveyou00/angular-seed#readme"
+    "homepage": "https://github.com/blslade-neumont/turbo-winner#readme"
 }
