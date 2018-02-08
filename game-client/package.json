@@ -1,8 +1,7 @@
 {
-    "name": "a-game",
+    "name": "turbo-winner-client",
     "version": "0.0.0",
-    "description": "A game!",
-    "main": "dist/index.js",
+    "description": "The HTML5 client for project codename 'Turbo Winner'",
     "contributors": [
         {
             "name": "Brandon Slade",
@@ -54,6 +53,6 @@
     },
     "license": "MIT",
     "repository": {
-        "url": "https://github.com/aboveyou00/block-slider-game"
+        "url": "https://github.com/blslade-neumont/turbo-winner"
     }
 }

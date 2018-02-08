@@ -6,14 +6,11 @@ node_js:
 before_script:
   - git submodule update --init --recursive
   - git submodule foreach "yarn && yarn build"
-  - cd game
-  - yarn
-  - cd ../frontend
-  - yarn
-  - cd ..
+  - cd game-client && yarn && cd ..
+  - cd frontend && yarn && cd ..
 
 script:
-  - cd game && yarn travis && cd ..
+  - cd game-client && yarn travis && cd ..
   - cd frontend && yarn travis && cd ..
 
 deploy:

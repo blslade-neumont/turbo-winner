@@ -16,7 +16,7 @@ git submodule foreach "yarn && yarn build"
 Next, install all missing dependencies:
 
 ```
-cd game && yarn && cd ..
+cd game-client && yarn && cd ..
 cd frontend && yarn && cd ..
 ```
 
