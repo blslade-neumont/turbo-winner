@@ -23,10 +23,10 @@ import { BrowserModule } from "@angular/platform-browser";
 
 //Routing
 const routerConfig: Routes = [
+    {path: 'play', loadChildren: '../modules/+play/play.module#PlayModule'},
     {path: '', component: LayoutComponent, children: [
         {path: '', component: HomeComponent, pathMatch: 'full'},
         {path: 'about', component: AboutComponent},
-        {path: 'play', loadChildren: '../modules/+play/play.module#PlayModule'},
         {path: '**', component: NotFoundComponent}
     ]}
 ];
