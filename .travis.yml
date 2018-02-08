@@ -15,10 +15,7 @@ script:
 
 deploy:
  - provider: script
-   script:
-     - cd frontend
-     - NODE_ENV=production yarn build
-     - cd ..
+   script: cd frontend && NODE_ENV=production yarn build && cd ..
    skip_cleanup: true
  - provider: surge
    project: ./frontend/dist
