@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "outDir": "dist",
+        "rootDir": ".",
+        "sourceMap": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        "removeComments": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "pretty": true,
+        "skipLibCheck": true,
+        "lib": ["es6", "dom"],
+        "baseUrl": ".",
+        "paths": {
+            "*": ["node_modules/*", "src/*", "public/assets/*"]
+        },
+        "types": [
+            "core-js",
+            "lodash.clonedeep",
+            "node",
+            "pluralize"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        ".c9",
+        "**/deprecated"
+    ],
+    "compileOnSave": false,
+    "buildOnSave": false
+}
