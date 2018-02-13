@@ -17,12 +17,15 @@ deploy:
   - provider: script
     script: cd frontend && NODE_ENV=production yarn build && cd ..
     skip_cleanup: true
+    on: master
   - provider: surge
     project: ./frontend/dist
     domain: turbo-winner.surge.sh
     skip_cleanup: true
+    on: master
   - provider: heroku
     app: turbo-winner
     api_key:
       secure: iE8pzIoNHLAuexCy0HauIVmCx0l/kPV25+vUP5dpVI/Wy/K0UOy2zIdRq7Pn2oDt6oDkhmeWnMUtEhQVOey2V1H/XPdOj7uhF6pvdG0/xhcvR8+aPIO1Qf3p4yshGsVoCSg+C1mCu+JHwJNgkcVNrlbHowt6IrFVbHle9776lAw/NkiMkWPkqX0nFYHzpYr5bD0bW9Lk9J6z4RUP449nNALQehLlYn2SBUnrbRLSULGsfz9aI3inLKuB1pgPqTsoFXIgCDj6z37wdHqOgq2CZEOra3k/IyanjH0xTmcvHDKPQehOv5P/hDEty8NkAASGy/Rk2qVv9LHd96bj6xHayClCfdedm6xa23VErQd+32xbMaQVRkZN0BDzkHx+gBpzu55+Izms3hvYlNZKrIGDDCLHFnsmnO9x7eAJzrIBremzV5VaHNJoVoJ007ZoQHzcbIE7HlEH6Z0QhPTF6pX8zDYBEExRiMksGKakWKp4OODgYLmrRGLvjkHuG/9ckaG49Fbp5MUhIhYAPm3d/ae8npamWD/cHL4oOPWgrkStql68bYgjztSP9EMTQj3JSW6/oTp5/81UmMvsDqkxSy8tV0gJwKSOuQkEqYfjSSvAbwC7OJmykAjG/GAVVgapY9NoG5+7562Fh+EfteA3VjbJYrLUqhWlvxCQ040dWmObLPg=
     skip_cleanup: true
+    on: master
