@@ -1,6 +1,8 @@
 import { config } from './config';
 import { initializeDatabase } from './orm';
 import { initializeRoutesAndListen } from './router';
+import { initializeSocketServer } from './sockets';
+import { GameService } from './game/game-service';
 
 (async () => {
     console.log(`Starting server...`);
@@ -12,7 +14,14 @@ import { initializeRoutesAndListen } from './router';
         await initializeDatabase();
         
         console.log(`Mapping routes and starting express server...`);
-        await initializeRoutesAndListen(port);
+        let server = await initializeRoutesAndListen(port);
+        
+        console.log(`Initializing socket.io...`);
+        let io = await initializeSocketServer(server);
+        
+        console.log(`Starting GameService...`);
+        let game = new GameService(io);
+        await game.start();
     }
     catch (e) {
         console.error(e);

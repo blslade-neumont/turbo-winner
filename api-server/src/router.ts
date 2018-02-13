@@ -1,7 +1,8 @@
 import * as express from 'express';
-import { config } from "./config";
+import { Server } from 'http';
+import { config } from './config';
 
-export function initializeRoutesAndListen(port: number): Promise<void> {
+export function initializeRoutesAndListen(port: number): Promise<Server> {
     return new Promise((resolve, reject) => {
         let secure = config.try('server.secure', false);
         
@@ -11,9 +12,9 @@ export function initializeRoutesAndListen(port: number): Promise<void> {
             res.status(200).send(`You've reached the api server!`);
         });
         
-        app.listen(port, (err: any, result: any) => {
+        const server = app.listen(port, (err: any, result: any) => {
             if (err) return void(reject(err));
-            resolve(result);
+            resolve(server);
         });
     });
 }
