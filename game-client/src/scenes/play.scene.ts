@@ -1,5 +1,6 @@
 import { GameScene, Camera } from 'engine';
 import { Player } from '../objects/player';
+import { CustomCursor } from '../objects/custom-cursor';
 
 export class PlayScene extends GameScene {
     constructor() {
@@ -9,7 +10,7 @@ export class PlayScene extends GameScene {
     private initialized = false;
     private playerColorToDoReplaceWithFromColorSelectScene = 'yellow';
     private testPlayer: Player;
-
+    
     start() {
         super.start();
         
@@ -20,8 +21,11 @@ export class PlayScene extends GameScene {
         camera.clearColor = 'black';
         camera.zoomScale = 1; // arbitrary
         camera.clearColor = `rgb(128, 255, 64)`
-        this.testPlayer = new Player(this.playerColorToDoReplaceWithFromColorSelectScene, camera);
+        this.testPlayer = new Player(this.playerColorToDoReplaceWithFromColorSelectScene);
         this.addObject(this.testPlayer);
+        this.addObject(new CustomCursor("#ff0000"));
+        Object.defineProperty(this, "cursor", {get:()=>["none"]});
+
     }
         
     tick(delta: number) {

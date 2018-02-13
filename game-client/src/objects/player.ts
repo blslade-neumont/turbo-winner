@@ -3,12 +3,10 @@ import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera} 
 export class Player extends GameObject{
     private color: string = "purple";
     private forward: {x: number, y: number};
-    private camRef: Camera;
 
-    constructor(color: string, camRef: Camera){
+    constructor(color: string){
         super("Player");
         this.color = color;
-        this.camRef = camRef;
     }
 
     renderPlayerCircle(context : CanvasRenderingContext2D){
@@ -45,7 +43,7 @@ export class Player extends GameObject{
         const acceleration = 350.0;
 
         // get the screen space mouse coords (potential for refactor later - couldn't find "screen to world" or "world to screen" helpers for camera in engine)
-        let mousePosWorld = this.camRef.transformPixelCoordinates(this.game.eventQueue.mousePosition);
+        let mousePosWorld = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
 
         // calculate normalized forward vector from mouse and player locations
         let toMouse = {x: mousePosWorld[0] - this.x, y: mousePosWorld[1] - this.y};
