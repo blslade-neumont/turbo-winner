@@ -16,3 +16,6 @@
 /**/coverage/
 
 docs/scripts/main.map
+
+*.code-workspace
+
