@@ -1,4 +1,5 @@
-import { GameScene, Camera } from 'engine';
+import { GameScene, Camera, GameEvent } from 'engine';
+import { PlayScene } from './play.scene';
 
 export class StartScene extends GameScene {
     constructor() {
@@ -7,6 +8,15 @@ export class StartScene extends GameScene {
     
     private initialized = false;
     
+    handleEvent(event : GameEvent){
+        if (event.type == 'keyPressed' && event.code == 'Space'){
+            this.game.changeScene(new PlayScene());
+            return true;
+        }
+
+        return super.handleEvent(event);
+    }
+
     start() {
         super.start();
         
