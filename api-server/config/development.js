@@ -6,7 +6,7 @@ module.exports = {
     },
     
     db: {
-        connectionString: null, //Override this value locally
-        databaseName: 'turbo-winner'
+        connectionString: process.env.API_MONGO_CONNECTION_STRING,
+        databaseName: process.env.API_MONGO_DATABASE_NAME || 'turbo-winner'
     }
 };

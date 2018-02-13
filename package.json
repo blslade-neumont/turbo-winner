@@ -1,0 +1,7 @@
+{
+    "name": "@turbo-winner/api-server-fwd",
+    "version": "0.0.0",
+    "scripts": {
+        "postinstall": "yarn --cwd api-server"
+    }
+}
