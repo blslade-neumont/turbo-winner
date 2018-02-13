@@ -1,5 +1,6 @@
 import { GameScene, Camera, GameEvent } from 'engine';
 import { PlayScene } from './play.scene';
+import { ColorRectangleObject } from '../objects/color-rectangle';
 
 export class StartScene extends GameScene {
     constructor() {
@@ -22,6 +23,8 @@ export class StartScene extends GameScene {
         
         if (this.initialized) return;
         this.initialized = true;
+
+        this.addObject(new ColorRectangleObject());
         
         let camera = this.camera = new Camera(this);
         camera.clearColor = 'black';
