@@ -1,4 +1,5 @@
 import { GameScene, Camera } from 'engine';
+import { Player } from '../objects/player';
 
 export class PlayScene extends GameScene {
     constructor() {
@@ -6,7 +7,9 @@ export class PlayScene extends GameScene {
     }
     
     private initialized = false;
-    
+    private playerColorToDoReplaceWithFromColorSelectScene = 'yellow';
+    private testPlayer: Player;
+
     start() {
         super.start();
         
@@ -15,15 +18,13 @@ export class PlayScene extends GameScene {
         
         let camera = this.camera = new Camera(this);
         camera.clearColor = 'black';
+        camera.zoomScale = 1; // arbitrary
+        camera.clearColor = `rgb(128, 255, 64)`
+        this.testPlayer = new Player(this.playerColorToDoReplaceWithFromColorSelectScene, camera);
+        this.addObject(this.testPlayer);
     }
-    
-    private red = 0;
-    
+        
     tick(delta: number) {
         super.tick(delta);
-        
-        this.red += delta * 120;
-        let actualRed = Math.abs(Math.floor(this.red % 512) - 256);
-        if (this.initialized) this.camera!.clearColor = `rgb(${actualRed}, 0, 0 )`;
     }
 }
