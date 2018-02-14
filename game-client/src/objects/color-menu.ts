@@ -27,7 +27,7 @@ export class ColorMenuObject extends GameObject{
         this.centerPosition =  {x: 0, y: -radius/2};
         this.rightPosition =  {x: this.spacing, y: 0}; 
 
-        this.colors.push("maroon", "red", "pink", "coral", "orange", "brown","yellow", "beige", "lime", "green", "cyan", "teal", "blue", "navy", "purple", "magenta");
+        this.colors.push("maroon", "red", "pink", "coral", "orange", "brown","yellow", "#DFFF00", "lime", "green", "cyan", "teal", "blue", "navy", "purple", "magenta", "white", "gray", "black");
 
         this.title = "Turbo Winner";
         this.selectMessage = "Please select a color:";
