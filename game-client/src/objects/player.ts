@@ -53,10 +53,10 @@ export class Player extends GameObject{
         // get forward-relative movement inputs, and normalize them to ensure pressing multiple keys does not increase player move speed
         let keyboard = this.game.eventQueue;
         let input = {x: 0, y: 0}
-        if (keyboard.isKeyDown("KeyW")){ input = {x: input.x + this.forward.x, y: input.y + this.forward.y}; }
-        if (keyboard.isKeyDown("KeyA")){ input = {x: input.x + this.forward.y, y: input.y - this.forward.x}; }
-        if (keyboard.isKeyDown("KeyS")){ input = {x: input.x - this.forward.x, y: input.y - this.forward.y}; }
-        if (keyboard.isKeyDown("KeyD")){ input = {x: input.x - this.forward.y, y: input.y + this.forward.x}; }
+        if (keyboard.isKeyDown("KeyW")){ input = {x: input.x, y: input.y - 1}; }
+        if (keyboard.isKeyDown("KeyA")){ input = {x: input.x - 1, y: input.y}; }
+        if (keyboard.isKeyDown("KeyS")){ input = {x: input.x, y: input.y + 1}; }
+        if (keyboard.isKeyDown("KeyD")){ input = {x: input.x + 1, y: input.y}; }
 
         let inputLen = Math.sqrt(input.x*input.x + input.y*input.y);
         let inputNormalized = inputLen == 0 ? input : {x: input.x/inputLen, y: input.y/inputLen};
