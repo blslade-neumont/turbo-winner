@@ -4,20 +4,19 @@ export class ColorOptionObject extends GameObject{
 
     private color : string = "pink";
     private selected : boolean = false;
-    private size : number = 32;
+    private radius : number = 32;
 
-    constructor(color = "#ff69b4", size = 32){
+    constructor(color = "#ff69b4"){
         super("ColorOption");
         this.color = color;
-        this.size = size;
     }
 
     renderImpl(adapter : GraphicsAdapter){
-        if(adapter instanceof DefaultGraphicsAdapter){
-            let context = adapter.context!;
-            if(this.selected) this.renderBorder(context);
-            this.renderOption(context);
-        }
+
+    }
+
+    getColor(){
+        return this.color;
     }
 
     handleEvent(event : GameEvent){
@@ -25,12 +24,16 @@ export class ColorOptionObject extends GameObject{
     }
 
     renderOption(context : CanvasRenderingContext2D){
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
         context.fillStyle = this.color;
-        context.fillRect(0, 0, this.size, this.size);
+        context.fill();
     }
 
     renderBorder(context : CanvasRenderingContext2D){
-        context.fillStyle = "black";
-        context.fillRect(-2, -2, 36, 36);
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius + 4, 0, 2 * Math.PI, false);
+        context.fillStyle = this.color;
+        context.fill();
     }
 }
