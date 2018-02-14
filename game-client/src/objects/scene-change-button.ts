@@ -1,11 +1,12 @@
-import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton} from "engine";
-import { PlayScene } from "..";
+import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton, GameScene} from "engine";
+import { ColorRectangleObject } from '../objects/color-rectangle';
 export class ChangeButton extends GameObject{
 
     private hover : boolean;
     private color : string;
     private _h : number;
     private _w : number;
+    public newScene : GameScene;
 
     constructor(position : Int8Array, height : number, width : number){
         super("ChangeButton");
@@ -28,7 +29,7 @@ export class ChangeButton extends GameObject{
     handleEvent(event : GameEvent){
         if (this.hover && event.type == "mouseButtonPressed" && event.button == MouseButton.Left){
             //start the game/go to main game scene
-            this.game.changeScene(new PlayScene());
+            this.game.changeScene(this.newScene);
             return true;
         }
         return super.handleEvent(event);
