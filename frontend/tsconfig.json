@@ -31,7 +31,8 @@
             "core-js",
             "lodash.clonedeep",
             "node",
-            "pluralize"
+            "pluralize",
+            "socket.io-client"
         ]
     },
     "exclude": [

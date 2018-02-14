@@ -20,11 +20,8 @@ export class SocketService {
             transports: ['websocket']
         });
         
-        this.streamEvent('game-version').subscribe(([version]: [string]) => {
+        this.io.on('game-version', (version: string) => {
             console.log(`Version: ${version}`);
-        });
-        this.streamEvent('time').subscribe(([time]: [number]) => {
-            console.log(`Time: ${time}`);
         });
     }
     

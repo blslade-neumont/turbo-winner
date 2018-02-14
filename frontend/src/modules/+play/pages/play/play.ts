@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ComponentBase } from 'utils/components';
+import { SocketService } from 'services';
 
 import { TurboWinnerGame } from 'game-client';
 import { DefaultGraphicsAdapter } from 'engine';
@@ -10,7 +11,9 @@ import { DefaultGraphicsAdapter } from 'engine';
     styleUrls: ['./play.scss']
 })
 export class PlayComponent extends ComponentBase {
-    constructor() {
+    constructor(
+        private socketService: SocketService
+    ) {
         super();
     }
     
@@ -25,7 +28,7 @@ export class PlayComponent extends ComponentBase {
         let graphicsAdapter = new DefaultGraphicsAdapter();
         (<any>graphicsAdapter)._canvas = canvas; //HACK HACK
         
-        this.game = new TurboWinnerGame({
+        this.game = new TurboWinnerGame(this.socketService.io, {
             graphicsAdapter: graphicsAdapter,
             moveCanvas: false
         });
