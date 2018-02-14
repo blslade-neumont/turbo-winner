@@ -12,10 +12,14 @@ export class StartScene extends GameScene {
     private colorMenu : ColorMenuObject;
     
     handleEvent(event : GameEvent){
-        if (event.type == 'keyPressed' && event.code == 'Space'){
+        if (event.type == 'keyPressed' && (event.code == 'Space' || event.code == 'Enter')){
             this.game.changeScene(new PlayScene(this.colorMenu.getSelectedColor()));
             return true;
         }
+        // TODO: ASK SHOULD WE DO THIS?
+        // if(event.type == 'mouseButtonPressed' && this.colorMenu.inSelectedCircle()){
+        //     this.game.changeScene(new PlayScene(this.colorMenu.getSelectedColor()));
+        // }
 
         return super.handleEvent(event);
     }
