@@ -1,8 +1,13 @@
 import { Game, GameOptions } from 'engine';
 import { StartScene } from './scenes/start.scene';
 
+export type Socket = SocketIOClient.Socket;
+
 export class TurboWinnerGame extends Game {
-    constructor(opts?: GameOptions) {
+    constructor(
+        readonly io: Socket,
+        opts?: GameOptions
+    ) {
         super(opts);
     }
 

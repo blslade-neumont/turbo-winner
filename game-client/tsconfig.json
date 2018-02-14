@@ -23,7 +23,8 @@
         },
         "types": [
             "core-js",
-            "lodash.merge"
+            "lodash.merge",
+            "socket.io-client"
         ]
     },
     "exclude": [
