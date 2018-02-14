@@ -1,19 +1,15 @@
-import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera} from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera } from "engine";
+import { PlayerDetailsT } from './meta';
 
 export abstract class Player extends GameObject {
     constructor(
         name: string,
-        readonly playerId: number,
-        public color: string,
-        x: number,
-        y: number
+        readonly playerId: number
     ) {
-        super(name, {
-            x: x,
-            y: y
-        });
+        super(name);
     }
     
+    public color: string;
     public forward: { x: number, y: number };
     
     renderPlayerCircle(context: CanvasRenderingContext2D) {
@@ -44,7 +40,7 @@ export abstract class Player extends GameObject {
         }
     }
     
-    getDetails(): any {
+    getDetails(): PlayerDetailsT {
         return {
             x: this.x,
             y: this.y,
@@ -53,5 +49,11 @@ export abstract class Player extends GameObject {
             color: this.color,
             forward: this.forward
         };
+    }
+    setDetails(vals: PlayerDetailsT) {
+        [this.x, this.y] = [vals.x, vals.y];
+        [this.hspeed, this.vspeed] = [vals.hspeed, vals.vspeed];
+        this.color = vals.color;
+        this.forward = vals.forward;
     }
 }

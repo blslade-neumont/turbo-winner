@@ -3,13 +3,8 @@ import { Player } from './player';
 import { TurboWinnerGame } from "../../turbo-winner-game";
 
 export class LocalPlayer extends Player {
-    constructor(
-        playerId: number,
-        color: string,
-        x: number,
-        y: number
-    ) {
-        super("LocalPlayer", playerId, color, x, y);
+    constructor(playerId: number) {
+        super("LocalPlayer", playerId);
     }
     
     get io() {
