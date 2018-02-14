@@ -1,5 +1,4 @@
 import { GameObject,GraphicsAdapter,DefaultGraphicsAdapter, GameEvent } from "engine";
-import { ColorOptionObject } from "objects/color-option";
 
 export class ColorMenuObject extends GameObject{
 
@@ -7,7 +6,7 @@ export class ColorMenuObject extends GameObject{
     private spacing : number = 64;
     //Selected 0 is reserved for none selected
     private selected : number = 0;
-    private colors : Array<string>;
+    private colors : Array<string> = [];
     private leftPosition : {x: number, y: number};
     private centerPosition : {x: number, y: number};
     private rightPosition : {x: number, y: number};
@@ -21,19 +20,12 @@ export class ColorMenuObject extends GameObject{
         this.leftPosition =  {x: -this.spacing, y: 0};
         this.centerPosition =  {x: 0, y: 0};
         this.rightPosition =  {x: this.spacing, y: 0}; 
-    }
-
-    start(){
-
-        //for (let k = 0; k < this.numOptions; k++) {
         this.colors.push("red");
         this.colors.push("orange");
         this.colors.push("yellow");
         this.colors.push("green");
         this.colors.push("blue");
         this.colors.push("purple");
-        //}
-
     }
 
     getColor(index : number){
@@ -83,13 +75,12 @@ export class ColorMenuObject extends GameObject{
     renderOption(context : CanvasRenderingContext2D, color : string, position : {x: number, y: number}){
         context.beginPath();
         context.arc(this.x + position.x, this.y + position.y, this.radius, 0, 2 * Math.PI, false);
-        
+        context.fillStyle = color;
         context.fill();
     }
 
     renderBorder(context : CanvasRenderingContext2D, position : {x: number, y: number}){
-        context.beginPath();
-        context.arc(this.x + position.x, this.y + position.y, this.radius + 4, 0, 2 * Math.PI, false);
+        context.lineWidth = 5;
         context.strokeStyle = "black";
         context.stroke();
     }

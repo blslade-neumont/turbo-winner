@@ -1,8 +1,7 @@
 import { GameScene, Camera, GameEvent } from 'engine';
 import { PlayScene } from './play.scene';
 import { ColorRectangleObject } from '../objects/color-rectangle';
-import { ColorOptionObject } from '../objects/color-option';
-import { ColorMenuObject } from 'objects/color-menu';
+import { ColorMenuObject } from '../objects/color-menu';
 
 export class StartScene extends GameScene {
     constructor() {
@@ -10,10 +9,11 @@ export class StartScene extends GameScene {
     }
     
     private initialized = false;
+    private colorMenu : ColorMenuObject;
     
     handleEvent(event : GameEvent){
         if (event.type == 'keyPressed' && event.code == 'Space'){
-            this.game.changeScene(new PlayScene());
+            this.game.changeScene(new PlayScene(this.colorMenu.getSelectedColor()));
             return true;
         }
 
@@ -26,21 +26,15 @@ export class StartScene extends GameScene {
         if (this.initialized) return;
         this.initialized = true;
 
-        this.addObject(new ColorRectangleObject());
-        this.addObject(new ColorMenuObject());
+        this.colorMenu = new ColorMenuObject(64, {x: 0, y: 0}, 256);
+        this.addObject(this.colorMenu);
         
         
         let camera = this.camera = new Camera(this);
-        camera.clearColor = 'black';
+        camera.clearColor = 'grey';
     }
-    
-    private blue = 0;
     
     tick(delta: number) {
         super.tick(delta);
-        
-        this.blue += delta * 120;
-        let actualBlue = Math.abs(Math.floor(this.blue % 512) - 256);
-        if (this.initialized) this.camera!.clearColor = `rgb(0, 0, ${actualBlue})`;
     }
 }

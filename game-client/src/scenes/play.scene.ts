@@ -8,12 +8,13 @@ import { PlayerManager } from '../objects/player-manager';
 import { Tile } from '../objects/tile';
 
 export class PlayScene extends GameScene {
-    constructor() {
+    constructor(color : string) {
         super();
+        this.playerColor = color;
     }
     
     private initialized = false;
-    private playerColorToDoReplaceWithFromColorSelectScene = 'yellow';
+    private playerColor = 'yellow';
     private playerManager: PlayerManager;
     private customCursor: CustomCursor;
     
@@ -41,7 +42,7 @@ export class PlayScene extends GameScene {
         camera.zoomScale = 1; // arbitrary
         camera.clearColor = `rgb(128, 255, 64)`;
         
-        this.playerManager = new PlayerManager(this.playerColorToDoReplaceWithFromColorSelectScene);
+        this.playerManager = new PlayerManager(this.playerColor);
         this.addObject(this.playerManager);
         
         Object.defineProperty(this, "cursor", {get:()=>["none"]});
