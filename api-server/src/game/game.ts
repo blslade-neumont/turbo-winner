@@ -25,7 +25,12 @@ export class Game {
     players = new Map<number, Player>();
     
     addPlayer(player: Player) {
-        //TODO: assign sensible values to player.x, player.y
+        let isPreexisting = this.players.get(player.playerId) === player;
+        
+        if (!isPreexisting) {
+            //TODO: assign sensible values to player.x, player.y
+        }
+        
         //Send initial player state to the new player
         player.socket.emit('assign-player-id', player.playerId, player.getDetails(true));
         
@@ -35,8 +40,10 @@ export class Game {
             this.sendPlayerUpdate(p, true, player.socket);
         }
         
-        //Send the new player's initial state to the other players
-        this.sendPlayerUpdate(player);
+        if (!isPreexisting) {
+            //Send the new player's initial state to the other players
+            this.sendPlayerUpdate(player);
+        }
         
         //Add the new player to the game world
         this.players.set(player.playerId, player);
