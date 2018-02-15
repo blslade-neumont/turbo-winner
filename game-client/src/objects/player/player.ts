@@ -12,7 +12,7 @@ export abstract class Player extends GameObject {
     }
     
     public color: string;
-    public forward: { x: number, y: number };
+    public forward = { x: 1, y: 0 };
     
     renderPlayerCircle(context: CanvasRenderingContext2D) {
         context.beginPath();
@@ -36,7 +36,8 @@ export abstract class Player extends GameObject {
     
     renderImpl(adapter: GraphicsAdapter) {
         if (adapter instanceof DefaultGraphicsAdapter) {
-            let context = adapter.context!;
+            let context = adapter.context;
+            if (!context) return;
             this.renderPlayerCircle(context);
             this.renderPlayerPointer(context);
         }
