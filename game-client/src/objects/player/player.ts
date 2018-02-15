@@ -2,7 +2,7 @@ import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseBu
 import { PlayerDetailsT } from './packet-meta';
 import { isSignificantlyDifferent } from '../../util/is-significantly-different';
 import cloneDeep = require('lodash.clonedeep');
-import { Bullet } from "objects/bullet";
+import { Bullet } from "objects/player/bullet";
 
 export abstract class Player extends GameObject {
     constructor(
