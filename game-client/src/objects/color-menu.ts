@@ -7,9 +7,7 @@ export class ColorMenuObject extends GameObject{
     //Selected 0 is reserved for none selected
     private selected : number = 1;
     private colors : Array<string> = [];
-    private leftPosition : {x: number, y: number};
-    private centerPosition : {x: number, y: number};
-    private rightPosition : {x: number, y: number};
+    private numExtras : number = 4;
     private cycleTimer : number = 1;
     private cycleMax : number = 1;
     private cycleHeld : number = 0.1;
@@ -23,19 +21,36 @@ export class ColorMenuObject extends GameObject{
         this.spacing = spacing;
         this.y = position.y;
         this.x = position.x;
-        this.leftPosition =  {x: -this.spacing, y: 0};
-        this.centerPosition =  {x: 0, y: -radius/2};
-        this.rightPosition =  {x: this.spacing, y: 0}; 
 
-        this.colors.push("maroon", "red", "pink", "coral", "orange", "brown","yellow", "#DFFF00", "lime", "green", "cyan", "teal", "blue", "navy", "purple", "magenta", "white", "gray", "black");
+        this.colors = ["#800000",
+                       "#ff0000",
+                       "#ffc0cb", 
+                       "#ff7f50", 
+                       "#ffa500", 
+                       "#a52a2a",
+                       "#ffff00", 
+                       "#DFFF00", 
+                       "#00ff00", 
+                       "#008000", 
+                       "#00ffff", 
+                       "#008080", 
+                       "#0000ff", 
+                       "#000080", 
+                       "#800080", 
+                       "#ff00ff", 
+                       "#ffffff", 
+                       "#808080", 
+                       "#000000"];
+
+        this.selected = Math.floor(Math.random() * this.colors.length) + 0;
 
         this.title = "Turbo Winner";
         this.selectMessage = "Please select a color:";
 
     }
 
-    getColor(index : number){
-        return this.colors[index];
+    getColor(logicIndex : number){
+        return this.colors[this.logicIndexToArrayIndex(logicIndex)];
     }
 
     handleEvent(event : GameEvent){
@@ -62,17 +77,24 @@ export class ColorMenuObject extends GameObject{
         return this.colors[this.selected];
     }
 
-    render(adapter : GraphicsAdapter){
+    uglyIndexMath(absoluteLogicIndex: number){
+        return 1-(absoluteLogicIndex/(this.numExtras+1));
+    }
+
+    renderImpl(adapter : GraphicsAdapter){
         if(adapter instanceof DefaultGraphicsAdapter){
             let context = adapter.context!;
-            let leftIndex = this.wrapColor(this.selected - 1);
-            let rightIndex = this.wrapColor(this.selected + 1);
-            this.renderOption(context, this.getColor(leftIndex), this.leftPosition);
-            this.renderBorder(context, this.leftPosition, 5);
-            this.renderOption(context, this.getColor(this.selected), this.centerPosition, 1.5);
-            this.renderBorder(context, this.centerPosition, 10);
-            this.renderOption(context, this.getColor(rightIndex), this.rightPosition);
-            this.renderBorder(context, this.rightPosition, 5);
+            for (let i = 1; i <= this.numExtras; ++i){
+                let percent = this.uglyIndexMath(i);
+                this.renderOption(context, this.getColor(-i), this.posForObject(-i), percent);
+                this.renderBorder(context, 10*percent);
+                this.renderOption(context, this.getColor(i), this.posForObject(i), percent);
+                this.renderBorder(context, 10*percent);
+            }
+
+            this.renderOption(context, this.getColor(0), {x: 0, y: 0}, 1);
+            this.renderBorder(context, 10);
+
 
             this.renderText(context, this.defaultStyle, this.title, {x: 0, y: -256});
             this.renderText(context, "48px Arial", this.selectMessage, {x: 0, y: -200});
@@ -85,6 +107,25 @@ export class ColorMenuObject extends GameObject{
         return ((y % x) + x) % x;
     }
 
+    logicIndexToArrayIndex(logicIndex: number) : number{
+        return this.wrapColor(this.selected + logicIndex);
+    }
+
+    spacingForObject(logicIndex: number){
+        let sum = 0.0;
+        let absoluteLogicIndex = Math.abs(logicIndex);
+        let sign = Math.sign(logicIndex);
+        for (let i = 1; i <= absoluteLogicIndex; ++i){
+            sum += this.uglyIndexMath(i);
+        }
+        return sum * this.spacing * sign;
+    }
+
+    posForObject(logicIndex: number) : {x: number, y: number} {
+        let arrayIndex : number = this.logicIndexToArrayIndex(logicIndex);
+        return {x: this.spacingForObject(logicIndex), y: 0};
+    }
+
     renderText(context : CanvasRenderingContext2D, fontStyle : string, text : string, position : {x: number, y: number}, color = "black"){
         context.font = fontStyle;
         context.textAlign = "center";
@@ -92,38 +133,45 @@ export class ColorMenuObject extends GameObject{
         context.fillText(text, position.x, position.y);
     }
 
-    renderOption(context : CanvasRenderingContext2D, color : string, position : {x: number, y: number}, radiusMod = 1){
+    renderOption(context : CanvasRenderingContext2D, color : string, position : {x: number, y: number}, radiusMod = 1, alpha = "ff"){
         context.beginPath();
-        context.arc(this.x + position.x, this.y + position.y, this.radius * radiusMod, 0, 2 * Math.PI, false);
-        context.fillStyle = color;
+        context.arc(position.x, position.y, this.radius * radiusMod, 0, 2 * Math.PI, false);
+        context.fillStyle = color + alpha;
         context.fill();
     }
 
-    renderBorder(context : CanvasRenderingContext2D, position : {x: number, y: number}, width : number){
+    renderBorder(context : CanvasRenderingContext2D, width : number, alpha = "ff"){
         context.lineWidth = width;
-        context.strokeStyle = "black";
+        context.strokeStyle = "#000000" + alpha;
         context.stroke();
     }
 
     determineSelected(){
         let mouseWorldPos = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
         let mousePos = {x: mouseWorldPos[0], y: mouseWorldPos[1]};
-        if(this.inCircle(this.leftPosition, mousePos)){
-            return this.wrapColor(this.selected -1);
+        for (let i = 1; i <= this.numExtras; ++i){
+            let rightPos = this.posForObject(i);
+            let leftPos = {x: -rightPos.x, y: -rightPos.y};
+
+            if (this.inCircle(leftPos, mousePos, this.uglyIndexMath(i))){
+                return this.wrapColor(this.selected - i);
+            }
+
+            if (this.inCircle(rightPos, mousePos, this.uglyIndexMath(i))){
+                return this.wrapColor(this.selected + i);
+            }
         }
-        if(this.inCircle(this.rightPosition, mousePos)){
-            return this.wrapColor(this.selected +1);
-        }
+
         return this.selected;
     }
 
     inSelectedCircle(){
         let mouseWorldPos = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
         let mousePos = {x: mouseWorldPos[0], y: mouseWorldPos[1]};
-        return this.inCircle(this.centerPosition, mousePos, 1.5);
+        return this.inCircle({x: this.x, y: this.y}, mousePos, 1.5);
     }
 
-    inCircle(circlePosition : {x: number, y: number}, mouseWorldPos : {x: number, y: number}, radiusMod = 1){
+    inCircle(circlePosition : {x: number, y: number}, mouseWorldPos : {x: number, y: number}, radiusMod : number){
         let toMousePos = {x: mouseWorldPos.x - circlePosition.x, y: mouseWorldPos.y - circlePosition.y};
         let radius = this.radius * radiusMod;
         return (radius * radius) > (toMousePos.x * toMousePos.x + toMousePos.y * toMousePos.y);
