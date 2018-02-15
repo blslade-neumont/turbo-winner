@@ -20,9 +20,9 @@ export class ChangeButton extends GameObject{
         if(adapter instanceof DefaultGraphicsAdapter){
             let context = adapter.context!;
             context.fillStyle = this.color;
-            context.fillRect(this.x, this.y, this._w, this._h)
+            context.fillRect(this.x, this.y, this._w, this._h);
             context.lineWidth = 2;
-            context.strokeStyle = "#130000"
+            context.strokeStyle = "#130000";
         }
     }
 
@@ -43,7 +43,7 @@ export class ChangeButton extends GameObject{
                 this.hover = true;
         }
         if(this.hover){
-            this.color = "#FF0D1A"
+            this.color = "#FF0D1A";
         }
         else this.color = "#872216";
     }
