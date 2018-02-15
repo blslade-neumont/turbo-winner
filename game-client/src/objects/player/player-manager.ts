@@ -1,9 +1,9 @@
 import { GameObject, GraphicsAdapter, GameScene, FollowCamera } from 'engine';
-import { TurboWinnerGame } from '../turbo-winner-game';
-import { PlayerDetailsT } from './player/meta';
-import { Player } from './player/player';
-import { DummyPlayer } from './player/dummy-player';
-import { LocalPlayer } from './player/local-player';
+import { TurboWinnerGame } from '../../turbo-winner-game';
+import { PlayerDetailsT } from './packet-meta';
+import { Player } from './player';
+import { DummyPlayer } from './dummy-player';
+import { LocalPlayer } from './local-player';
 
 export class PlayerManager extends GameObject {
     constructor(private preferredColor: string) {
@@ -43,11 +43,11 @@ export class PlayerManager extends GameObject {
         });
     }
     
-    
     private players = new Map<number, Player>();
     
     private localPlayer: LocalPlayer | null = null;
     private removeLocalPlayer() {
+        if (CONFIG.debugLog.playerCreate) console.log(`Removing local player`);
         this.players.delete(this.localPlayerId);
         if (this.localPlayer) this.scene!.removeObject(this.localPlayer!);
         let camera = <FollowCamera>this.scene!.camera;
@@ -56,6 +56,7 @@ export class PlayerManager extends GameObject {
         this.localPlayer = null;
     }
     private createLocalPlayer(pid: number, details: PlayerDetailsT) {
+        if (CONFIG.debugLog.playerCreate) console.log(`Creating local player: ${pid}`);
         this.localPlayerId = pid;
         this.localPlayer = new LocalPlayer(pid);
         this.localPlayer.setDetails(details);
@@ -66,8 +67,10 @@ export class PlayerManager extends GameObject {
     }
     
     private updatePlayer(pid: number, details: PlayerDetailsT) {
+        if (CONFIG.debugLog.playerUpdate) console.log(`Updating player: ${pid}`);
         let player = this.players.get(pid);
         if (!player) {
+            if (CONFIG.debugLog.playerCreate) console.log(`Creating dummy player: ${pid}`);
             player = new DummyPlayer(pid);
             this.players.set(pid, player);
             this.scene!.addObject(player);

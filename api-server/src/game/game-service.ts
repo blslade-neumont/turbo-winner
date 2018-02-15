@@ -23,12 +23,9 @@ export class GameService {
             let player: Player | null = null;
             socket.on('join-game', opts => {
                 let color = opts.color;
-                if (player) player.color = color;
-                else {
-                    player = new Player(this.nextPlayerId++, socket);
-                    if (color) player.color = color;
-                    this.game.addPlayer(player);
-                }
+                if (!player) player = new Player(this.nextPlayerId++, socket);
+                if (color) player.color = color;
+                this.game.addPlayer(player);
             });
             
             socket.on('update-player', (pid: number, details: any) => {

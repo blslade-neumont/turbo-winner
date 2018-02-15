@@ -1,10 +1,7 @@
 import { GameScene, FollowCamera } from 'engine';
 import { TurboWinnerGame } from '../turbo-winner-game';
-import { Player } from '../objects/player/player';
-import { LocalPlayer } from '../objects/player/local-player';
-import { DummyPlayer } from '../objects/player/dummy-player';
 import { CustomCursor } from '../objects/custom-cursor';
-import { PlayerManager } from '../objects/player-manager';
+import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
 
 export class PlayScene extends GameScene {

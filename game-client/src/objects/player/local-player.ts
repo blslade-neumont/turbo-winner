@@ -12,6 +12,7 @@ export class LocalPlayer extends Player {
     }
     
     private timeUntilNextUpdate = 1 / 10;
+    private timeUntilFullUpdate = 3;
     tick(delta: number) {
         super.tick(delta);
         
@@ -51,9 +52,12 @@ export class LocalPlayer extends Player {
         this.vspeed *= xRatio;
         
         this.timeUntilNextUpdate -= delta;
+        this.timeUntilFullUpdate -= delta;
         if (this.timeUntilNextUpdate <= 0) {
-            this.io.emit('update-player', this.playerId, this.getDetails());
+            let detailsPacket = this.getDetails(this.timeUntilFullUpdate <= 0);
+            if (!!detailsPacket) this.io.emit('update-player', this.playerId, detailsPacket);
             this.timeUntilNextUpdate = 1 / 10;
+            if (this.timeUntilFullUpdate <= 0) this.timeUntilFullUpdate = 3;
         }
     }
 }
