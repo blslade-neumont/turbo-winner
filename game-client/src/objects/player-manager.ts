@@ -1,6 +1,6 @@
 import { GameObject, GraphicsAdapter, GameScene, FollowCamera } from 'engine';
 import { TurboWinnerGame } from '../turbo-winner-game';
-import { PlayerDetailsT } from './player/meta';
+import { PlayerDetailsT } from './player/packet-meta';
 import { Player } from './player/player';
 import { DummyPlayer } from './player/dummy-player';
 import { LocalPlayer } from './player/local-player';
@@ -42,7 +42,6 @@ export class PlayerManager extends GameObject {
             if (pid !== this.localPlayerId) this.removePlayer(pid);
         });
     }
-    
     
     private players = new Map<number, Player>();
     

@@ -1,5 +1,7 @@
 import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera } from "engine";
-import { PlayerDetailsT } from './meta';
+import { PlayerDetailsT } from './packet-meta';
+import { isSignificantlyDifferent } from '../../util/is-significantly-different';
+import cloneDeep = require('lodash.clonedeep');
 
 export abstract class Player extends GameObject {
     constructor(
@@ -40,8 +42,9 @@ export abstract class Player extends GameObject {
         }
     }
     
-    getDetails(): PlayerDetailsT {
-        return {
+    private previousDetails: PlayerDetailsT = <any>{};
+    getDetails(force = false): Partial<PlayerDetailsT> | null {
+        let currentDetails: PlayerDetailsT = {
             x: this.x,
             y: this.y,
             hspeed: this.hspeed,
@@ -49,11 +52,33 @@ export abstract class Player extends GameObject {
             color: this.color,
             forward: this.forward
         };
+        let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
+        if (!force) {
+            if (this.previousDetails) {
+                if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) delete details.x;
+                if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) delete details.y;
+                if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed)) delete details.hspeed;
+                if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed)) delete details.vspeed;
+                if (details.color === this.previousDetails.color) delete details.color;
+                if (this.previousDetails.forward &&
+                    !isSignificantlyDifferent(details.forward!.x, this.previousDetails.forward.x) &&
+                    !isSignificantlyDifferent(details.forward!.y, this.previousDetails.forward.y)
+                ) {
+                    delete details.forward;
+                }
+            }
+            this.previousDetails = currentDetails;
+        }
+        if (!Object.keys(details).length) return null;
+        return details;
     }
-    setDetails(vals: PlayerDetailsT) {
-        [this.x, this.y] = [vals.x, vals.y];
-        [this.hspeed, this.vspeed] = [vals.hspeed, vals.vspeed];
-        this.color = vals.color;
-        this.forward = vals.forward;
+    setDetails(vals: Partial<PlayerDetailsT> | null) {
+        if (!vals) return;
+        if (typeof vals.x !== 'undefined') this.x = vals.x;
+        if (typeof vals.y !== 'undefined') this.y = vals.y;
+        if (typeof vals.hspeed !== 'undefined') this.hspeed = vals.hspeed;
+        if (typeof vals.vspeed !== 'undefined') this.vspeed = vals.vspeed;
+        if (typeof vals.color !== 'undefined') this.color = vals.color;
+        if (typeof vals.forward !== 'undefined') this.forward = vals.forward;
     }
 }
