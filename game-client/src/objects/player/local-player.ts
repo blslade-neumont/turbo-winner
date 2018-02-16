@@ -11,8 +11,8 @@ export class LocalPlayer extends Player {
     }
     
     private ignoreMouseDown = false;
-    addToScene(scene: GameScene) {
-        super.addToScene(scene);
+    onAddToScene() {
+        super.onAddToScene();
         //If the mouse is down when the local player is created, then we should ignore it until the player releases it
         //Otherwise the player is "trigger-happy" when they first click the button to join the game
         this.ignoreMouseDown = this.events.isMouseButtonDown(MouseButton.Left);

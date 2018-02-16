@@ -13,8 +13,8 @@ export class BulletManager extends GameObject {
         return (<TurboWinnerGame>this.game).io;
     }
     
-    addToScene(scene: GameScene) {
-        super.addToScene(scene);
+    onAddToScene() {
+        super.onAddToScene();
         this.init();
     }
     
