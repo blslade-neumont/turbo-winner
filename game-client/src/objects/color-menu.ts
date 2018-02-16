@@ -8,9 +8,6 @@ export class ColorMenuObject extends GameObject{
     private selected : number = 1;
     private colors : Array<string> = [];
     private numExtras : number = 4;
-    private cycleTimer : number = 1;
-    private cycleMax : number = 1;
-    private cycleHeld : number = 0.1;
     private defaultStyle : string = "72px Arial";
     private title : string;
     private selectMessage : string;
@@ -55,18 +52,15 @@ export class ColorMenuObject extends GameObject{
 
     handleEvent(event : GameEvent){
         if(event.type == "mouseButtonPressed"){
-            this.selected = this.determineSelected();
-            return true;
+            return this.determineSelected();
         }
-        if(event.type == "keyPressed"){
+        if(event.type == "keyTyped"){
             if(event.code == "KeyA"){
                 this.selected = this.wrapColor(this.selected - 1);
-                this.cycleTimer = this.cycleMax;
                 return true;
             }
             if(event.code == "KeyD"){
                 this.selected = this.wrapColor(this.selected + 1);
-                this.cycleTimer = this.cycleMax;
                 return true;
             }
         }
@@ -154,15 +148,17 @@ export class ColorMenuObject extends GameObject{
             let leftPos = {x: -rightPos.x, y: -rightPos.y};
 
             if (this.inCircle(leftPos, mousePos, this.uglyIndexMath(i))){
-                return this.wrapColor(this.selected - i);
+                this.selected = this.wrapColor(this.selected - i);
+                return true;
             }
 
             if (this.inCircle(rightPos, mousePos, this.uglyIndexMath(i))){
-                return this.wrapColor(this.selected + i);
+                this.selected = this.wrapColor(this.selected + i);
+                return true;
             }
         }
 
-        return this.selected;
+        return false;
     }
 
     inSelectedCircle(){
@@ -175,17 +171,5 @@ export class ColorMenuObject extends GameObject{
         let toMousePos = {x: mouseWorldPos.x - circlePosition.x, y: mouseWorldPos.y - circlePosition.y};
         let radius = this.radius * radiusMod;
         return (radius * radius) > (toMousePos.x * toMousePos.x + toMousePos.y * toMousePos.y);
-    }
-
-    tick(delta : number){
-        let keyboard = this.game.eventQueue;
-        this.cycleTimer = this.cycleTimer > 0 ? this.cycleTimer - delta : 0;
-        if(keyboard.isKeyDown("KeyA") && this.cycleTimer <= 0){
-            this.selected = this.wrapColor(this.selected - 1);
-            this.cycleTimer = this.cycleHeld;
-        }else if(keyboard.isKeyDown("KeyD") && this.cycleTimer <= 0){
-            this.selected = this.wrapColor(this.selected + 1);
-            this.cycleTimer = this.cycleHeld;
-        }
     }
 }
