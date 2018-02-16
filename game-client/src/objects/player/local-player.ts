@@ -1,4 +1,4 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection, GameScene } from "engine";
 import { Player } from './player';
 import { TurboWinnerGame } from '../../turbo-winner-game';
 import { Bullet } from '../bullet/bullet';
@@ -8,6 +8,14 @@ const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 export class LocalPlayer extends Player {
     constructor(playerId: number) {
         super("LocalPlayer", playerId);
+    }
+    
+    private ignoreMouseDown = false;
+    addToScene(scene: GameScene) {
+        super.addToScene(scene);
+        //If the mouse is down when the local player is created, then we should ignore it until the player releases it
+        //Otherwise the player is "trigger-happy" when they first click the button to join the game
+        this.ignoreMouseDown = this.events.isMouseButtonDown(MouseButton.Left);
     }
     
     get io() {
@@ -57,22 +65,26 @@ export class LocalPlayer extends Player {
             this.timeUntilNextUpdate = 1 / 10;
             if (this.timeUntilFullUpdate <= 0) this.timeUntilFullUpdate = 3;
         }
-
+        
         this.fireBulletTick(delta);
     }
-
-    fireBulletTick(delta : number){
-        if(this.events.isMouseButtonDown(MouseButton.Left) && this.fireCooldown <= 0){
-            let bullet = new Bullet({
-                x: this.x,
-                y: this.y,
-                direction: pointDirection(0, 0, this.forward.x, this.forward.y),
-                ignorePlayerId: this.playerId
-            });
-            this.scene.addObject(bullet);
-            this.io.emit('fire-bullet', bullet.getDetails());
-            this.fireCooldown = DEFAULT_MAX_FIRE_COOLDOWN;
+    
+    fireBulletTick(delta : number) {
+        if (this.events.isMouseButtonDown(MouseButton.Left)) {
+            if (this.ignoreMouseDown) return false;
+            if (this.fireCooldown <= 0) {
+                let bullet = new Bullet({
+                    x: this.x,
+                    y: this.y,
+                    direction: pointDirection(0, 0, this.forward.x, this.forward.y),
+                    ignorePlayerId: this.playerId
+                });
+                this.scene.addObject(bullet);
+                this.io.emit('fire-bullet', bullet.getDetails());
+                this.fireCooldown = DEFAULT_MAX_FIRE_COOLDOWN;
+            }
         }
+        else this.ignoreMouseDown = false;
         // Subtract from fire rate timer
         this.fireCooldown -= delta;
     }
