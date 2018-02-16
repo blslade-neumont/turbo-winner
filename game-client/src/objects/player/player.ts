@@ -3,6 +3,8 @@ import { PlayerDetailsT } from './player-meta';
 import { isSignificantlyDifferent } from '../../util/is-significantly-different';
 import cloneDeep = require('lodash.clonedeep');
 
+export const PLAYER_ACCELERATION = 350.0;
+
 export abstract class Player extends GameObject {
     constructor(
         name: string,
@@ -13,6 +15,7 @@ export abstract class Player extends GameObject {
     
     public color: string;
     public forward = { x: 1, y: 0 };
+    public inputAcceleration = { x: 0, y: 0 };
     
     renderPlayerCircle(context: CanvasRenderingContext2D) {
         context.beginPath();
@@ -51,21 +54,28 @@ export abstract class Player extends GameObject {
             hspeed: this.hspeed,
             vspeed: this.vspeed,
             color: this.color,
-            forward: this.forward
+            forward: this.forward,
+            accel: this.inputAcceleration
         };
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
             if (this.previousDetails) {
                 if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) delete details.x;
                 if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) delete details.y;
-                if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed)) delete details.hspeed;
-                if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed)) delete details.vspeed;
+                if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) delete details.hspeed;
+                if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) delete details.vspeed;
                 if (details.color === this.previousDetails.color) delete details.color;
                 if (this.previousDetails.forward &&
                     !isSignificantlyDifferent(details.forward!.x, this.previousDetails.forward.x) &&
                     !isSignificantlyDifferent(details.forward!.y, this.previousDetails.forward.y)
                 ) {
                     delete details.forward;
+                }
+                if (this.previousDetails.accel &&
+                    !isSignificantlyDifferent(details.accel!.x, this.previousDetails.accel.x) &&
+                    !isSignificantlyDifferent(details.accel!.y, this.previousDetails.accel.y)
+                ) {
+                    delete details.accel;
                 }
             }
             this.previousDetails = currentDetails;
@@ -81,14 +91,23 @@ export abstract class Player extends GameObject {
         if (typeof vals.vspeed !== 'undefined') this.vspeed = vals.vspeed;
         if (typeof vals.color !== 'undefined') this.color = vals.color;
         if (typeof vals.forward !== 'undefined') this.forward = vals.forward;
+        if (typeof vals.accel !== 'undefined') this.inputAcceleration = vals.accel;
     }
-
-    tick(delta: number){
+    
+    tick(delta: number) {
+        // adjust the player's velocity according to the inputs specified
+        let moveAmount = PLAYER_ACCELERATION * delta;
+        let movement = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
+        
+        this.hspeed += movement.x;
+        this.vspeed += movement.y;
+        
         // framerate-independent friction
         const friction = 3.0;
         let xRatio = 1 / (1 + (delta * friction));
         this.hspeed *= xRatio;
         this.vspeed *= xRatio;
+        
         super.tick(delta);
     }
 }

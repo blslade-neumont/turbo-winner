@@ -1,4 +1,4 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection, GameScene } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection, GameScene, pointDistance2 } from "engine";
 import { Player } from './player';
 import { TurboWinnerGame } from '../../turbo-winner-game';
 import { Bullet } from '../bullet/bullet';
@@ -25,9 +25,7 @@ export class LocalPlayer extends Player {
     private fireCooldown = 0;
     private timeUntilNextUpdate = 1 / 10;
     private timeUntilFullUpdate = 3;
-    tick(delta: number) {        
-        const acceleration = 350.0;
-        
+    tick(delta: number) {
         // get the screen space mouse coords (potential for refactor later - couldn't find "screen to world" or "world to screen" helpers for camera in engine)
         let mousePosWorld = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
         
@@ -37,23 +35,19 @@ export class LocalPlayer extends Player {
         this.forward = {x: toMouse.x / toMouseLen, y: toMouse.y / toMouseLen};
         
         // get forward-relative movement inputs, and normalize them to ensure pressing multiple keys does not increase player move speed
-        let keyboard = this.game.eventQueue;
         let input = {x: 0, y: 0};
         
-        if (keyboard.isKeyDown("KeyW")){ input = {x: input.x, y: input.y - 1}; }
-        if (keyboard.isKeyDown("KeyA")){ input = {x: input.x - 1, y: input.y}; }
-        if (keyboard.isKeyDown("KeyS")){ input = {x: input.x, y: input.y + 1}; }
-        if (keyboard.isKeyDown("KeyD")){ input = {x: input.x + 1, y: input.y}; }
+        if (this.events.isKeyDown("KeyW")) --input.y;
+        if (this.events.isKeyDown("KeyA")) --input.x;
+        if (this.events.isKeyDown("KeyS")) ++input.y;
+        if (this.events.isKeyDown("KeyD")) ++input.x;
         
-        let inputLen = Math.sqrt(input.x*input.x + input.y*input.y);
-        let inputNormalized = inputLen == 0 ? input : {x: input.x/inputLen, y: input.y/inputLen};
-        
-        // adjust the player's velocity according to the inputs specified
-        let moveAmount = acceleration * delta;
-        let movement = {x: inputNormalized.x * moveAmount, y:inputNormalized.y * moveAmount};
-        
-        this.hspeed += movement.x;
-        this.vspeed += movement.y;
+        let inputLen2 = pointDistance2(0, 0, input.x, input.y);
+        if (inputLen2 <= 1) this.inputAcceleration = input;
+        else {
+            let inputLen = Math.sqrt(inputLen2);
+            this.inputAcceleration = { x: input.x / inputLen, y: input.y / inputLen };
+        }
         
         super.tick(delta);
         
