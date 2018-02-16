@@ -17,6 +17,10 @@ export class PlayScene extends GameScene {
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;
     
+    getCursor() {
+        return ['none'];
+    }
+    
     get io() {
         return (<TurboWinnerGame>this.game).io;
     }
@@ -45,7 +49,5 @@ export class PlayScene extends GameScene {
         this.bulletManager = new BulletManager(this.playerManager);
         this.addObject(this.playerManager);
         this.addObject(this.bulletManager);
-        
-        Object.defineProperty(this, "cursor", {get:()=>["none"]});
     }
 }
