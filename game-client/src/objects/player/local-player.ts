@@ -1,4 +1,4 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection } from "engine";
 import { Player } from './player';
 import { TurboWinnerGame } from '../../turbo-winner-game';
 import { Bullet } from '../bullet';
@@ -15,7 +15,13 @@ export class LocalPlayer extends Player {
     handleEvent(event: GameEvent) {
         if(event.type == "mouseButtonPressed" && event.button == MouseButton.Left) {
             //Create new Bullet Object
-            this.scene.addObject(new Bullet({ x: this.forward.x, y: this.forward.y }));
+            let bullet = new Bullet({
+                x: this.x,
+                y: this.y,
+                direction: pointDirection(0, 0, this.forward.x, this.forward.y),
+                ignorePlayerId: this.playerId
+            });
+            this.scene.addObject(bullet);
             return true;
         }
         return super.handleEvent(event);
