@@ -4,14 +4,19 @@ import { ColorRectangleObject } from '../objects/color-rectangle';
 type ChangeButtonOptions = GameObjectOptions & {
     width?: number,
     height?: number,
-    color?: string,
     text?: string,
     action: () => void
 };
 
+const COLOR_DEFAULT = '#872216';
+const COLOR_HOVER = '#FF0D1A';
+const OUTLINE_COLOR = '#130000';
+const OUTLINE_WIDTH = 2;
+const COLOR_TEXT = 'white';
+const TEXT_FONT = '24pt Cambria';
+
 export class ButtonObject extends GameObject {
     private hover : boolean;
-    private color : string;
     
     private _h : number;
     private _w : number;
@@ -24,7 +29,6 @@ export class ButtonObject extends GameObject {
         super("ChangeButton", opts);
         this._w = typeof opts.width === 'undefined' ? 50 : opts.width;
         this._h = typeof opts.height === 'undefined' ? 50 : opts.height;
-        this.color = opts.color || 'blue';
         this.text = opts.text || '';
         this.action = opts.action;
     }
@@ -32,10 +36,17 @@ export class ButtonObject extends GameObject {
     renderImpl(adapter : GraphicsAdapter){
         if(adapter instanceof DefaultGraphicsAdapter){
             let context = adapter.context!;
-            context.fillStyle = this.color;
+            context.fillStyle = this.hover ? COLOR_HOVER : COLOR_DEFAULT;
             context.fillRect(0, 0, this._w, this._h);
-            context.lineWidth = 2;
-            context.strokeStyle = "#130000";
+            context.lineWidth = OUTLINE_WIDTH;
+            context.strokeStyle = OUTLINE_COLOR;
+            context.stroke();
+            
+            context.fillStyle = COLOR_TEXT;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.font = TEXT_FONT;
+            context.fillText(this.text, this._w / 2, this._h / 2);
         }
     }
     
@@ -48,15 +59,12 @@ export class ButtonObject extends GameObject {
     }
     
     tick(delta : number){
-        let  mousePosWorld = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
+        let mousePosWorld = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
         
-        if(mousePosWorld[0] >= this.x && mousePosWorld[0] <= this._w  &&
-             mousePosWorld[1] >= this.y && mousePosWorld[1] <= this._h){
+        this.hover = false;
+        if(mousePosWorld[0] >= this.x && mousePosWorld[0] <= this.x + this._w  &&
+             mousePosWorld[1] >= this.y && mousePosWorld[1] <= this.y + this._h){
                 this.hover = true;
         }
-        if(this.hover){
-            this.color = "#FF0D1A";
-        }
-        else this.color = "#872216";
     }
 }

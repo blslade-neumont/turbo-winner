@@ -35,7 +35,7 @@ export class StartScene extends GameScene {
         
         if (this.initialized) return;
         this.initialized = true;
-
+        
         this.colorMenu = new ColorMenuObject(96, {x: 0, y: 0}, 325);
         this.addObject(this.colorMenu);
         
@@ -44,8 +44,7 @@ export class StartScene extends GameScene {
             y: 200,
             width: 200,
             height: 60,
-            text: 'Select Color',
-            color: 'blue',
+            text: 'Play',
             action: () => this.finalizeColorSelection()
         }));
         
