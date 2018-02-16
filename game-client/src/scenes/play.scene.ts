@@ -3,6 +3,7 @@ import { TurboWinnerGame } from '../turbo-winner-game';
 import { CustomCursor } from '../objects/custom-cursor';
 import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
+import { BulletManager } from '../objects/bullet/bullet-manager';
 
 export class PlayScene extends GameScene {
     constructor(color : string) {
@@ -13,6 +14,7 @@ export class PlayScene extends GameScene {
     private initialized = false;
     private playerColor = 'yellow';
     private playerManager: PlayerManager;
+    private bulletManager: BulletManager;
     private customCursor: CustomCursor;
     
     get io() {
@@ -40,7 +42,9 @@ export class PlayScene extends GameScene {
         camera.clearColor = `rgb(128, 255, 64)`;
         
         this.playerManager = new PlayerManager(this.playerColor);
+        this.bulletManager = new BulletManager(this.playerManager);
         this.addObject(this.playerManager);
+        this.addObject(this.bulletManager);
         
         Object.defineProperty(this, "cursor", {get:()=>["none"]});
     }

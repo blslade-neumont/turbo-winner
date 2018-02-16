@@ -1,5 +1,5 @@
 import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera } from "engine";
-import { PlayerDetailsT } from './packet-meta';
+import { PlayerDetailsT } from './player-meta';
 import { isSignificantlyDifferent } from '../../util/is-significantly-different';
 import cloneDeep = require('lodash.clonedeep');
 

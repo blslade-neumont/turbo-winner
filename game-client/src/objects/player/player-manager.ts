@@ -1,6 +1,6 @@
 import { GameObject, GraphicsAdapter, GameScene, FollowCamera } from 'engine';
 import { TurboWinnerGame } from '../../turbo-winner-game';
-import { PlayerDetailsT } from './packet-meta';
+import { PlayerDetailsT } from './player-meta';
 import { Player } from './player';
 import { DummyPlayer } from './dummy-player';
 import { LocalPlayer } from './local-player';
@@ -19,7 +19,10 @@ export class PlayerManager extends GameObject {
         this.init();
     }
     
-    private localPlayerId: number;
+    private _localPlayerId: number;
+    public get localPlayerId() : number {
+        return this._localPlayerId;
+    }
     
     private init() {
         this.io.emit('join-game', {
@@ -27,19 +30,19 @@ export class PlayerManager extends GameObject {
         });
         
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
-            if (pid !== this.localPlayerId) {
-                if (this.localPlayerId) this.removeLocalPlayer();
+            if (pid !== this._localPlayerId) {
+                if (this._localPlayerId) this.removeLocalPlayer();
                 this.createLocalPlayer(pid, details);
             }
             else this.updatePlayer(pid, details);
         });
         
         this.io.on('update-player', (pid: number, details: PlayerDetailsT) => {
-            if (pid !== this.localPlayerId) this.updatePlayer(pid, details);
+            if (pid !== this._localPlayerId) this.updatePlayer(pid, details);
         });
         
         this.io.on('remove-player', (pid: number) => {
-            if (pid !== this.localPlayerId) this.removePlayer(pid);
+            if (pid !== this._localPlayerId) this.removePlayer(pid);
         });
     }
     
@@ -48,16 +51,16 @@ export class PlayerManager extends GameObject {
     private localPlayer: LocalPlayer | null = null;
     private removeLocalPlayer() {
         if (CONFIG.debugLog.playerCreate) console.log(`Removing local player`);
-        this.players.delete(this.localPlayerId);
+        this.players.delete(this._localPlayerId);
         if (this.localPlayer) this.scene!.removeObject(this.localPlayer!);
         let camera = <FollowCamera>this.scene!.camera;
         camera.follow = <any>null;
-        this.localPlayerId = 0;
+        this._localPlayerId = 0;
         this.localPlayer = null;
     }
     private createLocalPlayer(pid: number, details: PlayerDetailsT) {
         if (CONFIG.debugLog.playerCreate) console.log(`Creating local player: ${pid}`);
-        this.localPlayerId = pid;
+        this._localPlayerId = pid;
         this.localPlayer = new LocalPlayer(pid);
         this.localPlayer.setDetails(details);
         this.scene!.addObject(this.localPlayer);

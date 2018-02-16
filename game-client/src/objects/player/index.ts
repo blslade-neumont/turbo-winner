@@ -6,4 +6,4 @@ export * from './local-player';
 
 export * from './player-manager';
 
-export * from './packet-meta';
+export * from './player-meta';

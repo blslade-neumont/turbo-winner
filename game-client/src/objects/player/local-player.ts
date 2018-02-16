@@ -1,7 +1,7 @@
 import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection } from "engine";
 import { Player } from './player';
 import { TurboWinnerGame } from '../../turbo-winner-game';
-import { Bullet } from '../bullet';
+import { Bullet } from '../bullet/bullet';
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
@@ -70,6 +70,7 @@ export class LocalPlayer extends Player {
                 ignorePlayerId: this.playerId
             });
             this.scene.addObject(bullet);
+            this.io.emit('fire-bullet', bullet.getDetails());
             this.fireCooldown = DEFAULT_MAX_FIRE_COOLDOWN;
         }
         // Subtract from fire rate timer

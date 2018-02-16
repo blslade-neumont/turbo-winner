@@ -1,11 +1,11 @@
 import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions } from 'engine';
 import merge = require('lodash.merge');
+import { BulletDetailsT } from './bullet-meta';
 
 const DEFAULT_BULLET_SPEED = 1200;
 const DEFAULT_TIME_TO_LIVE = 3;
 
 type BulletOpts = GameObjectOptions & {
-    direction: number, //Optional in GameObjectOptions, but required here
     ignorePlayerId: number,
     ttl?: number
 };
@@ -35,6 +35,17 @@ export class Bullet extends GameObject {
             context.fillStyle = "#000000";
             context.fill();
         }
+    }
+
+    getDetails(){
+        let currentDetails: BulletDetailsT = {
+            x: this.x,
+            y: this.y,
+            hspeed: this.hspeed,
+            vspeed: this.vspeed,
+            ignorePlayerId: this.ignorePlayerId,
+        };
+        return currentDetails;
     }
     
     tick(delta: number) {
