@@ -3,6 +3,8 @@ import { Player } from './player';
 import { TurboWinnerGame } from '../../turbo-winner-game';
 import { Bullet } from '../bullet';
 
+const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
+
 export class LocalPlayer extends Player {
     constructor(playerId: number) {
         super("LocalPlayer", playerId);
@@ -12,21 +14,7 @@ export class LocalPlayer extends Player {
         return (<TurboWinnerGame>this.game).io;
     }
     
-    handleEvent(event: GameEvent) {
-        if(event.type == "mouseButtonPressed" && event.button == MouseButton.Left) {
-            //Create new Bullet Object
-            let bullet = new Bullet({
-                x: this.x,
-                y: this.y,
-                direction: pointDirection(0, 0, this.forward.x, this.forward.y),
-                ignorePlayerId: this.playerId
-            });
-            this.scene.addObject(bullet);
-            return true;
-        }
-        return super.handleEvent(event);
-    }
-    
+    private fireCooldown = 0;
     private timeUntilNextUpdate = 1 / 10;
     private timeUntilFullUpdate = 3;
     tick(delta: number) {
@@ -75,5 +63,22 @@ export class LocalPlayer extends Player {
             this.timeUntilNextUpdate = 1 / 10;
             if (this.timeUntilFullUpdate <= 0) this.timeUntilFullUpdate = 3;
         }
+
+        this.fireBulletTick(delta);
+    }
+
+    fireBulletTick(delta : number){
+        if(this.events.isMouseButtonDown(MouseButton.Left) && this.fireCooldown <= 0){
+            let bullet = new Bullet({
+                x: this.x,
+                y: this.y,
+                direction: pointDirection(0, 0, this.forward.x, this.forward.y),
+                ignorePlayerId: this.playerId
+            });
+            this.scene.addObject(bullet);
+            this.fireCooldown = DEFAULT_MAX_FIRE_COOLDOWN;
+        }
+        // Subtract from fire rate timer
+        this.fireCooldown -= delta;
     }
 }
