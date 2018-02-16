@@ -1,5 +1,6 @@
 import { Player } from './player';
 import { io } from '../sockets';
+import { PlayerDetailsT } from './packet-meta';
 
 type Socket = SocketIO.Socket;
 
@@ -26,9 +27,20 @@ export class Game {
     
     addPlayer(player: Player) {
         let isPreexisting = this.players.get(player.playerId) === player;
+
+        //Values used to put new Player within a certain radius of something
+            //Change the minDist and maxDist to change how far or how close they will spawn to desired point (desired point is 0.0 right now)
+        let minDist = 10;
+        let maxDist = 1000;
+        let radius = Math.floor(Math.random() * 1000) + 10;
+        let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
         
         if (!isPreexisting) {
-            //TODO: assign sensible values to player.x, player.y
+            //TODO: assign sensible values to player.x, player.y //Done?
+
+            //make edits to this later if we want to change center location
+            player.x = Math.cos(theta) * radius;
+            player.y = Math.sin(theta) * radius;
         }
         
         //Send initial player state to the new player
@@ -49,6 +61,16 @@ export class Game {
         this.players.set(player.playerId, player);
         player.game = this;
     }
+    
+    
+    // randomPlayerStartPostion(details : PlayerDetailsT, maxDistance : number) {
+    //     let radius = Math.floor(Math.random() * maxDistance) + 10;
+    //     let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
+
+    //     details.x = Math.cos(theta) * radius;
+    //     details.y = Math.sin(theta) * radius;
+    // }
+
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
         player.game = null;
