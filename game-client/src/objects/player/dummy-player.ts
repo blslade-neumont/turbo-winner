@@ -12,6 +12,7 @@ export class DummyPlayer extends Player {
     private target : PlayerDetailsT;
     private lerpTime = 1/10;
     private timer = 0.0;
+    private hasSetDetails: boolean = false;
     tick(delta: number): void {
         this.timer += delta;
         let perc: number = this.timer / this.lerpTime;
@@ -62,5 +63,6 @@ export class DummyPlayer extends Player {
         if (typeof vals.color !== "undefined")  { this.color = vals.color; }
         if (typeof vals.forward !== "undefined") { this.target.forward = vals.forward; this.lastDetails.forward = this.forward; }
         this.timer = 0.0;
+        if (!this.hasSetDetails) { this.hasSetDetails = true; this.timer = this.lerpTime; this.lerpToTarget(1, 0); }
     }
 }
