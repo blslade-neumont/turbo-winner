@@ -5,15 +5,8 @@ export class Tile extends GameObject{
         super("Tile");
     }
     
-    renderImpl(adapter : GraphicsAdapter){
-        if(adapter instanceof DefaultGraphicsAdapter){
-            let context = adapter.context!;
-            context.fillStyle = "orange";
-            context.fillRect(0, 0, 32, 32);
-        }
-    }
-    
-    tick(delta: number){
-        super.tick(delta);
+    renderImplContext2d(context: CanvasRenderingContext2D) {
+        context.fillStyle = "orange";
+        context.fillRect(0, 0, 32, 32);
     }
 }

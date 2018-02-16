@@ -33,21 +33,18 @@ export class ButtonObject extends GameObject {
         this.action = opts.action;
     }
     
-    renderImpl(adapter : GraphicsAdapter){
-        if(adapter instanceof DefaultGraphicsAdapter){
-            let context = adapter.context!;
-            context.fillStyle = this.hover ? COLOR_HOVER : COLOR_DEFAULT;
-            context.fillRect(0, 0, this._w, this._h);
-            context.lineWidth = OUTLINE_WIDTH;
-            context.strokeStyle = OUTLINE_COLOR;
-            context.stroke();
-            
-            context.fillStyle = COLOR_TEXT;
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.font = TEXT_FONT;
-            context.fillText(this.text, this._w / 2, this._h / 2);
-        }
+    renderImplContext2d(context: CanvasRenderingContext2D) {
+        context.fillStyle = this.hover ? COLOR_HOVER : COLOR_DEFAULT;
+        context.fillRect(0, 0, this._w, this._h);
+        context.lineWidth = OUTLINE_WIDTH;
+        context.strokeStyle = OUTLINE_COLOR;
+        context.stroke();
+        
+        context.fillStyle = COLOR_TEXT;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.font = TEXT_FONT;
+        context.fillText(this.text, this._w / 2, this._h / 2);
     }
     
     handleEvent(event : GameEvent){

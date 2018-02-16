@@ -7,7 +7,7 @@ import { LocalPlayer } from './local-player';
 
 export class PlayerManager extends GameObject {
     constructor(private preferredColor: string) {
-        super(`PlayerManager`);
+        super(`PlayerManager`, { shouldRender: false });
     }
     
     get io() {
@@ -88,6 +88,4 @@ export class PlayerManager extends GameObject {
             this.scene!.removeObject(player);
         }
     }
-    
-    render(adapter: GraphicsAdapter) { ; }
 }

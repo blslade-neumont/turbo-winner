@@ -27,17 +27,14 @@ export class Bullet extends GameObject {
         return this._ignorePlayerId;
     }
     
-    renderImpl(adapter : GraphicsAdapter){
-        if(adapter instanceof DefaultGraphicsAdapter){
-            let context = adapter.context!;
-            context.beginPath();
-            context.arc(0, 0, this.radius, 0 , 2 * Math.PI, false);
-            context.fillStyle = "#000000";
-            context.fill();
-        }
+    renderImplContext2d(context: CanvasRenderingContext2D) {
+        context.beginPath();
+        context.arc(0, 0, this.radius, 0 , 2 * Math.PI, false);
+        context.fillStyle = "#000000";
+        context.fill();
     }
     
-    getDetails(){
+    getDetails() {
         let currentDetails: BulletDetailsT = {
             x: this.x,
             y: this.y,

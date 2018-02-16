@@ -37,13 +37,9 @@ export abstract class Player extends GameObject {
         context.stroke();
     }
     
-    renderImpl(adapter: GraphicsAdapter) {
-        if (adapter instanceof DefaultGraphicsAdapter) {
-            let context = adapter.context;
-            if (!context) return;
-            this.renderPlayerCircle(context);
-            this.renderPlayerPointer(context);
-        }
+    renderImplContext2d(context: CanvasRenderingContext2D) {
+        this.renderPlayerCircle(context);
+        this.renderPlayerPointer(context);
     }
     
     private previousDetails: PlayerDetailsT = <any>{};

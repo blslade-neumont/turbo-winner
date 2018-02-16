@@ -6,7 +6,7 @@ import { PlayerManager } from "../player/player-manager";
 
 export class BulletManager extends GameObject {
     constructor(private playerManager: PlayerManager) {
-        super(`BulletManager`);
+        super(`BulletManager`, { shouldRender: false });
     }
     
     get io() {
@@ -24,6 +24,4 @@ export class BulletManager extends GameObject {
             this.scene.addObject(new Bullet(details));
         });
     }
-    
-    render(adapter: GraphicsAdapter) { ; }
 }

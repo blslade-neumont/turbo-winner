@@ -2,12 +2,12 @@ import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera} 
 
 export class CustomCursor extends GameObject{
     private color: string = "purple";
-
-    constructor(color: string){
+    
+    constructor(color: string) {
         super("Player");
         this.color = color;
     }
-
+    
     renderMouseCircle(context : CanvasRenderingContext2D){
         context.beginPath();
         context.arc(0, 0, 16, 0, 2 * Math.PI, false);
@@ -17,7 +17,7 @@ export class CustomCursor extends GameObject{
         context.strokeStyle = this.color;
         context.stroke();
     }
-
+    
     renderMouseCross(context : CanvasRenderingContext2D){
         const lineLength = 24;
         context.beginPath();
@@ -33,18 +33,15 @@ export class CustomCursor extends GameObject{
         context.strokeStyle = this.color;
         context.stroke();
     }
-
-    renderImpl(adapter : GraphicsAdapter){
-        if(adapter instanceof DefaultGraphicsAdapter){
-            let context = adapter.context!;
-            this.renderMouseCircle(context);
-            this.renderMouseCross(context);
-        }
+    
+    renderImplContext2d(context: CanvasRenderingContext2D) {
+        this.renderMouseCircle(context);
+        this.renderMouseCross(context);
     }
-
+    
     tick(delta: number){
         super.tick(delta);
-
+        
         // get the screen space mouse coords (potential for refactor later - couldn't find "screen to world" or "world to screen" helpers for camera in engine)
         let mousePosWorld = this.scene.camera!.transformPixelCoordinates(this.game.eventQueue.mousePosition);
         this.x = mousePosWorld[0];
