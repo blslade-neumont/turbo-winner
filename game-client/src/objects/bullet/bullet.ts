@@ -36,7 +36,7 @@ export class Bullet extends GameObject {
             context.fill();
         }
     }
-
+    
     getDetails(){
         let currentDetails: BulletDetailsT = {
             x: this.x,

@@ -1,4 +1,4 @@
-import { GameObject, GameScene } from "engine";
+import { GameObject, GameScene, GraphicsAdapter } from "engine";
 import { TurboWinnerGame } from "../../turbo-winner-game";
 import { BulletDetailsT } from "./bullet-meta";
 import { Bullet } from "./bullet";
@@ -24,4 +24,6 @@ export class BulletManager extends GameObject {
             this.scene.addObject(new Bullet(details));
         });
     }
+    
+    render(adapter: GraphicsAdapter) { ; }
 }

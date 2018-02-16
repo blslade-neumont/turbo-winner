@@ -1,9 +1,10 @@
-import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter} from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter } from "engine";
+
 export class Tile extends GameObject{
     constructor(){
         super("Tile");
     }
-
+    
     renderImpl(adapter : GraphicsAdapter){
         if(adapter instanceof DefaultGraphicsAdapter){
             let context = adapter.context!;
@@ -11,7 +12,7 @@ export class Tile extends GameObject{
             context.fillRect(0, 0, 32, 32);
         }
     }
-
+    
     tick(delta: number){
         super.tick(delta);
     }
