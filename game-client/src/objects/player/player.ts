@@ -1,8 +1,7 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton, Camera, Game } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera } from "engine";
 import { PlayerDetailsT } from './packet-meta';
 import { isSignificantlyDifferent } from '../../util/is-significantly-different';
 import cloneDeep = require('lodash.clonedeep');
-import { Bullet } from "objects/player/bullet";
 
 export abstract class Player extends GameObject {
     constructor(
@@ -14,15 +13,6 @@ export abstract class Player extends GameObject {
     
     public color: string;
     public forward = { x: 1, y: 0 };
-
-    handleEvent(event : GameEvent){
-        if(event.type == "mouseButtonPressed" && event.button == MouseButton.Left){
-            //Create new Bullet Object
-            this.scene.addObject(new Bullet(this.forward.x, this.forward.y));
-            return true;
-        }
-        return super.handleEvent(event);
-    }
     
     renderPlayerCircle(context: CanvasRenderingContext2D) {
         context.beginPath();

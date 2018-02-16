@@ -1,13 +1,11 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions } from "engine";
 
 export class Bullet extends GameObject{
 
     private radius : number = 6;
 
-    constructor(xPosition : number, yPosition : number){
-        super("Butllet");
-        this.x = xPosition;
-        this.y = yPosition;
+    constructor(opts?: GameObjectOptions) {
+        super("Butllet", opts);
     }
 
     renderImpl(adapter : GraphicsAdapter){
