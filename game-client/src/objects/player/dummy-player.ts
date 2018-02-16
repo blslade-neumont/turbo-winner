@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { PlayerDetailsT } from "./packet-meta";
+import { PlayerDetailsT } from "./player-meta";
 
 export class DummyPlayer extends Player {
     constructor(playerId: number) {
