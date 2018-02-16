@@ -17,9 +17,7 @@ export class LocalPlayer extends Player {
     private fireCooldown = 0;
     private timeUntilNextUpdate = 1 / 10;
     private timeUntilFullUpdate = 3;
-    tick(delta: number) {
-        super.tick(delta);
-        
+    tick(delta: number) {        
         const acceleration = 350.0;
         
         // get the screen space mouse coords (potential for refactor later - couldn't find "screen to world" or "world to screen" helpers for camera in engine)
@@ -49,11 +47,7 @@ export class LocalPlayer extends Player {
         this.hspeed += movement.x;
         this.vspeed += movement.y;
         
-        // framerate-independent friction
-        const friction = 3.0;
-        let xRatio = 1 / (1 + (delta * friction));
-        this.hspeed *= xRatio;
-        this.vspeed *= xRatio;
+        super.tick(delta);
         
         this.timeUntilNextUpdate -= delta;
         this.timeUntilFullUpdate -= delta;

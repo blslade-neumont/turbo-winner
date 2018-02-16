@@ -35,6 +35,12 @@ export class Player {
     color = chooseRandomColor();
     
     tick(delta: number) {
+        // framerate-independent friction
+        const friction = 3.0;
+        let xRatio = 1 / (1 + (delta * friction));
+        this.hspeed *= xRatio;
+        this.vspeed *= xRatio;
+
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
     }

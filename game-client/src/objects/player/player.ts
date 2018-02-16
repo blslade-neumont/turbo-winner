@@ -82,4 +82,13 @@ export abstract class Player extends GameObject {
         if (typeof vals.color !== 'undefined') this.color = vals.color;
         if (typeof vals.forward !== 'undefined') this.forward = vals.forward;
     }
+
+    tick(delta: number){
+        // framerate-independent friction
+        const friction = 3.0;
+        let xRatio = 1 / (1 + (delta * friction));
+        this.hspeed *= xRatio;
+        this.vspeed *= xRatio;
+        super.tick(delta);
+    }
 }
