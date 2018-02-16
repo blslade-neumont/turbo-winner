@@ -4,7 +4,7 @@ export class CustomCursor extends GameObject{
     private color: string = "purple";
     
     constructor(color: string) {
-        super("Player");
+        super("Player", { renderDepth: -300 });
         this.color = color;
     }
     

@@ -2,7 +2,7 @@ import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter } from "engine";
 
 export class Tile extends GameObject{
     constructor(){
-        super("Tile");
+        super("Tile", { renderDepth: 100 });
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D) {

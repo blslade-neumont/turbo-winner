@@ -16,9 +16,10 @@ export class Bullet extends GameObject {
     private _ignorePlayerId: number;
     
     constructor(opts: BulletOpts) {
-        super("Bullet", merge({}, opts, {
-            speed: DEFAULT_BULLET_SPEED
-        }));
+        super("Bullet", merge({
+            speed: DEFAULT_BULLET_SPEED,
+            renderDepth: -50
+        }, opts));
         this.ttl = typeof opts.ttl === 'undefined' ? DEFAULT_TIME_TO_LIVE : opts.ttl;
         this._ignorePlayerId = opts.ignorePlayerId;
     }

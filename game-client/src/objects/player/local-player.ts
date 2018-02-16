@@ -7,7 +7,7 @@ const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
 export class LocalPlayer extends Player {
     constructor(playerId: number) {
-        super("LocalPlayer", playerId);
+        super("LocalPlayer", playerId, -20);
     }
     
     private ignoreMouseDown = false;

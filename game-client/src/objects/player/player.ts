@@ -8,9 +8,10 @@ export const PLAYER_ACCELERATION = 350.0;
 export abstract class Player extends GameObject {
     constructor(
         name: string,
-        readonly playerId: number
+        readonly playerId: number,
+        renderDepth: number = -10
     ) {
-        super(name);
+        super(name, { renderDepth: renderDepth });
     }
     
     public color: string;
