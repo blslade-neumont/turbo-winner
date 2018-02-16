@@ -1,6 +1,8 @@
 import { GameVersion } from './game-version';
 import { Game } from './game';
 import { Player } from './player';
+import { BulletDetailsT, PlayerDetailsT } from './packet-meta';
+import { io } from '../sockets';
 
 export class GameService {
     constructor(
@@ -28,9 +30,14 @@ export class GameService {
                 this.game.addPlayer(player);
             });
             
-            socket.on('update-player', (pid: number, details: any) => {
+            socket.on('update-player', (pid: number, details: PlayerDetailsT) => {
                 if (!player || player.playerId !== pid) return;
                 player.setDetails(details);
+            });
+
+            socket.on('fire-bullet', (details: BulletDetailsT) =>{
+                if(!player || player.playerId !== details.ignorePlayerId) return;
+                io!.emit('create-bullet', details);
             });
             
             socket.on('disconnect', () => {
