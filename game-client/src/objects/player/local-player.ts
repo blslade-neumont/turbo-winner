@@ -37,10 +37,10 @@ export class LocalPlayer extends Player {
         // get forward-relative movement inputs, and normalize them to ensure pressing multiple keys does not increase player move speed
         let input = {x: 0, y: 0};
         
-        if (this.events.isKeyDown("KeyW")) --input.y;
-        if (this.events.isKeyDown("KeyA")) --input.x;
-        if (this.events.isKeyDown("KeyS")) ++input.y;
-        if (this.events.isKeyDown("KeyD")) ++input.x;
+        if (this.events.isAbstractButtonDown("move-up")) --input.y;
+        if (this.events.isAbstractButtonDown("move-left")) --input.x;
+        if (this.events.isAbstractButtonDown("move-down")) ++input.y;
+        if (this.events.isAbstractButtonDown("move-right")) ++input.x;
         
         let inputLen2 = pointDistance2(0, 0, input.x, input.y);
         if (inputLen2 <= 1) this.inputAcceleration = input;

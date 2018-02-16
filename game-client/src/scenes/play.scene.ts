@@ -1,9 +1,10 @@
-import { GameScene, FollowCamera } from 'engine';
+import { GameScene, FollowCamera, GameEvent } from 'engine';
 import { TurboWinnerGame } from '../turbo-winner-game';
 import { CustomCursor } from '../objects/custom-cursor';
 import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
 import { BulletManager } from '../objects/bullet/bullet-manager';
+import { StartScene } from './start.scene';
 
 export class PlayScene extends GameScene {
     constructor(color : string) {
@@ -23,6 +24,15 @@ export class PlayScene extends GameScene {
     
     get io() {
         return (<TurboWinnerGame>this.game).io;
+    }
+    
+    handleEvent(event: GameEvent) {
+        if ((event.type === 'abstractButtonPressed' && event.name === 'return')) {
+            this.game.changeScene(new StartScene());
+            return true;
+        }
+        
+        return super.handleEvent(event);
     }
     
     start() {

@@ -1,5 +1,4 @@
-import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton, GameScene, GameObjectOptions} from "engine";
-import { ColorRectangleObject } from '../objects/color-rectangle';
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton, GameScene, GameObjectOptions } from "engine";
 
 type ChangeButtonOptions = GameObjectOptions & {
     width?: number,

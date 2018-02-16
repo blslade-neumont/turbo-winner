@@ -1,4 +1,4 @@
-import { GameObject,GraphicsAdapter,DefaultGraphicsAdapter, GameEvent } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent } from "engine";
 
 export class ColorMenuObject extends GameObject {
     private radius : number = 32;
@@ -52,12 +52,12 @@ export class ColorMenuObject extends GameObject {
         if(event.type == "mouseButtonPressed"){
             return this.determineSelected();
         }
-        if(event.type == "keyTyped"){
-            if(event.code == "KeyA"){
+        if (event.type === 'abstractButtonTyped') {
+            if (event.name === 'move-left') {
                 this.selected = this.wrapColor(this.selected - 1);
                 return true;
             }
-            if(event.code == "KeyD"){
+            else if (event.name === 'move-right') {
                 this.selected = this.wrapColor(this.selected + 1);
                 return true;
             }

@@ -1,6 +1,5 @@
 import { GameScene, Camera, GameEvent } from 'engine';
 import { PlayScene } from './play.scene';
-import { ColorRectangleObject } from '../objects/color-rectangle';
 import { ColorMenuObject } from '../objects/color-menu';
 import { ButtonObject } from '../objects/button';
 
@@ -17,12 +16,9 @@ export class StartScene extends GameScene {
     }
     
     handleEvent(event : GameEvent){
-        if (event.type == 'keyPressed' && (event.code == 'Space' || event.code == 'Enter')){
-            this.finalizeColorSelection();
-            return true;
-        }
-        
-        if(event.type == 'mouseButtonPressed' && this.colorMenu.inSelectedCircle()){
+        if ((event.type === 'abstractButtonPressed' && event.name === 'submit') ||
+            (event.type == 'mouseButtonPressed' && this.colorMenu.inSelectedCircle())
+        ) {
             this.finalizeColorSelection();
             return true;
         }
