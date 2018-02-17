@@ -7,5 +7,6 @@ export type PlayerDetailsT = {
     forward: { x: number, y: number },
     accel: { x: number, y: number },
     hspeed: number,
-    vspeed: number
+    vspeed: number,
+    health: number
 };

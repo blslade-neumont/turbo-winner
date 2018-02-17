@@ -14,7 +14,7 @@ export class Bullet extends GameObject {
     private radius : number = 6;
     private ttl: number;
     private _ignorePlayerId: number;
-    
+
     constructor(opts: BulletOpts) {
         super("Bullet", merge({
             speed: DEFAULT_BULLET_SPEED,
@@ -23,18 +23,18 @@ export class Bullet extends GameObject {
         this.ttl = typeof opts.ttl === 'undefined' ? DEFAULT_TIME_TO_LIVE : opts.ttl;
         this._ignorePlayerId = opts.ignorePlayerId;
     }
-    
+
     get ignorePlayerId() {
         return this._ignorePlayerId;
     }
-    
+
     renderImplContext2d(context: CanvasRenderingContext2D) {
         context.beginPath();
         context.arc(0, 0, this.radius, 0 , 2 * Math.PI, false);
         context.fillStyle = "#000000";
         context.fill();
     }
-    
+
     getDetails() {
         let currentDetails: BulletDetailsT = {
             x: this.x,
@@ -45,10 +45,18 @@ export class Bullet extends GameObject {
         };
         return currentDetails;
     }
-    
+
     tick(delta: number) {
         super.tick(delta);
         this.ttl -= delta;
-        if (this.ttl <= 0) this.scene.removeObject(this);
+        if (this.ttl <= 0) { this.scene.removeObject(this); }
+    }
+
+    getCollisionCircle(): {x: number, y: number, r: number}{
+        return {x: this.x, y: this.y, r: this.radius};
+    }
+
+    ignores(playerId: number): boolean{
+        return this.ignorePlayerId === playerId;
     }
 }

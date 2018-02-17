@@ -1,6 +1,7 @@
 import { Player } from './player';
+import { Bullet, BULLET_DAMAGE } from "./bullet";
 import { io } from '../sockets';
-import { PlayerDetailsT } from './packet-meta';
+import { PlayerDetailsT, BulletDetailsT } from './packet-meta';
 
 type Socket = SocketIO.Socket;
 
@@ -20,6 +21,12 @@ export class Game {
             for (let p of players) {
                 p.networkTick(delta);
             }
+
+            for (let b of this.bullets){
+                b.tick(delta);
+            }
+            
+            this.bulletCollisionCheck(delta);
         }, 1000 / 30);
     }
     
@@ -62,14 +69,12 @@ export class Game {
         player.game = this;
     }
     
+    bullets: Array<Bullet> = [];
+    addBullet(details: BulletDetailsT): void {
+        this.bullets.push(new Bullet(details));
+    }
     
-    // randomPlayerStartPostion(details : PlayerDetailsT, maxDistance : number) {
-    //     let radius = Math.floor(Math.random() * maxDistance) + 10;
-    //     let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
 
-    //     details.x = Math.cos(theta) * radius;
-    //     details.y = Math.sin(theta) * radius;
-    // }
 
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
@@ -82,5 +87,34 @@ export class Game {
         if (!detailsPacket) return;
         if (socket) socket.emit('update-player', player.playerId, detailsPacket);
         else io!.emit('update-player', player.playerId, detailsPacket);
+    }
+
+    bulletCollisionCheck(delta: number): void{
+        for (let i = 0; i < this.bullets.length; ++i){
+            let currentBullet: Bullet = this.bullets[i];
+            let currentKey = this.players.keys();
+            let next;
+            do
+            {
+                next = currentKey.next();
+                let playerID: number = next.value;
+                let player: Player|undefined = this.players.get(playerID);
+
+                if (player && !currentBullet.ignores(playerID)){
+                    if (this.circlesCollide(this.bullets[i].getCollisionCircle(), player.getCollisionCircle())){
+                        player.takeDamage(BULLET_DAMAGE);
+                        this.bullets.splice(i, 1);
+                        --i; // bullet removed from array - index changed
+                        continue;
+                    }
+                }
+            } while (!next.done);
+        }
+    }
+
+    circlesCollide(circleOne: {x: number, y: number, r: number}, circleTwo: {x: number, y: number, r: number}): boolean {
+        let diffVector: {x: number, y: number} = {x: circleOne.x - circleTwo.x, y: circleOne.y - circleTwo.y};
+        let radiusSum: number = circleOne.r + circleTwo.r;
+        return (diffVector.x*diffVector.x+diffVector.y*diffVector.y) < (radiusSum*radiusSum);
     }
 }

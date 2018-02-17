@@ -50,16 +50,20 @@ export class PlayerManager extends GameObject {
         });
         
         this.io.on('update-player', (pid: number, details: PlayerDetailsT) => {
-            if (pid !== this._localPlayerId) this.updatePlayer(pid, details);
+            this.updatePlayer(pid, details); // local player will ignore all but health -> send anyways
         });
-        
+
         this.io.on('remove-player', (pid: number) => {
             if (pid !== this._localPlayerId) this.removePlayer(pid);
         });
     }
-    
+
     private players = new Map<number, Player>();
-    
+
+    getPlayerMapping(): Map<number, Player>{
+        return this.players;
+    }
+
     private localPlayer: LocalPlayer | null = null;
     private removeLocalPlayer() {
         if (CONFIG.debugLog.playerCreate) console.log(`Removing local player`);

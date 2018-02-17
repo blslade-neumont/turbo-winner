@@ -37,6 +37,7 @@ export class GameService {
 
             socket.on('fire-bullet', (details: BulletDetailsT) =>{
                 if(!player || player.playerId !== details.ignorePlayerId) return;
+                this.game.addBullet(details);
                 io!.emit('create-bullet', details);
             });
             

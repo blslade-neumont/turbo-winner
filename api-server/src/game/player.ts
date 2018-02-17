@@ -19,7 +19,10 @@ function chooseRandomColor() {
     return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
-export const PLAYER_ACCELERATION = 350.0;
+export const PLAYER_ACCELERATION: number = 350.0;
+export const PLAYER_FRICTION: number = 3.0;
+export const MAX_PLAYER_HEALTH: number = 100;
+export const PLAYER_RADIUS = 48;
 
 export class Player {
     constructor(
@@ -36,7 +39,8 @@ export class Player {
     forward = { x: 1, y: 0 };
     inputAcceleration = { x: 0, y: 0 };
     color = chooseRandomColor();
-    
+    health = MAX_PLAYER_HEALTH;
+
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
         let moveAmount = PLAYER_ACCELERATION * delta;
@@ -46,19 +50,22 @@ export class Player {
         this.vspeed += movement.y;
         
         // framerate-independent friction
-        const friction = 3.0;
-        let xRatio = 1 / (1 + (delta * friction));
+        let xRatio = 1 / (1 + (delta * PLAYER_FRICTION));
         this.hspeed *= xRatio;
         this.vspeed *= xRatio;
         
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
     }
+
+    takeDamage(amount: number): void{
+        this.health -= amount; // todo: clamp here? todo again: check death here
+    }
     
     timeUntilNextUpdate = 1 / 10;
     timeUntilFullUpdate = 3;
     networkTick(delta: number) {
-        if (!this.game) throw new Error(`This player is not attached to a game.`);
+        if (!this.game) { throw new Error(`This player is not attached to a game.`); }
         
         this.timeUntilNextUpdate -= delta;
         this.timeUntilFullUpdate -= delta;
@@ -70,7 +77,7 @@ export class Player {
     }
     
     private previousDetails: PlayerDetailsT = <any>{};
-    getDetails(force = false): Partial<PlayerDetailsT> | null {
+    getDetails(force: boolean = false): Partial<PlayerDetailsT> | null {
         let currentDetails: PlayerDetailsT = {
             x: this.x,
             y: this.y,
@@ -78,16 +85,17 @@ export class Player {
             vspeed: this.vspeed,
             color: this.color,
             forward: this.forward,
-            accel: this.inputAcceleration
+            accel: this.inputAcceleration,
+            health: this.health
         };
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
             if (this.previousDetails) {
-                if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) delete details.x;
-                if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) delete details.y;
-                if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) delete details.hspeed;
-                if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) delete details.vspeed;
-                if (details.color === this.previousDetails.color) delete details.color;
+                if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) { delete details.x; }
+                if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) { delete details.y; }
+                if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
+                if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
+                if (details.color === this.previousDetails.color) { delete details.color; }
                 if (this.previousDetails.forward &&
                     !isSignificantlyDifferent(details.forward!.x, this.previousDetails.forward.x) &&
                     !isSignificantlyDifferent(details.forward!.y, this.previousDetails.forward.y)
@@ -100,20 +108,28 @@ export class Player {
                 ) {
                     delete details.accel;
                 }
+                if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)){
+                    delete details.health;
+                }
             }
             this.previousDetails = currentDetails;
         }
-        if (!Object.keys(details).length) return null;
+        if (!Object.keys(details).length) { return null; }
         return details;
     }
     setDetails(vals: Partial<PlayerDetailsT> | null) {
         if (!vals) return;
-        if (typeof vals.x !== 'undefined') this.x = vals.x;
-        if (typeof vals.y !== 'undefined') this.y = vals.y;
-        if (typeof vals.hspeed !== 'undefined') this.hspeed = vals.hspeed;
-        if (typeof vals.vspeed !== 'undefined') this.vspeed = vals.vspeed;
-        if (typeof vals.color !== 'undefined') this.color = vals.color;
-        if (typeof vals.forward !== 'undefined') this.forward = vals.forward;
-        if (typeof vals.accel !== 'undefined') this.inputAcceleration = vals.accel;
+        if (typeof vals.x !== 'undefined') { this.x = vals.x; }
+        if (typeof vals.y !== 'undefined') { this.y = vals.y; }
+        if (typeof vals.hspeed !== 'undefined') { this.hspeed = vals.hspeed; }
+        if (typeof vals.vspeed !== 'undefined') { this.vspeed = vals.vspeed; }
+        if (typeof vals.color !== 'undefined') { this.color = vals.color; }
+        if (typeof vals.forward !== 'undefined') { this.forward = vals.forward; }
+        if (typeof vals.accel !== 'undefined') { this.inputAcceleration = vals.accel; }
+        // don't set health on purpose
+    }
+
+    getCollisionCircle(): {x: number, y: number, r: number}{
+        return {x: this.x, y: this.y, r: PLAYER_RADIUS};
     }
 }
