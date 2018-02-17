@@ -4,9 +4,13 @@ import { PlayerDetailsT } from './player-meta';
 import { Player } from './player';
 import { DummyPlayer } from './dummy-player';
 import { LocalPlayer } from './local-player';
+import { NetworkManager } from '../network-manager';
 
 export class PlayerManager extends GameObject {
-    constructor(private preferredColor: string) {
+    constructor(
+        private networkManager: NetworkManager,
+        private preferredColor: string
+    ) {
         super(`PlayerManager`, { shouldRender: false });
     }
     
@@ -29,11 +33,19 @@ export class PlayerManager extends GameObject {
             color: this.preferredColor
         });
         
+        this.io.on('disconnect', () => {
+            this.networkManager.isConnected = false;
+        });
+        
+        this.io.on('connect', () => {
+            this.io.emit('join-game', {
+                color: this.preferredColor
+            });
+        });
+        
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
-            if (pid !== this._localPlayerId) {
-                if (this._localPlayerId) this.removeLocalPlayer();
-                this.createLocalPlayer(pid, details);
-            }
+            this.networkManager.isConnected = true;
+            if (pid !== this._localPlayerId) this.createLocalPlayer(pid, details);
             else this.updatePlayer(pid, details);
         });
         
@@ -59,6 +71,14 @@ export class PlayerManager extends GameObject {
         this.localPlayer = null;
     }
     private createLocalPlayer(pid: number, details: PlayerDetailsT) {
+        if (this._localPlayerId) this.removeLocalPlayer();
+        
+        let allPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
+        allPlayers.forEach(player => {
+            this.scene!.removeObject(player);
+        });
+        this.players.clear();
+        
         if (CONFIG.debugLog.playerCreate) console.log(`Creating local player: ${pid}`);
         this._localPlayerId = pid;
         this.localPlayer = new LocalPlayer(pid);
