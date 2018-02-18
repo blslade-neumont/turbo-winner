@@ -108,10 +108,9 @@ export class PlayScene extends GameScene {
                 if (player && !currentBullet.ignores(playerID)){
                     if (this.circlesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())) {
                         this.removeObject(currentBullet);
-                        console.log("hit");
                         bulletRef.splice(i, 1);
                         --i; // bullet removed from array - index changed
-                        continue;
+                        break; // bullet gone -> stop checking players -> go to next bullet
                     }
                 }
             } while (!next.done);

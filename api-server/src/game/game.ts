@@ -101,11 +101,11 @@ export class Game {
                 let player: Player|undefined = this.players.get(playerID);
 
                 if (player && !currentBullet.ignores(playerID)){
-                    if (this.circlesCollide(this.bullets[i].getCollisionCircle(), player.getCollisionCircle())){
+                    if (this.circlesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())){
                         player.takeDamage(BULLET_DAMAGE);
                         this.bullets.splice(i, 1);
                         --i; // bullet removed from array - index changed
-                        continue;
+                        break; // bullet gone -> stop checking players -> go to next bullet
                     }
                 }
             } while (!next.done);
