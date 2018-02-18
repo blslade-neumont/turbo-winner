@@ -106,7 +106,7 @@ export class PlayScene extends GameScene {
                 let player: Player|undefined = players.get(playerID);
 
                 if (player && !currentBullet.ignores(playerID)){
-                    if (this.circlesCollide(bulletRef[i].getCollisionCircle(), player.getCollisionCircle())) {
+                    if (this.circlesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())) {
                         this.removeObject(currentBullet);
                         console.log("hit");
                         bulletRef.splice(i, 1);
