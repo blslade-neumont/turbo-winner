@@ -1,4 +1,4 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions } from 'engine';
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions, CircleCollisionMask } from 'engine';
 import merge = require('lodash.merge');
 import { BulletDetailsT } from './bullet-meta';
 import { Player } from '../player/player';
@@ -23,6 +23,8 @@ export class Bullet extends GameObject {
         }, opts));
         this.ttl = typeof opts.ttl === 'undefined' ? DEFAULT_TIME_TO_LIVE : opts.ttl;
         this._ignorePlayerId = opts.ignorePlayerId;
+        this.mask = new CircleCollisionMask(this, this.radius);
+        this.mask.isTrigger = true;
     }
     
     get ignorePlayerId() {
@@ -46,18 +48,25 @@ export class Bullet extends GameObject {
         };
         return currentDetails;
     }
-
+    
     tick(delta: number) {
         super.tick(delta);
         this.ttl -= delta;
         if (this.ttl <= 0) { this.scene.removeObject(this); }
+        
+        for (let trigger of this.mask.triggers) {
+            let gobj = trigger.gameObject;
+            if (gobj instanceof Player && this.shouldIgnorePlayer(gobj)) continue;
+            //If we're colliding with anything but the player that we should ignore, delete the bullet
+            this.scene.removeObject(this);
+            break;
+        }
     }
-
-    getCollisionCircle(): {x: number, y: number, r: number}{
-        return {x: this.x, y: this.y, r: this.radius};
-    }
-
-    ignores(playerId: number): boolean{
-        return this.ignorePlayerId === playerId;
+    
+    shouldIgnorePlayer(player: Player): boolean;
+    shouldIgnorePlayer(playerId: number): boolean;
+    shouldIgnorePlayer(player: Player | number): boolean {
+        if (player instanceof Player) player = player.playerId;
+        return this.ignorePlayerId === player;
     }
 }

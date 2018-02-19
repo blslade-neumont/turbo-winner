@@ -1,4 +1,4 @@
-import { GameObject } from "engine";
+import { GameObject, CircleCollisionMask } from "engine";
 import { PlayerDetailsT } from "./player-meta";
 import { isSignificantlyDifferent } from "../../util/is-significantly-different";
 import cloneDeep = require("lodash.clonedeep");
@@ -15,6 +15,7 @@ export abstract class Player extends GameObject {
         renderDepth: number = -10
     ) {
         super(name, { renderDepth: renderDepth });
+        this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
     }
     
     public color: string;
@@ -126,24 +127,20 @@ export abstract class Player extends GameObject {
         if (typeof vals.accel !== "undefined") { this.inputAcceleration = vals.accel; }
         if (typeof vals.health !== "undefined") { this.health = vals.health; }
     }
-
+    
     tick(delta: number): void {
         // adjust the player's velocity according to the inputs specified
         let moveAmount: number = PLAYER_ACCELERATION * delta;
         let movement: {x: number, y: number}  = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
-
+        
         this.hspeed += movement.x;
         this.vspeed += movement.y;
-
+        
         // framerate-independent friction
         let xRatio: number = 1 / (1 + (delta * PLAYER_FRICTION));
         this.hspeed *= xRatio;
         this.vspeed *= xRatio;
-
+        
         super.tick(delta);
-    }
-
-    getCollisionCircle(): {x: number, y: number, r: number}{
-        return {x: this.x, y: this.y, r: PLAYER_RADIUS};
     }
 }

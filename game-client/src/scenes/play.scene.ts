@@ -80,46 +80,9 @@ export class PlayScene extends GameScene {
         
         super.render(adapter);
     }
-
-    tick(delta: number){
-        super.tick(delta);
-        this.bulletCollisionCheck(delta);
-    }
-
+    
     localFireBullet(bullet: Bullet): void {
         this.addObject(bullet);
         this.bulletManager.addBullet(bullet);
-    }
-
-    bulletCollisionCheck(delta: number): void{
-        let bulletRef: Array<Bullet> = this.bulletManager.getBullets();
-        let players: Map<number, Player> = this.playerManager.getPlayerMapping();
-        for (let i = 0; i < bulletRef.length; ++i){
-            let currentBullet: Bullet = bulletRef[i];
-            let currentKey = players.keys();
-            let next;
-
-            do
-            {
-                next = currentKey.next();
-                let playerID: number = next.value;
-                let player: Player|undefined = players.get(playerID);
-
-                if (player && !currentBullet.ignores(playerID)){
-                    if (this.circlesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())) {
-                        this.removeObject(currentBullet);
-                        bulletRef.splice(i, 1);
-                        --i; // bullet removed from array - index changed
-                        break; // bullet gone -> stop checking players -> go to next bullet
-                    }
-                }
-            } while (!next.done);
-        }
-    }
-
-    circlesCollide(circleOne: {x: number, y: number, r: number}, circleTwo: {x: number, y: number, r: number}): boolean {
-        let diffVector: {x: number, y: number} = {x: circleOne.x - circleTwo.x, y: circleOne.y - circleTwo.y};
-        let radiusSum: number = circleOne.r + circleTwo.r;
-        return (diffVector.x*diffVector.x+diffVector.y*diffVector.y) < (radiusSum*radiusSum);
     }
 }
