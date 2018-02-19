@@ -1,4 +1,6 @@
 import { BulletDetailsT } from "./packet-meta";
+import { Player } from "./player";
+import { CircleT } from "../util/circle";
 
 const DEFAULT_BULLET_SPEED = 1200;
 const DEFAULT_TIME_TO_LIVE = 3;
@@ -7,7 +9,6 @@ export const BULLET_DAMAGE = 5;
 export class Bullet {
     private radius : number = 6;
     private ttl: number;
-    private _ignorePlayerId: number;
     private x: number;
     private y: number;
     private hspeed: number;
@@ -16,24 +17,22 @@ export class Bullet {
     
     constructor(details: BulletDetailsT) {
         this.ttl = DEFAULT_TIME_TO_LIVE;
-        this._ignorePlayerId = details.ignorePlayerId;
-        this.x = details.x;
-        this.y = details.y;
-        this.hspeed = details.hspeed;
-        this.vspeed = details.vspeed;
-        this.ignorePlayerId = details.ignorePlayerId;
+        Object.assign(this, details);
     }
-
+    
     tick(delta: number): void{
         this.x += delta * this.hspeed;
         this.y += delta * this.vspeed;
     }
-
-    getCollisionCircle(): {x: number, y: number, r: number}{
+    
+    getCollisionCircle(): CircleT {
         return {x: this.x, y: this.y, r: this.radius};
     }
-
-    ignores(playerId: number): boolean{
-        return this.ignorePlayerId === playerId;
+    
+    shouldIgnorePlayer(player: Player): boolean;
+    shouldIgnorePlayer(playerId: number): boolean;
+    shouldIgnorePlayer(player: Player | number): boolean {
+        if (player instanceof Player) player = player.playerId;
+        return this.ignorePlayerId === player;
     }
 }

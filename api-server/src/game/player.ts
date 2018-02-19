@@ -2,6 +2,7 @@ import { PlayerDetailsT } from './packet-meta';
 import cloneDeep = require('lodash.clonedeep');
 import { Game } from './game';
 import { isSignificantlyDifferent } from '../util/is-significantly-different';
+import { CircleT } from '../util/circle';
 
 type Socket = SocketIO.Socket;
 
@@ -40,7 +41,7 @@ export class Player {
     inputAcceleration = { x: 0, y: 0 };
     color = chooseRandomColor();
     health = MAX_PLAYER_HEALTH;
-
+    
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
         let moveAmount = PLAYER_ACCELERATION * delta;
@@ -57,7 +58,7 @@ export class Player {
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
     }
-
+    
     takeDamage(amount: number): void{
         this.health -= amount; // todo: clamp here? todo again: check death here
     }
@@ -76,7 +77,7 @@ export class Player {
         }
     }
     
-    private previousDetails: PlayerDetailsT = <any>{};
+    private previousDetails: PlayerDetailsT;
     getDetails(force: boolean = false): Partial<PlayerDetailsT> | null {
         let currentDetails: PlayerDetailsT = {
             x: this.x,
@@ -126,10 +127,10 @@ export class Player {
         if (typeof vals.color !== 'undefined') { this.color = vals.color; }
         if (typeof vals.forward !== 'undefined') { this.forward = vals.forward; }
         if (typeof vals.accel !== 'undefined') { this.inputAcceleration = vals.accel; }
-        // don't set health on purpose
+        if (typeof vals.health !== 'undefined') { this.health = vals.health; }
     }
-
-    getCollisionCircle(): {x: number, y: number, r: number}{
+    
+    getCollisionCircle(): CircleT {
         return {x: this.x, y: this.y, r: PLAYER_RADIUS};
     }
 }

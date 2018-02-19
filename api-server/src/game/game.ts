@@ -2,39 +2,50 @@ import { Player } from './player';
 import { Bullet, BULLET_DAMAGE } from "./bullet";
 import { io } from '../sockets';
 import { PlayerDetailsT, BulletDetailsT } from './packet-meta';
+import { doCirclesCollide } from '../util/do-circles-collide';
 
 type Socket = SocketIO.Socket;
 
 export class Game {
-    constructor() {
-        this.init();
+    constructor() { }
+    
+    private _lastTime: Date;
+    private _gameTickInterval: any = null;
+    start() {
+        this._lastTime = new Date();
+        this._gameTickInterval = setInterval(() => this.onTick(), 1000 / 30);
+    }
+    stop() {
+        if (this._gameTickInterval) {
+            clearInterval(this._gameTickInterval);
+            this._gameTickInterval = null;
+        }
     }
     
-    private init() {
-        setInterval(() => {
-            let delta = 1 / 30; //CHEAT, we should use an actual delta here
-            let players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
-            for (let p of players) {
-                p.tick(delta);
-            }
-            
-            for (let p of players) {
-                p.networkTick(delta);
-            }
-
-            for (let b of this.bullets){
-                b.tick(delta);
-            }
-            
-            this.bulletCollisionCheck(delta);
-        }, 1000 / 30);
+    private onTick() {
+        let now = new Date();
+        let delta = (now.valueOf() - this._lastTime.valueOf()) / 1000; //Seconds since last tick
+        this._lastTime = now;
+        let players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
+        
+        for (let p of players) {
+            p.tick(delta);
+        }
+        for (let b of this.bullets) {
+            b.tick(delta);
+        }
+        this.bulletCollisionCheck(delta);
+        
+        for (let p of players) {
+            p.networkTick(delta);
+        }
     }
     
     players = new Map<number, Player>();
     
     addPlayer(player: Player) {
         let isPreexisting = this.players.get(player.playerId) === player;
-
+        
         //Values used to put new Player within a certain radius of something
             //Change the minDist and maxDist to change how far or how close they will spawn to desired point (desired point is 0.0 right now)
         let minDist = 10;
@@ -43,9 +54,6 @@ export class Game {
         let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
         
         if (!isPreexisting) {
-            //TODO: assign sensible values to player.x, player.y //Done?
-
-            //make edits to this later if we want to change center location
             player.x = Math.cos(theta) * radius;
             player.y = Math.sin(theta) * radius;
         }
@@ -69,13 +77,6 @@ export class Game {
         player.game = this;
     }
     
-    bullets: Array<Bullet> = [];
-    addBullet(details: BulletDetailsT): void {
-        this.bullets.push(new Bullet(details));
-    }
-    
-
-
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
         player.game = null;
@@ -88,33 +89,32 @@ export class Game {
         if (socket) socket.emit('update-player', player.playerId, detailsPacket);
         else io!.emit('update-player', player.playerId, detailsPacket);
     }
-
-    bulletCollisionCheck(delta: number): void{
-        for (let i = 0; i < this.bullets.length; ++i){
-            let currentBullet: Bullet = this.bullets[i];
-            let currentKey = this.players.keys();
-            let next;
-            do
-            {
-                next = currentKey.next();
-                let playerID: number = next.value;
-                let player: Player|undefined = this.players.get(playerID);
-
-                if (player && !currentBullet.ignores(playerID)){
-                    if (this.circlesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())){
-                        player.takeDamage(BULLET_DAMAGE);
-                        this.bullets.splice(i, 1);
-                        --i; // bullet removed from array - index changed
-                        break; // bullet gone -> stop checking players -> go to next bullet
-                    }
-                }
-            } while (!next.done);
-        }
+    
+    bullets: Bullet[] = [];
+    addBullet(details: BulletDetailsT): void {
+        this.bullets.push(new Bullet(details));
     }
-
-    circlesCollide(circleOne: {x: number, y: number, r: number}, circleTwo: {x: number, y: number, r: number}): boolean {
-        let diffVector: {x: number, y: number} = {x: circleOne.x - circleTwo.x, y: circleOne.y - circleTwo.y};
-        let radiusSum: number = circleOne.r + circleTwo.r;
-        return (diffVector.x*diffVector.x+diffVector.y*diffVector.y) < (radiusSum*radiusSum);
+    
+    bulletCollisionCheck(delta: number): void {
+        let players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
+        
+        //Rather than modifying the array while we're iterating through it,
+        //keep track of bullets that should be removed and delete them afterwards
+        let bulletsToRemove = [];
+        
+        for (let currentBullet of this.bullets) {
+            for (let player of players) {
+                if (currentBullet.shouldIgnorePlayer(player)) return;
+                if (!doCirclesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())) return;
+                
+                player.takeDamage(BULLET_DAMAGE);
+                bulletsToRemove.push(currentBullet);
+                break; // bullet gone -> stop checking players -> go to next bullet
+            }
+        }
+        
+        for (let bullet of bulletsToRemove) {
+            this.bullets.splice(this.bullets.indexOf(bullet), 1);
+        }
     }
 }

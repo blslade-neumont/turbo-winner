@@ -16,6 +16,7 @@ export class GameService {
         console.log(`Game version: ${GameVersion}`);
         
         this.game = new Game();
+        this.game.start();
         
         this.io.on('connection', socket => {
             console.log(`Client connected: ${socket.id}`);
@@ -30,11 +31,12 @@ export class GameService {
                 this.game.addPlayer(player);
             });
             
-            socket.on('update-player', (pid: number, details: PlayerDetailsT) => {
+            socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {
                 if (!player || player.playerId !== pid) return;
+                delete details.health; // don't set health on purpose
                 player.setDetails(details);
             });
-
+            
             socket.on('fire-bullet', (details: BulletDetailsT) =>{
                 if(!player || player.playerId !== details.ignorePlayerId) return;
                 this.game.addBullet(details);
