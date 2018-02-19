@@ -76,7 +76,6 @@ export class Game {
         this.players.set(player.playerId, player);
         player.game = this;
     }
-    
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
         player.game = null;
@@ -92,7 +91,14 @@ export class Game {
     
     bullets: Bullet[] = [];
     addBullet(details: BulletDetailsT): void {
-        this.bullets.push(new Bullet(details));
+        let bullet = new Bullet(details);
+        this.bullets.push(bullet);
+        bullet.game = this;
+    }
+    removeBullet(bullet: Bullet): void {
+        let idx = this.bullets.indexOf(bullet);
+        if (idx !== -1) this.bullets.splice(idx, 1);
+        bullet.game = null;
     }
     
     bulletCollisionCheck(delta: number): void {
@@ -114,7 +120,7 @@ export class Game {
         }
         
         for (let bullet of bulletsToRemove) {
-            this.bullets.splice(this.bullets.indexOf(bullet), 1);
+            this.removeBullet(bullet);
         }
     }
 }
