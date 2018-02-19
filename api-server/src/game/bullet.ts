@@ -20,7 +20,7 @@ export class Bullet {
         Object.assign(this, details);
     }
     
-    tick(delta: number): void{
+    tick(delta: number): void {
         this.x += delta * this.hspeed;
         this.y += delta * this.vspeed;
     }

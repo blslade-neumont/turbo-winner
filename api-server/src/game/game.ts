@@ -102,13 +102,13 @@ export class Game {
         //keep track of bullets that should be removed and delete them afterwards
         let bulletsToRemove = [];
         
-        for (let currentBullet of this.bullets) {
+        for (let bullet of this.bullets) {
             for (let player of players) {
-                if (currentBullet.shouldIgnorePlayer(player)) return;
-                if (!doCirclesCollide(currentBullet.getCollisionCircle(), player.getCollisionCircle())) return;
+                if (bullet.shouldIgnorePlayer(player)) continue;
+                if (!doCirclesCollide(bullet.getCollisionCircle(), player.getCollisionCircle())) continue;
                 
                 player.takeDamage(BULLET_DAMAGE);
-                bulletsToRemove.push(currentBullet);
+                bulletsToRemove.push(bullet);
                 break; // bullet gone -> stop checking players -> go to next bullet
             }
         }
