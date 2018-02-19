@@ -46,37 +46,26 @@ export class PlayerManager extends GameObject {
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
             this.networkManager.isConnected = true;
             if (pid !== this._localPlayerId) this.createLocalPlayer(pid, details);
-            else this.updatePlayer(pid, details);
+            else this.updatePlayer(pid, details, false);
         });
         
-        this.io.on('update-player', (pid: number, details: PlayerDetailsT) => {
-            this.updatePlayer(pid, details); // local player will ignore all but health -> send anyways
+        this.io.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {
+            this.updatePlayer(pid, details);
         });
-
+        
         this.io.on('remove-player', (pid: number) => {
             if (pid !== this._localPlayerId) this.removePlayer(pid);
         });
     }
-
+    
     private players = new Map<number, Player>();
-
-    getPlayerMapping(): Map<number, Player>{
+    getPlayerMapping(): Map<number, Player> {
         return this.players;
     }
-
+    
     private localPlayer: LocalPlayer | null = null;
-    private removeLocalPlayer() {
-        if (CONFIG.debugLog.playerCreate) console.log(`Removing local player`);
-        this.players.delete(this._localPlayerId);
-        if (this.localPlayer) this.scene!.removeObject(this.localPlayer!);
-        let camera = <FollowCamera>this.scene!.camera;
-        camera.follow = <any>null;
-        this._localPlayerId = 0;
-        this.localPlayer = null;
-    }
     private createLocalPlayer(pid: number, details: PlayerDetailsT) {
-        if (this._localPlayerId) this.removeLocalPlayer();
-        
+        //Delete all current players
         let allPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         allPlayers.forEach(player => {
             this.scene!.removeObject(player);
@@ -84,16 +73,20 @@ export class PlayerManager extends GameObject {
         this.players.clear();
         
         if (CONFIG.debugLog.playerCreate) console.log(`Creating local player: ${pid}`);
+        
+        //Create new local player
         this._localPlayerId = pid;
         this.localPlayer = new LocalPlayer(pid);
-        this.localPlayer.setDetails(details);
         this.scene!.addObject(this.localPlayer);
         let camera = <FollowCamera>this.scene!.camera!;
         camera.follow = this.localPlayer;
         this.players.set(pid, this.localPlayer);
+        
+        //Initialize the local player with the correct values (do not sanitize)
+        this.updatePlayer(pid, details, false);
     }
     
-    private updatePlayer(pid: number, details: PlayerDetailsT) {
+    private updatePlayer(pid: number, details: Partial<PlayerDetailsT> | null, sanitize = true) {
         if (CONFIG.debugLog.playerUpdate) console.log(`Updating player: ${pid}`);
         let player = this.players.get(pid);
         if (!player) {
@@ -102,6 +95,7 @@ export class PlayerManager extends GameObject {
             this.players.set(pid, player);
             this.scene!.addObject(player);
         }
+        if (sanitize) details = player.sanitizeDetails(details);
         player.setDetails(details);
     }
     

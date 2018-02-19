@@ -77,7 +77,7 @@ export class PlayScene extends GameScene {
             }
             else (<any>context).filter = 'none';
         }
-
+        
         super.render(adapter);
     }
 
