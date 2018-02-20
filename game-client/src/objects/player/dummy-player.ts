@@ -25,6 +25,7 @@ export class DummyPlayer extends Player {
         
         if (this.timer < this.lerpTime){
             this.lerpToTarget(perc, delta);
+            this.invulnTime -= delta;
         } else {
             super.tick(delta);
         }
@@ -80,7 +81,8 @@ export class DummyPlayer extends Player {
         if (typeof vals.accel !== "undefined")  { this.inputAcceleration = vals.accel; }
         
         if (typeof vals.health !== "undefined") { this.health = vals.health; }
-        
+        if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
+
         this.timer = 0.0;
         if (!this.hasSetDetails) {
             this.hasSetDetails = true;
