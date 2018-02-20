@@ -25,7 +25,10 @@ export abstract class Player extends GameObject {
     public health: number = MAX_PLAYER_HEALTH;
     public invulnTime: number = INVULN_ON_START;
     private show: boolean = true;
-
+    
+    getInvuln(): boolean{
+        return this.invulnTime > 0.0;
+    }
     renderPlayerCircle(context: CanvasRenderingContext2D): void {
         context.beginPath();
         context.arc(0, 0, PLAYER_RADIUS, 0, 2 * Math.PI, false);
@@ -90,7 +93,8 @@ export abstract class Player extends GameObject {
             color: this.color,
             forward: this.forward,
             accel: this.inputAcceleration,
-            health: this.health
+            health: this.health,
+            invulnTime: this.invulnTime
         };
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
@@ -116,6 +120,7 @@ export abstract class Player extends GameObject {
             this.previousDetails = currentDetails;
         }
         delete details.health; // client don't send health to server.
+        delete details.invulnTime; // client don't send invuln time to server
         if (!Object.keys(details).length) { return null; }
         return details;
     }
@@ -132,6 +137,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.forward !== "undefined") { this.forward = vals.forward; }
         if (typeof vals.accel !== "undefined") { this.inputAcceleration = vals.accel; }
         if (typeof vals.health !== "undefined") { this.health = vals.health; }
+        if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
     }
 
     tick(delta: number): void {

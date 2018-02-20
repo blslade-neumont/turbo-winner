@@ -8,5 +8,6 @@ export type PlayerDetailsT = {
     accel: { x: number, y: number },
     hspeed: number,
     vspeed: number,
-    health: number
+    health: number,
+    invulnTime: number
 };

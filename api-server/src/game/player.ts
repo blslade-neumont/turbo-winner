@@ -45,7 +45,7 @@ export class Player {
     invulnTime = INVULN_ON_START;
 
     getInvuln(): boolean{
-        return this.invulnTime < 0.0;
+        return this.invulnTime > 0.0;
     }
 
     tick(delta: number) {
@@ -95,7 +95,8 @@ export class Player {
             color: this.color,
             forward: this.forward,
             accel: this.inputAcceleration,
-            health: this.health
+            health: this.health,
+            invulnTime: this.invulnTime
         };
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
@@ -120,6 +121,9 @@ export class Player {
                 if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)){
                     delete details.health;
                 }
+                if (!isSignificantlyDifferent(details.invulnTime!, this.invulnTime)){
+                    delete details.invulnTime;
+                }
             }
             this.previousDetails = currentDetails;
         }
@@ -136,6 +140,8 @@ export class Player {
         if (typeof vals.forward !== 'undefined') { this.forward = vals.forward; }
         if (typeof vals.accel !== 'undefined') { this.inputAcceleration = vals.accel; }
         if (typeof vals.health !== 'undefined') { this.health = vals.health; }
+        if (typeof vals.invulnTime !== 'undefined') { this.invulnTime = vals.invulnTime; }
+
     }
     
     getCollisionCircle(): CircleT {
