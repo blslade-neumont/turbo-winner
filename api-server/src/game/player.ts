@@ -24,6 +24,7 @@ export const PLAYER_ACCELERATION: number = 350.0;
 export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS = 48;
+export const INVULN_ON_START = 5;
 
 export class Player {
     constructor(
@@ -41,7 +42,12 @@ export class Player {
     inputAcceleration = { x: 0, y: 0 };
     color = chooseRandomColor();
     health = MAX_PLAYER_HEALTH;
-    
+    invulnTime = INVULN_ON_START;
+
+    getInvuln(): boolean{
+        return this.invulnTime < 0.0;
+    }
+
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
         let moveAmount = PLAYER_ACCELERATION * delta;
@@ -57,6 +63,8 @@ export class Player {
         
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
+
+        this.invulnTime -= delta;
     }
     
     takeDamage(amount: number): void{
