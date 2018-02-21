@@ -45,7 +45,7 @@ export class PlayScene extends GameScene {
         if (this.initialized) return;
         this.initialized = true;
         
-        this.customCursor = new CustomCursor("#ff0000")
+        this.customCursor = new CustomCursor("#b22222");
         this.addObject(this.customCursor);
         
         for (let i = 0; i < 50; ++i){
