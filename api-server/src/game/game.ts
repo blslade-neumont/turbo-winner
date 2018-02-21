@@ -111,7 +111,7 @@ export class Game {
         for (let bullet of this.bullets) {
             for (let player of players) {
                 if (bullet.shouldIgnorePlayer(player)) continue;
-                if (player.getInvuln()) continue;
+                if (player.isInvulnerable()) continue;
                 if (!doCirclesCollide(bullet.getCollisionCircle(), player.getCollisionCircle())) continue;
                 
                 player.takeDamage(BULLET_DAMAGE);

@@ -26,7 +26,7 @@ export abstract class Player extends GameObject {
     public invulnTime: number = INVULN_ON_START;
     private show: boolean = true;
     
-    getInvuln(): boolean{
+    isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
     }
     renderPlayerCircle(context: CanvasRenderingContext2D): void {

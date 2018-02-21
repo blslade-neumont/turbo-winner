@@ -68,7 +68,7 @@ export class LocalPlayer extends Player {
     fireBulletTick(delta : number) {
         if (this.events.isMouseButtonDown(MouseButton.Left)) {
             if (this.ignoreMouseDown) { return false; }
-            if (this.fireCooldown <= 0) {
+            if (this.fireCooldown <= 0 && !this.isInvulnerable()) {
                 let bullet: Bullet = new Bullet({
                     x: this.x,
                     y: this.y,

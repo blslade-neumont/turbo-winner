@@ -44,7 +44,7 @@ export class Player {
     health = MAX_PLAYER_HEALTH;
     invulnTime = INVULN_ON_START;
 
-    getInvuln(): boolean{
+    isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
     }
 
