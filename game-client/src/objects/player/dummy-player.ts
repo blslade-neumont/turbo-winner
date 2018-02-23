@@ -22,7 +22,7 @@ export class DummyPlayer extends Player {
     tick(delta: number): void {
         this.timer += delta;
         let perc: number = this.timer / this.lerpTime;
-        
+        console.log("x: " + this.lastDetails.x + ", y: " + this.lastDetails.y);
         if (this.timer < this.lerpTime){
             this.lerpToTarget(perc, delta);
             this.invulnTime -= delta;
@@ -38,7 +38,6 @@ export class DummyPlayer extends Player {
     
     lerpToTarget(perc: number, delta: number){
         this.updateTarget(delta);
-        
         this.x = this.lerpTo(this.lastDetails.x, this.target.x, perc);
         this.y = this.lerpTo(this.lastDetails.y, this.target.y, perc);
         
@@ -96,6 +95,14 @@ export class DummyPlayer extends Player {
             this.hasSetDetails = true;
             this.timer = this.lerpTime;
             this.lerpToTarget(1, 0);
+            this.forceLastDetails(vals); // fix for teleport bug
         }
+    }
+    
+    forceLastDetails(vals: PlayerDetailsT | null): void{
+        if (!vals) {return;}
+        if (typeof vals.x !== "undefined") { this.lastDetails.x = vals.x; }
+        if (typeof vals.y !== "undefined") { this.lastDetails.y = vals.y; }
+        if (typeof vals.forward !== "undefined") { this.lastDetails.forward = vals.forward; }
     }
 }
