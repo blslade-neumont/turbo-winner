@@ -20,7 +20,7 @@ export abstract class Player extends GameObject {
         super(name, { renderDepth: renderDepth });
         this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
     }
-
+    
     public color: string;
     public forward = { x: 1, y: 0 };
     public inputAcceleration = { x: 0, y: 0 };
@@ -101,7 +101,15 @@ export abstract class Player extends GameObject {
             respawnTime: this.respawnTime,
             ignoreAuthority: false // server doesn't care about this
         };
+        
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
+        // client doesn't have authority to update any of these fields or set these flags
+        delete details.health;
+        delete details.invulnTime;
+        delete details.isDead;
+        delete details.respawnTime;
+        delete details.ignoreAuthority;
+        
         if (!force) {
             if (this.previousDetails) {
                 if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) { delete details.x; }
@@ -124,15 +132,15 @@ export abstract class Player extends GameObject {
             }
             this.previousDetails = currentDetails;
         }
-        delete details.health; // client don't send health to server.
-        delete details.invulnTime; // client don't send invuln time to server
-        delete details.isDead; // client don't send dead boolean to server
-        delete details.respawnTime; // client don't send respawn timer to server
-        delete details.ignoreAuthority; // server doesn't care about this
         
         if (!Object.keys(details).length) { return null; }
         return details;
     }
+    /**
+     * Strip out any properties or flags from a PlayerDetailsT packet received from the server that this player has authority over.
+     * For example, the LocalPlayer will strip position and speed updates, because the LocalPlayer has authority over it.
+     * @param vals The packet received from the server
+     */
     sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null {
         return vals;
     }
@@ -150,26 +158,26 @@ export abstract class Player extends GameObject {
         if (typeof vals.isDead !== "undefined") { this.isDead = vals.isDead; }
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
     }
-
+    
     tick(delta: number): void {
         // adjust the player's velocity according to the inputs specified
         let moveAmount: number = PLAYER_ACCELERATION * delta;
         let movement: {x: number, y: number}  = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
-
+        
         this.hspeed += movement.x;
         this.vspeed += movement.y;
-
+        
         // framerate-independent friction
         let xRatio: number = 1 / (1 + (delta * PLAYER_FRICTION));
         this.hspeed *= xRatio;
         this.vspeed *= xRatio;
-
+        
         super.tick(delta);
-
+        
         this.invulnTime -= delta;
         this.invulnTime = this.invulnTime < 0.0 ? 0.0 : this.invulnTime;
         this.show = Math.sqrt(this.invulnTime) * 100 % 7 < 2;
-
+        
         if (this.isDead){
             this.respawnTime -= delta;
             this.respawnTime = Math.max(this.respawnTime, 0.0);

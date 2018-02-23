@@ -31,9 +31,9 @@ export class GameService {
                 this.game.addPlayer(player);
             });
             
-            socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {
-                if (!player || player.playerId !== pid) return;
-                delete details.health; // don't set health on purpose
+            socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT> | null) => {
+                if (!details || !player || player.playerId !== pid) return;
+                details = player.sanitizeDetails(details);
                 player.setDetails(details);
             });
             

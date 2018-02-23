@@ -166,7 +166,6 @@ export class Player {
                 if (!isSignificantlyDifferent(details.invulnTime!, this.previousDetails.invulnTime)){
                     delete details.invulnTime;
                 }
-
                 if (!isSignificantlyDifferent(details.respawnTime!, this.previousDetails.respawnTime)){
                     delete details.respawnTime;
                 }
@@ -176,8 +175,24 @@ export class Player {
         if (!Object.keys(details).length) { return null; }
         return details;
     }
+    /**
+     * Strip out any properties or flags from a PlayerDetailsT packet received from the client that owns this player that the server has authority over.
+     * For example, clients do not have authority to set their own health, so the health property will be stripped.
+     * @param vals The packet received from the client
+     */
+    sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null {
+        if (!vals) return null;
+        if (this.ignorePlayerTimer > 0.0) return null;
+        delete vals.health;
+        delete vals.invulnTime;
+        delete vals.isDead;
+        delete vals.respawnTime;
+        delete vals.ignoreAuthority;
+        if (!Object.keys(vals).length) return null;
+        return vals;
+    }
     setDetails(vals: Partial<PlayerDetailsT> | null) {
-        if (!vals || this.ignorePlayerTimer > 0.0) return;
+        if (!vals) return;
         if (typeof vals.x !== 'undefined') { this.x = vals.x; }
         if (typeof vals.y !== 'undefined') { this.y = vals.y; }
         if (typeof vals.hspeed !== 'undefined') { this.hspeed = vals.hspeed; }
@@ -188,7 +203,7 @@ export class Player {
         if (typeof vals.health !== 'undefined') { this.health = vals.health; }
         if (typeof vals.invulnTime !== 'undefined') { this.invulnTime = vals.invulnTime; }
         if (typeof vals.isDead !== 'undefined') { this.isDead = vals.isDead; }
-        if (typeof vals.respawnTime !== 'undefined') { this.respawnTime = vals.respawnTime; } // TODO: should the server really be accepting stuff like this?
+        if (typeof vals.respawnTime !== 'undefined') { this.respawnTime = vals.respawnTime; }
     }
     
     getCollisionCircle(): CircleT {
