@@ -9,5 +9,8 @@ export type PlayerDetailsT = {
     hspeed: number,
     vspeed: number,
     health: number,
-    invulnTime: number
+    invulnTime: number,
+    isDead: boolean,
+    respawnTime: number,
+    ignoreAuthority: boolean
 };

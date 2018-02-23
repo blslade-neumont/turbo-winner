@@ -34,16 +34,18 @@ export class LocalPlayer extends Player {
         // calculate normalized forward vector from mouse and player locations
         let toMouse = {x: mousePosWorld[0] - this.x, y: mousePosWorld[1] - this.y};
         let toMouseLen = Math.sqrt(toMouse.x*toMouse.x + toMouse.y*toMouse.y);
-        this.forward = {x: toMouse.x / toMouseLen, y: toMouse.y / toMouseLen};
+        if (!this.isDead) {this.forward = {x: toMouse.x / toMouseLen, y: toMouse.y / toMouseLen};}
         
         // get forward-relative movement inputs, and normalize them to ensure pressing multiple keys does not increase player move speed
         let input = {x: 0, y: 0};
         
-        if (this.events.isAbstractButtonDown("move-up")) { --input.y; }
-        if (this.events.isAbstractButtonDown("move-left")) { --input.x; }
-        if (this.events.isAbstractButtonDown("move-down")) { ++input.y; }
-        if (this.events.isAbstractButtonDown("move-right")) { ++input.x; }
-        
+        if (!this.isDead){
+            if (this.events.isAbstractButtonDown("move-up")) { --input.y; }
+            if (this.events.isAbstractButtonDown("move-left")) { --input.x; }
+            if (this.events.isAbstractButtonDown("move-down")) { ++input.y; }
+            if (this.events.isAbstractButtonDown("move-right")) { ++input.x; }    
+        }
+
         let inputLen2 = pointDistance2(0, 0, input.x, input.y);
         if (inputLen2 <= 1) { this.inputAcceleration = input; }
         else {
@@ -65,10 +67,23 @@ export class LocalPlayer extends Player {
         this.fireBulletTick(delta);
     }
     
+    renderRespawnTimer(context: CanvasRenderingContext2D): void{
+        const defaultStyle : string = "72px Arial";
+        context.font = defaultStyle;
+        context.textAlign = "center";
+        context.fillStyle = "black";
+        context.fillText("Respawning in: " + this.respawnTime.toFixed(1), 0.0, 100.0); // TODO: Screen tint?
+    }
+    
+    renderImplContext2d(context: CanvasRenderingContext2D): void{
+        if (this.isDead) {this.renderRespawnTimer(context);}
+        super.renderImplContext2d(context);
+    }
+    
     fireBulletTick(delta : number) {
         if (this.events.isMouseButtonDown(MouseButton.Left)) {
             if (this.ignoreMouseDown) { return false; }
-            if (this.fireCooldown <= 0 && !this.isInvulnerable()) {
+            if (this.fireCooldown <= 0 && !this.isInvulnerable() && !this.isDead) {
                 let bullet: Bullet = new Bullet({
                     x: this.x,
                     y: this.y,
@@ -89,6 +104,8 @@ export class LocalPlayer extends Player {
         let newVals = <Partial<PlayerDetailsT>>{};
         if (typeof vals.color !== "undefined") { newVals.color = vals.color; }
         if (typeof vals.health !== "undefined") { newVals.health = vals.health; }
+        if (typeof vals.isDead !== "undefined") { newVals.isDead = vals.isDead; }
+        if (typeof vals.respawnTime !== "undefined") { newVals.respawnTime = vals.respawnTime; }
         if (!Object.keys(newVals).length) return null;
         return newVals;
     }

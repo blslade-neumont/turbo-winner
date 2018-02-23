@@ -95,7 +95,8 @@ export class PlayerManager extends GameObject {
             this.players.set(pid, player);
             this.scene!.addObject(player);
         }
-        if (sanitize) details = player.sanitizeDetails(details);
+        if (details && details.ignoreAuthority) {sanitize = false;} // don't sanitize if ignore authority
+        if (sanitize) {details = player.sanitizeDetails(details);}
         player.setDetails(details);
     }
     

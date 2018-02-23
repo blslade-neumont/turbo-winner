@@ -1,4 +1,4 @@
-import { Player, PLAYER_ACCELERATION } from "./player";
+import { Player, RESPAWN_TIME, PLAYER_ACCELERATION } from "./player";
 import { PlayerDetailsT } from "./player-meta";
 
 type LerpPlayerDetails = {
@@ -26,6 +26,11 @@ export class DummyPlayer extends Player {
         if (this.timer < this.lerpTime){
             this.lerpToTarget(perc, delta);
             this.invulnTime -= delta;
+            if (this.isDead){
+                this.respawnTime -= delta;
+                this.respawnTime = Math.max(this.respawnTime, 0.0);
+                this.respawnTime = Math.min(this.respawnTime, RESPAWN_TIME);
+            }
         } else {
             super.tick(delta);
         }
@@ -82,6 +87,9 @@ export class DummyPlayer extends Player {
         
         if (typeof vals.health !== "undefined") { this.health = vals.health; }
         if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
+        
+        if (typeof vals.isDead !== "undefined") { this.isDead = vals.isDead; }
+        if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
 
         this.timer = 0.0;
         if (!this.hasSetDetails) {

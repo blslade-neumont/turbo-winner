@@ -8,6 +8,7 @@ export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS: number = 48;
 export const INVULN_ON_START: number = 5;
+export const RESPAWN_TIME = 10;
 
 export abstract class Player extends GameObject {
     constructor(
@@ -24,18 +25,22 @@ export abstract class Player extends GameObject {
     public inputAcceleration = { x: 0, y: 0 };
     public health: number = MAX_PLAYER_HEALTH;
     public invulnTime: number = INVULN_ON_START;
+    public isDead: boolean = false;
+    public respawnTime: number = 0.0;
     private show: boolean = true;
+    private alpha: string = "FF";
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
     }
+    
     renderPlayerCircle(context: CanvasRenderingContext2D): void {
         context.beginPath();
         context.arc(0, 0, PLAYER_RADIUS, 0, 2 * Math.PI, false);
-        context.fillStyle = this.color;
+        context.fillStyle = this.color + this.alpha;
         context.fill();
         context.lineWidth = 5;
-        context.strokeStyle = "#003300";
+        context.strokeStyle = "#003300" + this.alpha;
         context.stroke();
     }
 
@@ -45,7 +50,7 @@ export abstract class Player extends GameObject {
         context.moveTo(0, 0);
         context.lineTo(lineLength*this.forward.x, lineLength*this.forward.y);
         context.lineWidth = 5;
-        context.strokeStyle = "#003300";
+        context.strokeStyle = "#003300" + this.alpha;
         context.stroke();
     }
 
@@ -73,14 +78,25 @@ export abstract class Player extends GameObject {
         context.fillRect(HB_LEFT + HB_STROKE/2, HB_OFFSET + HB_STROKE/2,
                          healthPerc* HB_INNER_MAX_WIDTH, HB_INNER_HEIGHT);
     }
-
+    
+    alphaFromState(): void{
+        if (this.isDead){
+            this.alpha = Math.floor(256.0 * (this.respawnTime / RESPAWN_TIME)).toString(16);
+        } else {
+            this.alpha = "FF"
+        }
+    }
+    
     renderImplContext2d(context: CanvasRenderingContext2D): void {
+        this.alphaFromState();
+        
         if (this.show) {
             this.renderPlayerCircle(context);
             this.renderPlayerPointer(context);
-         }
-        this.renderPlayerHealth(context);
-
+        }
+        if (!this.isDead){
+            this.renderPlayerHealth(context);
+        }
     }
 
     private previousDetails: PlayerDetailsT = <any>{};
@@ -94,7 +110,10 @@ export abstract class Player extends GameObject {
             forward: this.forward,
             accel: this.inputAcceleration,
             health: this.health,
-            invulnTime: this.invulnTime
+            invulnTime: this.invulnTime,
+            isDead: this.isDead,
+            respawnTime: this.respawnTime,
+            ignoreAuthority: false // server doesn't care about this
         };
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
@@ -121,6 +140,10 @@ export abstract class Player extends GameObject {
         }
         delete details.health; // client don't send health to server.
         delete details.invulnTime; // client don't send invuln time to server
+        delete details.isDead; // client don't send dead boolean to server
+        delete details.respawnTime; // client don't send respawn timer to server
+        delete details.ignoreAuthority; // server doesn't care about this
+        
         if (!Object.keys(details).length) { return null; }
         return details;
     }
@@ -138,6 +161,8 @@ export abstract class Player extends GameObject {
         if (typeof vals.accel !== "undefined") { this.inputAcceleration = vals.accel; }
         if (typeof vals.health !== "undefined") { this.health = vals.health; }
         if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
+        if (typeof vals.isDead !== "undefined") { this.isDead = vals.isDead; }
+        if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
     }
 
     tick(delta: number): void {
@@ -159,5 +184,10 @@ export abstract class Player extends GameObject {
         this.invulnTime = this.invulnTime < 0.0 ? 0.0 : this.invulnTime;
         this.show = Math.sqrt(this.invulnTime) * 100 % 7 < 2;
 
+        if (this.isDead){
+            this.respawnTime -= delta;
+            this.respawnTime = Math.max(this.respawnTime, 0.0);
+            this.respawnTime = Math.min(this.respawnTime, RESPAWN_TIME);
+        }
     }
 }

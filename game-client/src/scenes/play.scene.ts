@@ -74,7 +74,7 @@ export class PlayScene extends GameScene {
             if (openPercent > 0) {
                 let filter = `grayscale(${Math.floor(openPercent * 100)}%)`;// blur(${Math.floor(openPercent * 200) / 100}px)`;
                 (<any>context).filter = filter;
-            }
+            } 
             else (<any>context).filter = 'none';
         }
         

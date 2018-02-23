@@ -25,6 +25,7 @@ export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS = 48;
 export const INVULN_ON_START = 5;
+export const RESPAWN_TIME = 10;
 
 export class Player {
     constructor(
@@ -43,7 +44,11 @@ export class Player {
     color = chooseRandomColor();
     health = MAX_PLAYER_HEALTH;
     invulnTime = INVULN_ON_START;
-
+    respawnTime = 0;
+    isDead = false;
+    forcePlayerUpdate: boolean = false;
+    ignorePlayerTimer = 0.0;
+    
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
     }
@@ -65,10 +70,40 @@ export class Player {
         this.y += this.vspeed * delta;
 
         this.invulnTime -= delta;
+        
+        if (this.isDead){
+            this.respawnTime -= delta;
+            if (this.respawnTime <= 0.0){
+                this.isDead = false;
+                
+                let minDist = 10;
+                let maxDist = 1000;
+                let radius = Math.floor(Math.random() * 1000) + 10;
+                let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
+                this.x = Math.cos(theta) * radius;
+                this.y = Math.sin(theta) * radius;
+
+                this.health = MAX_PLAYER_HEALTH;
+                this.invulnTime = INVULN_ON_START;
+                this.forcePlayerUpdate = true;
+                this.ignorePlayerTimer = 1.0;
+            }
+            
+            this.respawnTime = Math.max(this.respawnTime, 0.0);
+            this.respawnTime = Math.min(this.respawnTime, RESPAWN_TIME);
+        }
+        
+        this.ignorePlayerTimer = Math.max(this.ignorePlayerTimer - delta, 0.0);
     }
     
     takeDamage(amount: number): void{
+        if (this.isDead) { return; }
         this.health -= amount; // todo: clamp here? todo again: check death here
+        if (this.health <= 0.0){
+            this.health = 0.0;
+            this.respawnTime = RESPAWN_TIME;
+            this.isDead = true;
+        }
     }
     
     timeUntilNextUpdate = 1 / 10;
@@ -96,8 +131,14 @@ export class Player {
             forward: this.forward,
             accel: this.inputAcceleration,
             health: this.health,
-            invulnTime: this.invulnTime
+            invulnTime: this.invulnTime,
+            isDead: this.isDead,
+            respawnTime: this.respawnTime,
+            ignoreAuthority: this.forcePlayerUpdate
         };
+        
+        this.forcePlayerUpdate = false; // only force once
+        
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!force) {
             if (this.previousDetails) {
@@ -106,6 +147,7 @@ export class Player {
                 if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
                 if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
                 if (details.color === this.previousDetails.color) { delete details.color; }
+                if (details.isDead === this.previousDetails.isDead) { delete details.isDead; }
                 if (this.previousDetails.forward &&
                     !isSignificantlyDifferent(details.forward!.x, this.previousDetails.forward.x) &&
                     !isSignificantlyDifferent(details.forward!.y, this.previousDetails.forward.y)
@@ -121,8 +163,12 @@ export class Player {
                 if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)){
                     delete details.health;
                 }
-                if (!isSignificantlyDifferent(details.invulnTime!, this.invulnTime)){
+                if (!isSignificantlyDifferent(details.invulnTime!, this.previousDetails.invulnTime)){
                     delete details.invulnTime;
+                }
+
+                if (!isSignificantlyDifferent(details.respawnTime!, this.previousDetails.respawnTime)){
+                    delete details.respawnTime;
                 }
             }
             this.previousDetails = currentDetails;
@@ -131,7 +177,7 @@ export class Player {
         return details;
     }
     setDetails(vals: Partial<PlayerDetailsT> | null) {
-        if (!vals) return;
+        if (!vals || this.ignorePlayerTimer > 0.0) return;
         if (typeof vals.x !== 'undefined') { this.x = vals.x; }
         if (typeof vals.y !== 'undefined') { this.y = vals.y; }
         if (typeof vals.hspeed !== 'undefined') { this.hspeed = vals.hspeed; }
@@ -141,7 +187,8 @@ export class Player {
         if (typeof vals.accel !== 'undefined') { this.inputAcceleration = vals.accel; }
         if (typeof vals.health !== 'undefined') { this.health = vals.health; }
         if (typeof vals.invulnTime !== 'undefined') { this.invulnTime = vals.invulnTime; }
-
+        if (typeof vals.isDead !== 'undefined') { this.isDead = vals.isDead; }
+        if (typeof vals.respawnTime !== 'undefined') { this.respawnTime = vals.respawnTime; } // TODO: should the server really be accepting stuff like this?
     }
     
     getCollisionCircle(): CircleT {
