@@ -91,7 +91,7 @@ export class DummyPlayer extends Player {
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
 
         this.timer = 0.0;
-        if (!this.hasSetDetails) {
+        if (!this.hasSetDetails || vals.ignoreAuthority) {
             this.hasSetDetails = true;
             this.timer = this.lerpTime;
             this.lerpToTarget(1, 0);
