@@ -2,6 +2,7 @@ import { GameObject, CircleCollisionMask } from "engine";
 import { PlayerDetailsT } from "./player-meta";
 import { isSignificantlyDifferent } from "../../util/is-significantly-different";
 import cloneDeep = require("lodash.clonedeep");
+import { HealthBar } from "./health-bar";
 
 export const PLAYER_ACCELERATION: number = 350.0;
 export const PLAYER_FRICTION: number = 3.0;
@@ -29,6 +30,17 @@ export abstract class Player extends GameObject {
     public respawnTime: number = 0.0;
     private show: boolean = true;
     private alpha: string = "FF";
+    private healthBar: HealthBar;
+    
+    onAddToScene(){
+        super.onAddToScene();
+        this.healthBar = new HealthBar(this);
+        this.scene.addObject(this.healthBar);
+    }
+    
+    onRemoveFromScene(){
+        this.healthBar.scene.removeObject(this.healthBar);
+    }
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -54,30 +66,6 @@ export abstract class Player extends GameObject {
         context.stroke();
     }
 
-    renderPlayerHealth(context: CanvasRenderingContext2D): void {
-        const MAX_HB_WIDTH: number = 96;
-        const HB_OFFSET: number = -72;
-        const HB_HEIGHT: number = 16;
-        const HB_STROKE: number = 4;
-        const HB_LEFT: number = (MAX_HB_WIDTH / -2);
-        const HB_INNER_MAX_WIDTH: number = MAX_HB_WIDTH - HB_STROKE;
-        const HB_INNER_HEIGHT: number = HB_HEIGHT - HB_STROKE;
-
-        // gray bar black stroke bg
-        context.fillStyle = "gray";
-        context.fillRect(HB_LEFT, HB_OFFSET, MAX_HB_WIDTH, HB_HEIGHT);
-        context.lineWidth = HB_STROKE;
-        context.strokeStyle = "#003300";
-        context.strokeRect(HB_LEFT, HB_OFFSET, MAX_HB_WIDTH, HB_HEIGHT);
-
-        let healthPerc: number = (this.health / MAX_PLAYER_HEALTH);
-        healthPerc = healthPerc < 0.0 ? 0.0 : (healthPerc > 1.0 ? 1.0 : healthPerc);
-
-        // red bar no stroke
-        context.fillStyle = "red";
-        context.fillRect(HB_LEFT + HB_STROKE/2, HB_OFFSET + HB_STROKE/2,
-                         healthPerc* HB_INNER_MAX_WIDTH, HB_INNER_HEIGHT);
-    }
     
     alphaFromState(): void{
         if (this.isDead){
@@ -94,9 +82,6 @@ export abstract class Player extends GameObject {
         if (this.show) {
             this.renderPlayerCircle(context);
             this.renderPlayerPointer(context);
-        }
-        if (!this.isDead){
-            this.renderPlayerHealth(context);
         }
     }
 
