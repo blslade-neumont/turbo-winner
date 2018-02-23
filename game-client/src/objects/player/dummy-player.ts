@@ -22,7 +22,6 @@ export class DummyPlayer extends Player {
     tick(delta: number): void {
         this.timer += delta;
         let perc: number = this.timer / this.lerpTime;
-        console.log("x: " + this.lastDetails.x + ", y: " + this.lastDetails.y);
         if (this.timer < this.lerpTime){
             this.lerpToTarget(perc, delta);
             this.invulnTime -= delta;
