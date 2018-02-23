@@ -4,12 +4,13 @@ import { Player } from './player';
 import { BulletDetailsT, PlayerDetailsT } from './packet-meta';
 import { io } from '../sockets';
 
+type Socket = SocketIO.Socket;
+
 export class GameService {
     constructor(
         readonly io: SocketIO.Server
     ) { }
     
-    nextPlayerId: number = 1000;
     game: Game;
     
     async start() {
@@ -18,38 +19,39 @@ export class GameService {
         this.game = new Game();
         this.game.start();
         
-        this.io.on('connection', socket => {
-            console.log(`Client connected: ${socket.id}`);
-            
-            socket.emit('game-version', GameVersion);
-            
-            let player: Player | null = null;
-            socket.on('join-game', opts => {
-                let color = opts.color;
-                if (!player) player = new Player(this.nextPlayerId++, socket);
-                if (color) player.color = color;
-                this.game.addPlayer(player);
-            });
-            
-            socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT> | null) => {
-                if (!details || !player || player.playerId !== pid) return;
-                details = player.sanitizeDetails(details);
-                player.setDetails(details);
-            });
-            
-            socket.on('fire-bullet', (details: BulletDetailsT) =>{
-                if(!player || player.playerId !== details.ignorePlayerId) return;
-                this.game.addBullet(details);
-                io!.emit('create-bullet', details);
-            });
-            
-            socket.on('disconnect', () => {
-                console.log(`Client disconnected: ${socket.id}`);
-                if (player) {
-                    this.game.removePlayer(player);
+        this.io.on('connection', this.handleSocketConnection.bind(this));
+    }
+    
+    private handleSocketConnection(socket: Socket) {
+        console.log(`Client connected: ${socket.id}`);
+        socket.emit('game-version', GameVersion);
+        
+        let game: Game | null = null;
+        let player: Player | null = null;
+        
+        socket.on('join-game', opts => {
+            let color = opts.color;
+            if (!game) game = this.game;
+            if (!player) {
+                player = game.createPlayerWithUniqueID(socket);
+                player.once('removeFromGame', () => {
                     player = null;
-                }
-            });
+                    game = null;
+                });
+            }
+            if (color) player.color = color;
+            game.addPlayer(player);
+        });
+        
+        function beginRemovePlayer() {
+            if (game && player) game.beginRemovePlayer(player);
+        }
+        
+        socket.on('leave-game', beginRemovePlayer);
+        
+        socket.on('disconnect', () => {
+            console.log(`Client disconnected: ${socket.id}`);
+            beginRemovePlayer();
         });
     }
 }

@@ -1,4 +1,4 @@
-import { GameObject, CircleCollisionMask } from "engine";
+import { GameObject, CircleCollisionMask, clamp } from "engine";
 import { PlayerDetailsT } from "./player-meta";
 import { isSignificantlyDifferent } from "../../util/is-significantly-different";
 import cloneDeep = require("lodash.clonedeep");
@@ -10,6 +10,7 @@ export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS: number = 48;
 export const INVULN_ON_START: number = 5;
 export const RESPAWN_TIME = 10;
+export const PLAYER_REMOVAL_TIME = 10;
 
 export abstract class Player extends GameObject {
     constructor(
@@ -28,19 +29,24 @@ export abstract class Player extends GameObject {
     public invulnTime: number = INVULN_ON_START;
     public isDead: boolean = false;
     public respawnTime: number = 0.0;
+    
+    public isDisconnected = false;
+    public timeUntilRemoval = 0;
+    
     private healthBar: HealthBar;
     
-    onAddToScene(){
+    onAddToScene() {
         super.onAddToScene();
         this.healthBar = new HealthBar(this);
         this.scene.addObject(this.healthBar);
     }
     
-    onRemoveFromScene(){
+    onRemoveFromScene() {
+        super.onRemoveFromScene();
         this.healthBar.scene.removeObject(this.healthBar);
     }
     
-    isInvulnerable(): boolean{
+    isInvulnerable(): boolean {
         return this.invulnTime > 0.0;
     }
     
@@ -53,7 +59,7 @@ export abstract class Player extends GameObject {
         context.strokeStyle = "#003300";
         context.stroke();
     }
-
+    
     renderPlayerPointer(context: CanvasRenderingContext2D): void {
         const lineLength: number = 64;
         context.beginPath();
@@ -62,6 +68,49 @@ export abstract class Player extends GameObject {
         context.lineWidth = 5;
         context.strokeStyle = "#003300";
         context.stroke();
+    }
+    
+    renderDisconnectAnimation(context: CanvasRenderingContext2D): void {
+        let removalPercent = clamp((PLAYER_REMOVAL_TIME - this.timeUntilRemoval) / PLAYER_REMOVAL_TIME, 0, 1);
+        if (!removalPercent) return;
+        let popupPercent = clamp((PLAYER_REMOVAL_TIME - this.timeUntilRemoval) * 3, 0, 1);
+        
+        context.save();
+        try {
+            context.scale(PLAYER_RADIUS, PLAYER_RADIUS);
+            context.translate(1.5, -1);
+            context.scale(.25, .25);
+            let popupScale = Math.sqrt(popupPercent);
+            context.scale(popupPercent, popupPercent);
+            
+            context.strokeStyle = 'black';
+            context.fillStyle = 'white';
+            context.lineWidth = 12 / PLAYER_RADIUS;
+            
+            context.beginPath();
+            context.ellipse(.4, 0, 2.5, 2.5, -.5 * Math.PI, 0, 2 * Math.PI);
+            context.fill();
+            
+            context.beginPath();
+            context.ellipse(.4, 0, 2.5, 2.5, -.5 * Math.PI, 0, 2 * Math.PI * removalPercent);
+            context.stroke();
+            
+            context.fillRect(-.5, -1, 1, 2);
+            context.strokeRect(-.5, -1, 1, 2);
+            
+            context.fillStyle = 'black';
+            context.beginPath();
+            context.moveTo(.5, -1);
+            context.lineTo(1.2, -1.3);
+            context.lineTo(1.2, 1.3);
+            context.lineTo(.5, 1);
+            context.closePath();
+            context.fill();
+            context.stroke();
+        }
+        finally {
+            context.restore();
+        }
     }
     
     getRenderAlpha(): number {
@@ -80,6 +129,7 @@ export abstract class Player extends GameObject {
             
             this.renderPlayerCircle(context);
             this.renderPlayerPointer(context);
+            if (this.isDisconnected) this.renderDisconnectAnimation(context);
         }
         finally {
             context.globalAlpha = prevGlobalAlpha;
@@ -100,7 +150,9 @@ export abstract class Player extends GameObject {
             invulnTime: this.invulnTime,
             isDead: this.isDead,
             respawnTime: this.respawnTime,
-            ignoreAuthority: false // server doesn't care about this
+            ignoreAuthority: false,
+            isDisconnected: this.isDisconnected,
+            timeUntilRemoval: this.timeUntilRemoval
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -110,6 +162,8 @@ export abstract class Player extends GameObject {
         delete details.isDead;
         delete details.respawnTime;
         delete details.ignoreAuthority;
+        delete details.isDisconnected;
+        delete details.timeUntilRemoval;
         
         if (!force) {
             if (this.previousDetails) {
@@ -130,8 +184,9 @@ export abstract class Player extends GameObject {
                 ) {
                     delete details.accel;
                 }
+                Object.assign(this.previousDetails, details);
             }
-            this.previousDetails = currentDetails;
+            else this.previousDetails = currentDetails;
         }
         
         if (!Object.keys(details).length) { return null; }
@@ -142,9 +197,7 @@ export abstract class Player extends GameObject {
      * For example, the LocalPlayer will strip position and speed updates, because the LocalPlayer has authority over it.
      * @param vals The packet received from the server
      */
-    sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null {
-        return vals;
-    }
+    abstract sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null;
     setDetails(vals: Partial<PlayerDetailsT> | null): void {
         if (!vals) { return; }
         if (typeof vals.x !== "undefined") { this.x = vals.x; }
@@ -158,6 +211,8 @@ export abstract class Player extends GameObject {
         if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
         if (typeof vals.isDead !== "undefined") { this.isDead = vals.isDead; }
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
+        if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
+        if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
     }
     
     tick(delta: number): void {
@@ -178,10 +233,12 @@ export abstract class Player extends GameObject {
         this.invulnTime -= delta;
         this.invulnTime = this.invulnTime < 0.0 ? 0.0 : this.invulnTime;
         
-        if (this.isDead){
-            this.respawnTime -= delta;
-            this.respawnTime = Math.max(this.respawnTime, 0.0);
-            this.respawnTime = Math.min(this.respawnTime, RESPAWN_TIME);
+        if (this.isDead) {
+            this.respawnTime = clamp(this.respawnTime - delta, 0, RESPAWN_TIME);
+        }
+        
+        if (this.isDisconnected) {
+            this.timeUntilRemoval = clamp(this.timeUntilRemoval - delta, 0, PLAYER_REMOVAL_TIME);
         }
     }
 }

@@ -67,19 +67,6 @@ export class LocalPlayer extends Player {
         this.fireBulletTick(delta);
     }
     
-    renderRespawnTimer(context: CanvasRenderingContext2D): void{
-        const defaultStyle : string = "72px Arial";
-        context.font = defaultStyle;
-        context.textAlign = "center";
-        context.fillStyle = "black";
-        context.fillText("Respawning in: " + this.respawnTime.toFixed(1), 0.0, 100.0); // TODO: Screen tint?
-    }
-    
-    renderImplContext2d(context: CanvasRenderingContext2D): void{
-        if (this.isDead) {this.renderRespawnTimer(context);}
-        super.renderImplContext2d(context);
-    }
-    
     fireBulletTick(delta : number) {
         if (this.events.isMouseButtonDown(MouseButton.Left)) {
             if (this.ignoreMouseDown) { return false; }
@@ -99,13 +86,30 @@ export class LocalPlayer extends Player {
         this.fireCooldown -= delta;
     }
     
+    renderRespawnTimer(context: CanvasRenderingContext2D): void {
+        const defaultStyle : string = "72px Arial";
+        context.font = defaultStyle;
+        context.textAlign = "center";
+        context.fillStyle = "black";
+        context.fillText("Respawning in: " + this.respawnTime.toFixed(1), 0.0, 100.0); // TODO: Screen tint?
+    }
+    
+    renderImplContext2d(context: CanvasRenderingContext2D): void{
+        super.renderImplContext2d(context);
+        if (this.isDead) {this.renderRespawnTimer(context);}
+    }
+    
     sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null {
         if (!vals) return null;
+        if (vals.ignoreAuthority) return vals;
+        
         let newVals = <Partial<PlayerDetailsT>>{};
         if (typeof vals.color !== "undefined") { newVals.color = vals.color; }
         if (typeof vals.health !== "undefined") { newVals.health = vals.health; }
         if (typeof vals.isDead !== "undefined") { newVals.isDead = vals.isDead; }
         if (typeof vals.respawnTime !== "undefined") { newVals.respawnTime = vals.respawnTime; }
+        if (typeof vals.isDisconnected !== "undefined") { newVals.isDisconnected = vals.isDisconnected; }
+        if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }
         if (!Object.keys(newVals).length) return null;
         return newVals;
     }

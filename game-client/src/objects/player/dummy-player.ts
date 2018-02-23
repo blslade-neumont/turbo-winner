@@ -1,5 +1,7 @@
 import { Player, RESPAWN_TIME, PLAYER_ACCELERATION } from "./player";
 import { PlayerDetailsT } from "./player-meta";
+import { lerp } from '../../util/lerp';
+import cloneDeep = require('lodash.clonedeep');
 
 type LerpPlayerDetails = {
     x: number,
@@ -37,11 +39,11 @@ export class DummyPlayer extends Player {
     
     lerpToTarget(perc: number, delta: number){
         this.updateTarget(delta);
-        this.x = this.lerpTo(this.lastDetails.x, this.target.x, perc);
-        this.y = this.lerpTo(this.lastDetails.y, this.target.y, perc);
+        this.x = lerp(this.lastDetails.x, this.target.x, perc);
+        this.y = lerp(this.lastDetails.y, this.target.y, perc);
         
-        let fx: number = this.lerpTo(this.lastDetails.forward.x, this.target.forward.x, perc);
-        let fy: number = this.lerpTo(this.lastDetails.forward.y, this.target.forward.y, perc);
+        let fx: number = lerp(this.lastDetails.forward.x, this.target.forward.x, perc);
+        let fy: number = lerp(this.lastDetails.forward.y, this.target.forward.y, perc);
         let fLen: number = Math.sqrt(fx*fx+fy*fy);
         this.forward = fLen === 0.0 ? {x: 0, y: 0} : {x: fx/fLen, y: fy/fLen};
     }
@@ -64,11 +66,9 @@ export class DummyPlayer extends Player {
         this.target.y += delta * this.vspeed;
     }
     
-    lerpTo(from : number, to : number, perc : number): number {
-        let t : number = perc < 0.0 ? 0.0 : (perc > 1.0 ? 1.0 : perc);
-        return (from * (1-t)) + (to*t);
+    sanitizeDetails(vals: Partial<PlayerDetailsT> | null): Partial<PlayerDetailsT> | null {
+        return vals;
     }
-    
     setDetails(vals: PlayerDetailsT | null): void {
         if (!vals) { return; }
         
@@ -78,30 +78,18 @@ export class DummyPlayer extends Player {
         if (typeof vals.forward !== "undefined") { this.target.forward = vals.forward; this.lastDetails.forward = this.forward; }
         
         // the rest we keep as-is
-        if (typeof vals.hspeed !== "undefined") { this.hspeed = vals.hspeed; }
-        if (typeof vals.vspeed !== "undefined") { this.vspeed = vals.vspeed; }
-        if (typeof vals.color !== "undefined")  { this.color = vals.color; }
-        if (typeof vals.accel !== "undefined")  { this.inputAcceleration = vals.accel; }
+        let nolerpVals = cloneDeep(vals);
+        delete nolerpVals.x;
+        delete nolerpVals.y;
+        delete nolerpVals.forward;
+        super.setDetails(nolerpVals);
         
-        if (typeof vals.health !== "undefined") { this.health = vals.health; }
-        if (typeof vals.invulnTime !== "undefined") { this.invulnTime = vals.invulnTime; }
-        
-        if (typeof vals.isDead !== "undefined") { this.isDead = vals.isDead; }
-        if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
-
         this.timer = 0.0;
         if (!this.hasSetDetails || vals.ignoreAuthority) {
             this.hasSetDetails = true;
             this.timer = this.lerpTime;
+            Object.assign(this.lastDetails, vals);
             this.lerpToTarget(1, 0);
-            this.forceLastDetails(vals); // fix for teleport bug
         }
-    }
-    
-    forceLastDetails(vals: PlayerDetailsT | null): void{
-        if (!vals) {return;}
-        if (typeof vals.x !== "undefined") { this.lastDetails.x = vals.x; }
-        if (typeof vals.y !== "undefined") { this.lastDetails.y = vals.y; }
-        if (typeof vals.forward !== "undefined") { this.lastDetails.forward = vals.forward; }
     }
 }

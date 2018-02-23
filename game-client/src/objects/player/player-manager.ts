@@ -18,17 +18,16 @@ export class PlayerManager extends GameObject {
         return (<TurboWinnerGame>this.game).io;
     }
     
-    onAddToScene() {
-        super.onAddToScene();
-        this.init();
-    }
-    
     private _localPlayerId: number;
     public get localPlayerId() : number {
         return this._localPlayerId;
     }
     
-    private init() {
+    onSceneEnter() {
+        super.onSceneEnter();
+        this.setUp();
+    }
+    private setUp() {
         this.io.emit('join-game', {
             color: this.preferredColor
         });
@@ -56,6 +55,14 @@ export class PlayerManager extends GameObject {
         this.io.on('remove-player', (pid: number) => {
             if (pid !== this._localPlayerId) this.removePlayer(pid);
         });
+    }
+    
+    onSceneExit() {
+        super.onSceneExit();
+        this.takeDown();
+    }
+    private takeDown() {
+        this.io.emit('leave-game');
     }
     
     private players = new Map<number, Player>();
@@ -95,8 +102,7 @@ export class PlayerManager extends GameObject {
             this.players.set(pid, player);
             this.scene!.addObject(player);
         }
-        if (details && details.ignoreAuthority) {sanitize = false;} // don't sanitize if ignore authority
-        if (sanitize) {details = player.sanitizeDetails(details);}
+        if (sanitize) { details = player.sanitizeDetails(details); }
         player.setDetails(details);
     }
     

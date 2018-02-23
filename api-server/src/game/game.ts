@@ -1,13 +1,16 @@
-import { Player } from './player';
+import { Player, PLAYER_REMOVAL_TIME } from './player';
 import { Bullet, BULLET_DAMAGE } from "./bullet";
 import { io } from '../sockets';
 import { PlayerDetailsT, BulletDetailsT } from './packet-meta';
 import { doCirclesCollide } from '../util/do-circles-collide';
+import { EventEmitter } from 'events';
 
 type Socket = SocketIO.Socket;
 
-export class Game {
-    constructor() { }
+export class Game extends EventEmitter {
+    constructor() {
+        super();
+    }
     
     private _lastTime: Date;
     private _gameTickInterval: any = null;
@@ -26,8 +29,9 @@ export class Game {
         let now = new Date();
         let delta = (now.valueOf() - this._lastTime.valueOf()) / 1000; //Seconds since last tick
         this._lastTime = now;
-        let players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
+        let players: Player[];
         
+        players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         for (let p of players) {
             p.tick(delta);
         }
@@ -36,6 +40,8 @@ export class Game {
         }
         this.bulletCollisionCheck(delta);
         
+        //Some players may have been removed in a previous step, so recalculate players
+        players = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         for (let p of players) {
             p.networkTick(delta);
         }
@@ -43,20 +49,21 @@ export class Game {
     
     players = new Map<number, Player>();
     
+    nextPlayerId: number = 1000;
+    createPlayerWithUniqueID(socket: Socket) {
+        return new Player(this.nextPlayerId++, socket);
+    }
+    
     addPlayer(player: Player) {
-        let isPreexisting = this.players.get(player.playerId) === player;
+        let prev = this.players.get(player.playerId) || null;
+        let isPreexisting = prev === player;
+        if (!isPreexisting && !!prev) throw new Error(`A player with that ID already exists!`);
         
-        //Values used to put new Player within a certain radius of something
-            //Change the minDist and maxDist to change how far or how close they will spawn to desired point (desired point is 0.0 right now)
-        let minDist = 10;
-        let maxDist = 1000;
-        let radius = Math.floor(Math.random() * 1000) + 10;
-        let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
+        player.isDisconnected = false;
+        player.timeUntilRemoval = 0;
+        this.attachSocketEvents(player);
         
-        if (!isPreexisting) {
-            player.x = Math.cos(theta) * radius;
-            player.y = Math.sin(theta) * radius;
-        }
+        if (!isPreexisting) player.randomizePosition();
         
         //Send initial player state to the new player
         player.socket.emit('assign-player-id', player.playerId, player.getDetails(true));
@@ -76,10 +83,37 @@ export class Game {
         this.players.set(player.playerId, player);
         player.game = this;
     }
+    beginRemovePlayer(player: Player) {
+        this.detachSocketEvents(player);
+        player.isDisconnected = true;
+        player.timeUntilRemoval = PLAYER_REMOVAL_TIME;
+    }
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
         player.game = null;
         io!.emit('remove-player', player.playerId);
+    }
+    
+    private attachSocketEvents(player: Player) {
+        let socket = player.socket;
+        
+        socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT> | null) => {
+            if (!details || !player || player.playerId !== pid) return;
+            details = player.sanitizeDetails(details);
+            player.setDetails(details);
+        });
+        
+        socket.on('fire-bullet', (details: BulletDetailsT) =>{
+            if(!player || player.playerId !== details.ignorePlayerId) return;
+            this.addBullet(details);
+            io!.emit('create-bullet', details);
+        });
+    }
+    private detachSocketEvents(player: Player) {
+        let socket = player.socket;
+        
+        socket.removeAllListeners('update-player');
+        socket.removeAllListeners('fire-bullet');
     }
     
     sendPlayerUpdate(player: Player, force = false, socket: Socket | null = null) {

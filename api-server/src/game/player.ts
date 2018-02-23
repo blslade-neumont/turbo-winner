@@ -3,6 +3,7 @@ import cloneDeep = require('lodash.clonedeep');
 import { Game } from './game';
 import { isSignificantlyDifferent } from '../util/is-significantly-different';
 import { CircleT } from '../util/circle';
+import { EventEmitter } from 'events';
 
 type Socket = SocketIO.Socket;
 
@@ -26,12 +27,15 @@ export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS = 48;
 export const INVULN_ON_START = 5;
 export const RESPAWN_TIME = 10;
+export const PLAYER_REMOVAL_TIME = 10;
 
-export class Player {
+export class Player extends EventEmitter {
     constructor(
         readonly playerId: number,
         readonly socket: Socket
-    ) { }
+    ) {
+        super();
+    }
     
     public game: Game | null;
     
@@ -48,11 +52,23 @@ export class Player {
     isDead = false;
     forcePlayerUpdate: boolean = false;
     ignorePlayerTimer = 0.0;
+    isDisconnected = false;
+    timeUntilRemoval = 0;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
     }
-
+    
+    randomizePosition() {
+        let minDist = 10;
+        let maxDist = 1000;
+        let radius = Math.floor(Math.random() * 1000) + 10;
+        let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
+        
+        this.x = Math.cos(theta) * radius;
+        this.y = Math.sin(theta) * radius;
+    }
+    
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
         let moveAmount = PLAYER_ACCELERATION * delta;
@@ -68,21 +84,14 @@ export class Player {
         
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
-
+        
         this.invulnTime -= delta;
         
-        if (this.isDead){
+        if (this.isDead) {
             this.respawnTime -= delta;
             if (this.respawnTime <= 0.0){
                 this.isDead = false;
-                
-                let minDist = 10;
-                let maxDist = 1000;
-                let radius = Math.floor(Math.random() * 1000) + 10;
-                let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
-                this.x = Math.cos(theta) * radius;
-                this.y = Math.sin(theta) * radius;
-
+                this.randomizePosition();
                 this.health = MAX_PLAYER_HEALTH;
                 this.invulnTime = INVULN_ON_START;
                 this.forcePlayerUpdate = true;
@@ -94,15 +103,27 @@ export class Player {
         }
         
         this.ignorePlayerTimer = Math.max(this.ignorePlayerTimer - delta, 0.0);
+        
+        if (this.isDisconnected) {
+            this.timeUntilRemoval -= delta;
+            if (this.timeUntilRemoval <= 0) this.removeFromGame();
+        }
     }
     
-    takeDamage(amount: number): void{
+    private removeFromGame() {
+        if (!this.game) return;
+        this.game.removePlayer(this);
+        this.emit('removeFromGame');
+    }
+    
+    takeDamage(amount: number): void {
         if (this.isDead) { return; }
         this.health -= amount; // todo: clamp here? todo again: check death here
-        if (this.health <= 0.0){
+        if (this.health <= 0.0) {
             this.health = 0.0;
             this.respawnTime = RESPAWN_TIME;
             this.isDead = true;
+            if (this.isDisconnected) this.removeFromGame();
         }
     }
     
@@ -134,12 +155,15 @@ export class Player {
             invulnTime: this.invulnTime,
             isDead: this.isDead,
             respawnTime: this.respawnTime,
-            ignoreAuthority: this.forcePlayerUpdate
+            ignoreAuthority: this.forcePlayerUpdate,
+            isDisconnected: this.isDisconnected,
+            timeUntilRemoval: this.timeUntilRemoval
         };
         
         this.forcePlayerUpdate = false; // only force once
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
+        if (!details.ignoreAuthority) delete details.ignoreAuthority;
         if (!force) {
             if (this.previousDetails) {
                 if (!isSignificantlyDifferent(details.x!, this.previousDetails.x)) { delete details.x; }
@@ -160,17 +184,15 @@ export class Player {
                 ) {
                     delete details.accel;
                 }
-                if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)){
-                    delete details.health;
-                }
-                if (!isSignificantlyDifferent(details.invulnTime!, this.previousDetails.invulnTime)){
-                    delete details.invulnTime;
-                }
-                if (!isSignificantlyDifferent(details.respawnTime!, this.previousDetails.respawnTime)){
-                    delete details.respawnTime;
-                }
+                if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)) { delete details.health; }
+                if (details.invulnTime! <= this.previousDetails.invulnTime) { delete details.invulnTime; }
+                if (details.respawnTime! <= this.previousDetails.respawnTime) { delete details.respawnTime; }
+                if (details.isDisconnected === this.previousDetails.isDisconnected) { delete details.isDisconnected; }
+                if (!details.isDisconnected || details.timeUntilRemoval! < this.previousDetails.timeUntilRemoval) { delete details.timeUntilRemoval; }
+                Object.assign(this.previousDetails, details);
+                if (details.isDisconnected) this.previousDetails.timeUntilRemoval = 0;
             }
-            this.previousDetails = currentDetails;
+            else this.previousDetails = currentDetails;
         }
         if (!Object.keys(details).length) { return null; }
         return details;
@@ -188,6 +210,8 @@ export class Player {
         delete vals.isDead;
         delete vals.respawnTime;
         delete vals.ignoreAuthority;
+        delete vals.isDisconnected;
+        delete vals.timeUntilRemoval;
         if (!Object.keys(vals).length) return null;
         return vals;
     }
@@ -204,6 +228,8 @@ export class Player {
         if (typeof vals.invulnTime !== 'undefined') { this.invulnTime = vals.invulnTime; }
         if (typeof vals.isDead !== 'undefined') { this.isDead = vals.isDead; }
         if (typeof vals.respawnTime !== 'undefined') { this.respawnTime = vals.respawnTime; }
+        if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
+        if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
     }
     
     getCollisionCircle(): CircleT {

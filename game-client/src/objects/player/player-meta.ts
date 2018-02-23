@@ -12,5 +12,7 @@ export type PlayerDetailsT = {
     invulnTime: number,
     isDead: boolean,
     respawnTime: number,
-    ignoreAuthority: boolean
+    ignoreAuthority: boolean,
+    isDisconnected: boolean,
+    timeUntilRemoval: number
 };
