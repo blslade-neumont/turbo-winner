@@ -49,10 +49,10 @@ export abstract class Player extends GameObject {
     renderPlayerCircle(context: CanvasRenderingContext2D): void {
         context.beginPath();
         context.arc(0, 0, PLAYER_RADIUS, 0, 2 * Math.PI, false);
-        context.fillStyle = this.color + this.alpha;
+        context.fillStyle = this.color;
         context.fill();
         context.lineWidth = 5;
-        context.strokeStyle = "#003300" + this.alpha;
+        context.strokeStyle = "#003300";
         context.stroke();
     }
 
@@ -62,29 +62,31 @@ export abstract class Player extends GameObject {
         context.moveTo(0, 0);
         context.lineTo(lineLength*this.forward.x, lineLength*this.forward.y);
         context.lineWidth = 5;
-        context.strokeStyle = "#003300" + this.alpha;
+        context.strokeStyle = "#003300";
         context.stroke();
     }
-
     
-    alphaFromState(): void{
-        if (this.isDead){
-            this.alpha = Math.floor(256.0 * (this.respawnTime / RESPAWN_TIME)).toString(16);
-            if (this.alpha.length == 1) {this.alpha = "0" + this.alpha;}
-        } else {
-            this.alpha = "FF"
-        }
+    getRenderAlpha(): number {
+        if (!this.show) return 0;
+        return this.isDead ? (this.respawnTime / RESPAWN_TIME) : 1;
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D): void {
-        this.alphaFromState();
+        let alpha = this.getRenderAlpha();
+        if (!alpha) return;
         
-        if (this.show) {
+        let prevGlobalAlpha = context.globalAlpha;
+        try {
+            context.globalAlpha *= alpha;
+            
             this.renderPlayerCircle(context);
             this.renderPlayerPointer(context);
         }
+        finally {
+            context.globalAlpha = prevGlobalAlpha;
+        }
     }
-
+    
     private previousDetails: PlayerDetailsT = <any>{};
     getDetails(force: boolean = false): Partial<PlayerDetailsT> | null {
         let currentDetails: PlayerDetailsT = {
