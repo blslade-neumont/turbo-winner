@@ -28,8 +28,6 @@ export abstract class Player extends GameObject {
     public invulnTime: number = INVULN_ON_START;
     public isDead: boolean = false;
     public respawnTime: number = 0.0;
-    private show: boolean = true;
-    private alpha: string = "FF";
     private healthBar: HealthBar;
     
     onAddToScene(){
@@ -67,8 +65,9 @@ export abstract class Player extends GameObject {
     }
     
     getRenderAlpha(): number {
-        if (!this.show) return 0;
-        return this.isDead ? (this.respawnTime / RESPAWN_TIME) : 1;
+        let showPercent = 1;
+        if (this.invulnTime > 0) showPercent = Math.abs((((Math.sqrt(this.invulnTime) * 100) % 7) / 3.5) - 1);
+        return this.isDead ? (this.respawnTime / RESPAWN_TIME) : showPercent;
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D): void {
@@ -178,7 +177,6 @@ export abstract class Player extends GameObject {
         
         this.invulnTime -= delta;
         this.invulnTime = this.invulnTime < 0.0 ? 0.0 : this.invulnTime;
-        this.show = Math.sqrt(this.invulnTime) * 100 % 7 < 2;
         
         if (this.isDead){
             this.respawnTime -= delta;
