@@ -82,6 +82,7 @@ export abstract class Player extends GameObject {
     alphaFromState(): void{
         if (this.isDead){
             this.alpha = Math.floor(256.0 * (this.respawnTime / RESPAWN_TIME)).toString(16);
+            if (this.alpha.length == 1) {this.alpha = "0" + this.alpha;}
         } else {
             this.alpha = "FF"
         }
