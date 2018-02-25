@@ -107,6 +107,7 @@ export class LocalPlayer extends Player {
         if (typeof vals.color !== "undefined") { newVals.color = vals.color; }
         if (typeof vals.health !== "undefined") { newVals.health = vals.health; }
         if (typeof vals.isDead !== "undefined") { newVals.isDead = vals.isDead; }
+        if (typeof vals.invulnTime !== "undefined") { newVals.invulnTime = vals.invulnTime; }
         if (typeof vals.respawnTime !== "undefined") { newVals.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== "undefined") { newVals.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }

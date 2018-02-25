@@ -230,9 +230,8 @@ export abstract class Player extends GameObject {
         
         super.tick(delta);
         
-        this.invulnTime -= delta;
-        this.invulnTime = this.invulnTime < 0.0 ? 0.0 : this.invulnTime;
-        
+        this.invulnTime = Math.max(this.invulnTime - delta, 0.0);
+            
         if (this.isDead) {
             this.respawnTime = clamp(this.respawnTime - delta, 0, RESPAWN_TIME);
         }

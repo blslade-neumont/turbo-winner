@@ -85,7 +85,7 @@ export class Player extends EventEmitter {
         this.x += this.hspeed * delta;
         this.y += this.vspeed * delta;
         
-        this.invulnTime -= delta;
+        this.invulnTime = Math.max(this.invulnTime - delta, 0.0);
         
         if (this.isDead) {
             this.respawnTime -= delta;
@@ -160,8 +160,6 @@ export class Player extends EventEmitter {
             timeUntilRemoval: this.timeUntilRemoval
         };
         
-        this.forcePlayerUpdate = false; // only force once
-        
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
         if (!details.ignoreAuthority) delete details.ignoreAuthority;
         if (!force) {
@@ -185,8 +183,8 @@ export class Player extends EventEmitter {
                     delete details.accel;
                 }
                 if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)) { delete details.health; }
-                if (details.invulnTime! <= this.previousDetails.invulnTime) { delete details.invulnTime; }
-                if (details.respawnTime! <= this.previousDetails.respawnTime) { delete details.respawnTime; }
+                if (details.invulnTime! <= this.previousDetails.invulnTime && !this.forcePlayerUpdate) { delete details.invulnTime; } // need to force sending of invuln time for player respawn... <= optimization was making it only ever send once, when we want it sent each time the player goes invulnerable
+                if (details.respawnTime! <= this.previousDetails.respawnTime && !this.forcePlayerUpdate) { delete details.respawnTime; }
                 if (details.isDisconnected === this.previousDetails.isDisconnected) { delete details.isDisconnected; }
                 if (!details.isDisconnected || details.timeUntilRemoval! < this.previousDetails.timeUntilRemoval) { delete details.timeUntilRemoval; }
                 Object.assign(this.previousDetails, details);
@@ -194,6 +192,9 @@ export class Player extends EventEmitter {
             }
             else this.previousDetails = currentDetails;
         }
+        
+        this.forcePlayerUpdate = false; // only force once
+
         if (!Object.keys(details).length) { return null; }
         return details;
     }
