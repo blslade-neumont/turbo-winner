@@ -7,6 +7,9 @@ import { EventEmitter } from 'events';
 
 type Socket = SocketIO.Socket;
 
+export const TEMP_KILL_SCORE = 10;
+export const TEMP_DEATH_SCORE = 25;
+
 export class Game extends EventEmitter {
     constructor() {
         super();
@@ -148,7 +151,14 @@ export class Game extends EventEmitter {
                 if (player.isInvulnerable()) continue;
                 if (!doCirclesCollide(bullet.getCollisionCircle(), player.getCollisionCircle())) continue;
                 
-                player.takeDamage(BULLET_DAMAGE);
+                let damageWasLethal: boolean = player.takeDamage(BULLET_DAMAGE);
+                if (damageWasLethal){
+                    let shooter: Player|undefined = this.players.get(bullet.getIgnoreId());
+                    if (typeof shooter !== "undefined"){
+                        shooter.score += TEMP_KILL_SCORE;
+                    }
+                    player.score = Math.max(player.score - TEMP_DEATH_SCORE, 0.0);
+                }
                 bulletsToRemove.push(bullet);
                 break; // bullet gone -> stop checking players -> go to next bullet
             }

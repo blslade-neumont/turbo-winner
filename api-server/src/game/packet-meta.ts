@@ -14,7 +14,8 @@ export type PlayerDetailsT = {
     respawnTime: number,
     ignoreAuthority: boolean,
     isDisconnected: boolean,
-    timeUntilRemoval: number
+    timeUntilRemoval: number,
+    score: number
 };
 
 export type BulletDetailsT = {

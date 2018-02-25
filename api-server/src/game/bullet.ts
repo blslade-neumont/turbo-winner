@@ -41,4 +41,8 @@ export class Bullet {
         if (player instanceof Player) player = player.playerId;
         return this.ignorePlayerId === player;
     }
+    
+    getIgnoreId(): number{
+        return this.ignorePlayerId;
+    }
 }

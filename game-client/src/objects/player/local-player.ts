@@ -111,6 +111,7 @@ export class LocalPlayer extends Player {
         if (typeof vals.respawnTime !== "undefined") { newVals.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== "undefined") { newVals.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }
+        if (typeof vals.score !== "undefined") { newVals.score = vals.score; }
         if (!Object.keys(newVals).length) return null;
         return newVals;
     }

@@ -54,6 +54,7 @@ export class Player extends EventEmitter {
     ignorePlayerTimer = 0.0;
     isDisconnected = false;
     timeUntilRemoval = 0;
+    score = 0;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -116,15 +117,17 @@ export class Player extends EventEmitter {
         this.emit('removeFromGame');
     }
     
-    takeDamage(amount: number): void {
-        if (this.isDead) { return; }
+    takeDamage(amount: number): boolean {
+        if (this.isDead) { return false; }
         this.health -= amount; // todo: clamp here? todo again: check death here
         if (this.health <= 0.0) {
             this.health = 0.0;
             this.respawnTime = RESPAWN_TIME;
             this.isDead = true;
             if (this.isDisconnected) this.removeFromGame();
+            return true;
         }
+        return false;
     }
     
     timeUntilNextUpdate = 1 / 10;
@@ -157,7 +160,8 @@ export class Player extends EventEmitter {
             respawnTime: this.respawnTime,
             ignoreAuthority: this.forcePlayerUpdate,
             isDisconnected: this.isDisconnected,
-            timeUntilRemoval: this.timeUntilRemoval
+            timeUntilRemoval: this.timeUntilRemoval,
+            score: this.score
         };
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -168,6 +172,7 @@ export class Player extends EventEmitter {
                 if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) { delete details.y; }
                 if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
                 if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
+                if (!isSignificantlyDifferent(details.score!, this.previousDetails.score)) { delete details.score; }
                 if (details.color === this.previousDetails.color) { delete details.color; }
                 if (details.isDead === this.previousDetails.isDead) { delete details.isDead; }
                 if (this.previousDetails.forward &&
@@ -213,6 +218,7 @@ export class Player extends EventEmitter {
         delete vals.ignoreAuthority;
         delete vals.isDisconnected;
         delete vals.timeUntilRemoval;
+        delete vals.score;
         if (!Object.keys(vals).length) return null;
         return vals;
     }
@@ -231,6 +237,7 @@ export class Player extends EventEmitter {
         if (typeof vals.respawnTime !== 'undefined') { this.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
+        if (typeof vals.score !== 'undefined') { this.score = vals.score; }
     }
     
     getCollisionCircle(): CircleT {

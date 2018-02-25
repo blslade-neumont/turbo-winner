@@ -3,6 +3,7 @@ import { PlayerDetailsT } from "./player-meta";
 import { isSignificantlyDifferent } from "../../util/is-significantly-different";
 import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
+import { ScoreDisplay } from "./score-display";
 
 export const PLAYER_ACCELERATION: number = 350.0;
 export const PLAYER_FRICTION: number = 3.0;
@@ -22,6 +23,7 @@ export abstract class Player extends GameObject {
         this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
     }
     
+    public score: number;
     public color: string;
     public forward = { x: 1, y: 0 };
     public inputAcceleration = { x: 0, y: 0 };
@@ -34,16 +36,20 @@ export abstract class Player extends GameObject {
     public timeUntilRemoval = 0;
     
     private healthBar: HealthBar;
+    private scoreDisplay: ScoreDisplay;
     
     onAddToScene() {
         super.onAddToScene();
         this.healthBar = new HealthBar(this);
+        this.scoreDisplay = new ScoreDisplay(this);
         this.scene.addObject(this.healthBar);
+        this.scene.addObject(this.scoreDisplay);
     }
     
     onRemoveFromScene() {
         super.onRemoveFromScene();
         this.healthBar.scene.removeObject(this.healthBar);
+        this.scoreDisplay.scene.removeObject(this.scoreDisplay);
     }
     
     isInvulnerable(): boolean {
@@ -152,7 +158,8 @@ export abstract class Player extends GameObject {
             respawnTime: this.respawnTime,
             ignoreAuthority: false,
             isDisconnected: this.isDisconnected,
-            timeUntilRemoval: this.timeUntilRemoval
+            timeUntilRemoval: this.timeUntilRemoval,
+            score: this.score
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -164,6 +171,7 @@ export abstract class Player extends GameObject {
         delete details.ignoreAuthority;
         delete details.isDisconnected;
         delete details.timeUntilRemoval;
+        delete details.score;
         
         if (!force) {
             if (this.previousDetails) {
@@ -213,6 +221,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
+        if (typeof vals.score !== 'undefined') { this.score = vals.score; }
     }
     
     tick(delta: number): void {
