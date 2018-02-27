@@ -28,6 +28,7 @@ export const PLAYER_RADIUS = 48;
 export const INVULN_ON_START = 5;
 export const RESPAWN_TIME = 10;
 export const PLAYER_REMOVAL_TIME = 10;
+export const TARGET_ASSIGNMENT_TIME = 100;
 
 export class Player extends EventEmitter {
     constructor(
@@ -55,6 +56,7 @@ export class Player extends EventEmitter {
     isDisconnected = false;
     timeUntilRemoval = 0;
     score = 0;
+    targetID = -1;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -69,6 +71,9 @@ export class Player extends EventEmitter {
         this.x = Math.cos(theta) * radius;
         this.y = Math.sin(theta) * radius;
     }
+    
+    private targetAssignmentTimer: number;
+    private targetRef: Player;
     
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
@@ -109,6 +114,15 @@ export class Player extends EventEmitter {
             this.timeUntilRemoval -= delta;
             if (this.timeUntilRemoval <= 0) this.removeFromGame();
         }
+        
+        this.targetAssignmentTimer -= delta;
+        if(this.targetID === -1 ||
+           this.targetRef.isDead || 
+           this.targetAssignmentTimer <= 0 || 
+           (this.game !== null && !this.game.players.has(this.targetID))){
+            this.assignTarget();
+            this.targetAssignmentTimer = TARGET_ASSIGNMENT_TIME;
+        }
     }
     
     private removeFromGame() {
@@ -128,6 +142,20 @@ export class Player extends EventEmitter {
             return true;
         }
         return false;
+    }
+    
+    assignTarget(){
+        let players = this.game !== null ? Array.from(this.game!.players.keys()).map(pid => this.game!.players.get(pid)!) : [];
+        players = players.filter(p => p.playerId !== this.playerId);
+        players = players.filter(p => !p.isDead);
+        players = players.filter(p => !p.isDisconnected);
+        // TODO: This is where a fancier targetting algorythm could go once we have more data like score, time alive, etc...
+        if(players.length !== 0){
+            this.targetRef = players[Math.floor(Math.random() * players.length)];
+            this.targetID = this.targetRef.playerId;
+        }else{
+            this.targetID = -1;
+        }
     }
     
     timeUntilNextUpdate = 1 / 10;
@@ -161,7 +189,8 @@ export class Player extends EventEmitter {
             ignoreAuthority: this.forcePlayerUpdate,
             isDisconnected: this.isDisconnected,
             timeUntilRemoval: this.timeUntilRemoval,
-            score: this.score
+            score: this.score,
+            targetID: this.targetID
         };
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -173,6 +202,7 @@ export class Player extends EventEmitter {
                 if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
                 if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
                 if (!isSignificantlyDifferent(details.score!, this.previousDetails.score)) { delete details.score; }
+                if (details.targetID === this.previousDetails.targetID) { delete details.targetID; }
                 if (details.color === this.previousDetails.color) { delete details.color; }
                 if (details.isDead === this.previousDetails.isDead) { delete details.isDead; }
                 if (this.previousDetails.forward &&
@@ -219,6 +249,7 @@ export class Player extends EventEmitter {
         delete vals.isDisconnected;
         delete vals.timeUntilRemoval;
         delete vals.score;
+        delete vals.targetID;
         if (!Object.keys(vals).length) return null;
         return vals;
     }
@@ -238,6 +269,7 @@ export class Player extends EventEmitter {
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== 'undefined') { this.score = vals.score; }
+        if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
     }
     
     getCollisionCircle(): CircleT {

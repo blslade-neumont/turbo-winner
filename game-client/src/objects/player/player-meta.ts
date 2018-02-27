@@ -15,5 +15,6 @@ export type PlayerDetailsT = {
     ignoreAuthority: boolean,
     isDisconnected: boolean,
     timeUntilRemoval: number,
-    score: number
+    score: number,
+    targetID: number
 };

@@ -35,8 +35,11 @@ export abstract class Player extends GameObject {
     public isDisconnected = false;
     public timeUntilRemoval = 0;
     
+    public targetID = -1;
+    
     private healthBar: HealthBar;
     private scoreDisplay: ScoreDisplay;
+    
     
     onAddToScene() {
         super.onAddToScene();
@@ -159,7 +162,8 @@ export abstract class Player extends GameObject {
             ignoreAuthority: false,
             isDisconnected: this.isDisconnected,
             timeUntilRemoval: this.timeUntilRemoval,
-            score: this.score
+            score: this.score,
+            targetID: this.targetID
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -172,6 +176,7 @@ export abstract class Player extends GameObject {
         delete details.isDisconnected;
         delete details.timeUntilRemoval;
         delete details.score;
+        delete details.targetID;
         
         if (!force) {
             if (this.previousDetails) {
@@ -222,6 +227,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== 'undefined') { this.score = vals.score; }
+        if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
     }
     
     tick(delta: number): void {

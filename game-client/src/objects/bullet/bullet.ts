@@ -52,14 +52,14 @@ export class Bullet extends GameObject {
     tick(delta: number) {
         super.tick(delta);
         this.ttl -= delta;
-        if (this.ttl <= 0) { this.scene.removeObject(this); }
+        if (this.ttl <= 0 && this.scene) { this.scene.removeObject(this); }
         
         for (let trigger of this.mask.triggers) {
             let gobj = trigger.gameObject;
             if (gobj instanceof Player && this.shouldIgnorePlayer(gobj)) { continue; }
             if (gobj instanceof Player && gobj.isInvulnerable()) { continue; }
             //If we're colliding with anything but the player that we should ignore, delete the bullet
-            this.scene.removeObject(this);
+            if(this.scene)this.scene.removeObject(this);
             break;
         }
     }

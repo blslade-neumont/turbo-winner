@@ -4,6 +4,7 @@ import { TurboWinnerGame } from "../../turbo-winner-game";
 import { Bullet } from "../bullet/bullet";
 import { PlayerDetailsT } from "./player-meta";
 import { PlayScene } from "../..";
+import { TargetPointer } from "./target-pointer";
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
@@ -12,12 +13,20 @@ export class LocalPlayer extends Player {
         super("LocalPlayer", playerId, -20);
     }
     
+    private targetPointer: TargetPointer;
+    
     private ignoreMouseDown = false;
     onAddToScene(): void {
         super.onAddToScene();
         // if the mouse is down when the local player is created, then we should ignore it until the player releases it
         // otherwise the player is "trigger-happy" when they first click the button to join the game
         this.ignoreMouseDown = this.events.isMouseButtonDown(MouseButton.Left);
+        this.targetPointer = new TargetPointer(this);
+        this.scene.addObject(this.targetPointer);
+    }
+    
+    onRemoveFromScene(): void{
+        this.targetPointer.scene.removeObject(this.targetPointer);
     }
     
     get io() {
@@ -112,6 +121,8 @@ export class LocalPlayer extends Player {
         if (typeof vals.isDisconnected !== "undefined") { newVals.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== "undefined") { newVals.score = vals.score; }
+        if (typeof vals.targetID !== "undefined") { newVals.targetID = vals.targetID; }
+
         if (!Object.keys(newVals).length) return null;
         return newVals;
     }
