@@ -1,3 +1,5 @@
 
 
-// Insert custom type declarations for imported javascript modules here
+declare module 'passport-google-oauth20' {
+    export let Strategy: any;
+}
