@@ -40,6 +40,7 @@
         "yargs": "^7.0.2"
     },
     "dependencies": {
+        "@aboveyou00/util-inspect": "^0.1.8",
         "@angular/animations": "^5.2.0",
         "@angular/common": "^5.2.0",
         "@angular/compiler": "^5.2.0",
@@ -50,7 +51,9 @@
         "@angular/platform-browser-dynamic": "^5.2.0",
         "@angular/router": "^5.2.0",
         "@types/core-js": "^0.9.37",
+        "@types/jwt-decode": "^2.2.1",
         "@types/lodash.clonedeep": "^4.5.3",
+        "@types/lodash.isequal": "^4.5.2",
         "@types/lodash.merge": "^4.6.3",
         "@types/node": "^6.0.48",
         "@types/pluralize": "^0.0.27",
@@ -64,7 +67,9 @@
         "cpr": "^3.0.1",
         "css-loader": "^0.28.8",
         "ie-shim": "^0.1.0",
+        "jwt-decode": "^2.2.0",
         "lodash.clonedeep": "^4.5.0",
+        "lodash.isequal": "^4.5.0",
         "lodash.merge": "^4.6.1",
         "mkdirp": "^0.5.1",
         "node-sass": "^4.7.2",
