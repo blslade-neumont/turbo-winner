@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mt-3">Account</h1>
+            
+            <ng-container *ngIf="(currentUserObservable | async) as currentUser; else notSignedIn">
+                <p class="lead">You are signed in.</p>
+                
+                <pre>{{currentUser | inspect}}</pre>
+                
+                <a class="btn btn-link" (click)="logOut()">Sign Out</a>
+            </ng-container>
+            
+            <ng-template #notSignedIn>
+                <p class="lead">You are not signed in.</p>
+                
+                <p>
+                    If you sign in, your score, player color, and nickname
+                    will be persisted across runs.
+                </p>
+                
+                <a class="btn btn-large btn-primary" (click)="logIn()">Sign In</a>
+            </ng-template>
+        </div>
+    </div>
+</div>

@@ -27,6 +27,7 @@ const routerConfig: Routes = [
     {path: '', component: LayoutComponent, children: [
         {path: '', component: HomeComponent, pathMatch: 'full'},
         {path: 'about', component: AboutComponent},
+        {path: 'account', loadChildren: '../modules/+account/account.module#AccountModule'},
         {path: '**', component: NotFoundComponent}
     ]}
 ];

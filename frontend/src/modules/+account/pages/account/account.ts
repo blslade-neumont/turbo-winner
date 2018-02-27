@@ -5,11 +5,10 @@ import { AuthService } from 'services';
 import { User } from 'models';
 
 @Component({
-    selector: 'page-nav',
-    templateUrl: './page-nav.html',
-    styleUrls: ['./page-nav.scss']
+    templateUrl: './account.html',
+    styleUrls: ['./account.scss']
 })
-export class PageNavComponent extends ComponentBase {
+export class AccountComponent extends ComponentBase {
     constructor(
         private auth: AuthService
     ) {
@@ -21,5 +20,13 @@ export class PageNavComponent extends ComponentBase {
     ngOnInit() {
         super.ngOnInit();
         this.currentUserObservable = this.auth.currentUserObservable;
+    }
+    
+    logIn() {
+        this.auth.logIn();
+    }
+    
+    logOut() {
+        this.auth.logOut();
     }
 }
