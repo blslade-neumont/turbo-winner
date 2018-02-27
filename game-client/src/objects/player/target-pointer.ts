@@ -47,8 +47,29 @@ export class TargetPointer extends GameObject {
         let targetOffset = PLAYER_RADIUS + LINE_LENGTH;
         let bounds = this.scene.camera!.bounds;
         
-        this.x = this.clamp(this.targetPlayer!.x, bounds.left, bounds.right) - targetOffset * this.targetDirection.x;
-        this.y = this.clamp(this.targetPlayer!.y, bounds.bottom, bounds.top) - targetOffset * this.targetDirection.y;
+        let clampedVec = this.clampToCardinal(bounds);
+        
+        this.x = clampedVec.x - targetOffset * this.targetDirection.x;
+        this.y = clampedVec.y - targetOffset * this.targetDirection.y;
+    }
+    
+    clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number}{
+        let xClamped = this.clamp(this.targetPlayer!.x, bounds.left, bounds.right);
+        let yClamped = this.clamp(this.targetPlayer!.y, bounds.bottom, bounds.top);
+        
+        if(xClamped !== this.targetPlayer!.x && yClamped !== this.targetPlayer!.y){
+            this.targetDirection.x = Math.sign(xClamped - this.x)*1/Math.SQRT2;
+            this.targetDirection.y = Math.sign(yClamped - this.y)*1/Math.SQRT2;
+        }else if(xClamped !== this.targetPlayer!.x){
+            yClamped = (bounds.bottom + bounds.top) / 2;
+            this.targetDirection.x = Math.sign(xClamped - this.x);
+            this.targetDirection.y = 0;
+        }else if(yClamped !== this.targetPlayer!.y){
+            xClamped = (bounds.left + bounds.right) / 2;
+            this.targetDirection.x = 0;
+            this.targetDirection.y = Math.sign(yClamped - this.y);
+        }
+        return {x: xClamped, y: yClamped};
     }
     
     clamp(val: number, low: number, hi: number) : number{
