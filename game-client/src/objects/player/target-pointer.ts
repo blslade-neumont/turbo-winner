@@ -12,11 +12,14 @@ export class TargetPointer extends GameObject {
     private player: Player;
     private targetPlayer: DummyPlayer | undefined;
     private targetDirection: {x: number, y: number};
+    private lastOffet: {x: number, y: number};
+    private lastPlayer: {x: number, y: number};
     
     constructor(player: Player){
         super("TargetPointer", {renderDepth: -150});
         this.player = player;
-        
+        this.lastOffet = {x: 0, y: 0};
+        this.lastPlayer = {x: this.player.x, y: this.player.y};
     }
     
     onAddToScene(){
@@ -44,18 +47,30 @@ export class TargetPointer extends GameObject {
     }
     
     snapToTarget(delta: number){
-        let targetOffset = PLAYER_RADIUS + LINE_LENGTH;
+        let targetOffset = PLAYER_RADIUS;
         let bounds = this.scene.camera!.bounds;
         
         let clampedVec = this.clampToCardinal(bounds);
         
         
         // TODO: Replace with better lerp
-        this.x = lerp(this.x, clampedVec.x - targetOffset * this.targetDirection.x, 5 * delta);
-        this.y = lerp(this.y, clampedVec.y - targetOffset * this.targetDirection.y, 5 * delta);
+        let toPos = {x: clampedVec.x - targetOffset * this.targetDirection.x, y: clampedVec.y - targetOffset * this.targetDirection.y};
+        let offset = {x: toPos.x - this.player.x, y: toPos.y - this.player.y};
+        
+        if (clampedVec.lerpOffset){
+            this.x = this.player.x + lerp(this.lastOffet.x, offset.x, 1.5 * delta);
+            this.y = this.player.y + lerp(this.lastOffet.y, offset.y, 1.5 * delta);    
+        } else {
+            this.x = lerp(this.x, toPos.x, 3.5 * delta);
+            this.y = lerp(this.y, toPos.y, 3.5 * delta);
+        }
+
+        // for use next frame
+        this.lastOffet = {x: this.x - this.player.x, y: this.y - this.player.y};
+        this.lastPlayer = {x: this.player.x, y: this.player.y};
     }
     
-    clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number}{
+    clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number, lerpOffset: boolean}{
         let xClamped = this.clamp(this.targetPlayer!.x, bounds.left - PLAYER_RADIUS, bounds.right + PLAYER_RADIUS);
         let yClamped = this.clamp(this.targetPlayer!.y, bounds.bottom - PLAYER_RADIUS, bounds.top + PLAYER_RADIUS);
         
@@ -67,12 +82,15 @@ export class TargetPointer extends GameObject {
         let xTClamped = this.clamp(xClamped, bounds.left + xTolerance, bounds.right - xTolerance);
         let yTClamped = this.clamp(yClamped, bounds.bottom + yTolerance, bounds.top - yTolerance);
         
+        let doLerpOffset: boolean = true;
         if(xTClamped !== this.targetPlayer!.x && yTClamped !== this.targetPlayer!.y){
             if(!(xClamped === this.targetPlayer!.x && yClamped === this.targetPlayer!.y)){
                 this.targetDirection.x = xClampSign*1/Math.SQRT2;
                 this.targetDirection.y = yClampSign*1/Math.SQRT2;
                 xClamped = (xClampSign <= 0) ? (bounds.left) : (bounds.right);
                 yClamped = (yClampSign <= 0) ? (bounds.bottom) : (bounds.top);
+            } else {
+                doLerpOffset = false;
             }
         }else if(xClamped !== this.targetPlayer!.x){
             yClamped = (bounds.bottom + bounds.top) / 2;
@@ -84,8 +102,11 @@ export class TargetPointer extends GameObject {
             yClamped -= yClampSign * (PLAYER_RADIUS / 2);
             this.targetDirection.x = 0;
             this.targetDirection.y = yClampSign;
+        } else {
+            doLerpOffset = false;
         }
-        return {x: xClamped, y: yClamped};
+        
+        return {x: xClamped, y: yClamped, lerpOffset: doLerpOffset};
     }
     
     clamp(val: number, low: number, hi: number) : number{
@@ -103,16 +124,16 @@ export class TargetPointer extends GameObject {
         let lineWidth = 10;
         let pointOffset = 2.5;
         
-        let endPos = {x: LINE_LENGTH*this.targetDirection.x, y: LINE_LENGTH*this.targetDirection.y };
         let perpendicularVec = {x: this.targetDirection.y, y: -this.targetDirection.x};
         
-        context.moveTo(endPos.x - (pointOffset)*perpendicularVec.x, endPos.y - (pointOffset)*perpendicularVec.y);
+        context.moveTo(-(pointOffset)*perpendicularVec.x, -(pointOffset)*perpendicularVec.y);
         
-        context.lineTo(endPos.x + (perpendicularVec.x*PERPENDICULAR_OFFSET) - (this.targetDirection.x*BACK_OFFSET),
-                       endPos.y + (perpendicularVec.y*PERPENDICULAR_OFFSET) - (this.targetDirection.y*BACK_OFFSET) );
-        context.moveTo(endPos.x - (pointOffset)*-perpendicularVec.x, endPos.y - (pointOffset)*-perpendicularVec.y);
-        context.lineTo(endPos.x + (-perpendicularVec.x*PERPENDICULAR_OFFSET) - (this.targetDirection.x*BACK_OFFSET),
-                       endPos.y + (-perpendicularVec.y*PERPENDICULAR_OFFSET) - (this.targetDirection.y*BACK_OFFSET) );
+        context.lineTo((perpendicularVec.x*PERPENDICULAR_OFFSET) - (this.targetDirection.x*BACK_OFFSET),
+                       (perpendicularVec.y*PERPENDICULAR_OFFSET) - (this.targetDirection.y*BACK_OFFSET) );
+                       
+        context.moveTo(pointOffset*perpendicularVec.x, pointOffset*perpendicularVec.y);
+        context.lineTo((-perpendicularVec.x*PERPENDICULAR_OFFSET) - (this.targetDirection.x*BACK_OFFSET),
+                       (-perpendicularVec.y*PERPENDICULAR_OFFSET) - (this.targetDirection.y*BACK_OFFSET) );
         
         context.lineWidth = lineWidth;
         context.strokeStyle = "#FFFFFF";
