@@ -61,8 +61,8 @@ export class TargetPointer extends GameObject {
         let xClampSign = Math.sign(xClamped - this.player.x);
         let yClampSign = Math.sign(yClamped - this.player.y);
         
-        let xTolerance = 350;
-        let yTolerance = 200;
+        let xTolerance = (bounds.right - bounds.left) * 0.25;
+        let yTolerance = (bounds.top - bounds.bottom) * 0.25;
         let xTClamped = this.clamp(xClamped, bounds.left + xTolerance, bounds.right - xTolerance);
         let yTClamped = this.clamp(yClamped, bounds.bottom + yTolerance, bounds.top - yTolerance);
         
