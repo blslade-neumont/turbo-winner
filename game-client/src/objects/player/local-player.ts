@@ -33,7 +33,8 @@ export class LocalPlayer extends Player {
         this.scene.addObject(this.targetPointer);
         this.scene.addObject(this.damageIndicator);
     }
-    onRemoveFromScene(): void{
+    onRemoveFromScene(): void {
+        super.onRemoveFromScene();
         this.targetPointer.scene.removeObject(this.targetPointer);
         this.damageIndicator.scene.removeObject(this.damageIndicator);
     }

@@ -44,8 +44,7 @@ export class PlayerManager extends GameObject {
         
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
             this.networkManager.isConnected = true;
-            if (pid !== this._localPlayerId) this.createLocalPlayer(pid, details);
-            else this.updatePlayer(pid, details, false);
+            this.createLocalPlayer(pid, details);
         });
         
         this.io.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {

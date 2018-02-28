@@ -37,14 +37,11 @@ export abstract class Player extends GameObject {
     
     public targetID = -1;
     
-    private healthBar: HealthBar;
-    private scoreDisplay: ScoreDisplay;
-    
+    private healthBar: HealthBar = new HealthBar(this);
+    private scoreDisplay: ScoreDisplay = new ScoreDisplay(this);
     
     onAddToScene() {
         super.onAddToScene();
-        this.healthBar = new HealthBar(this);
-        this.scoreDisplay = new ScoreDisplay(this);
         this.scene.addObject(this.healthBar);
         this.scene.addObject(this.scoreDisplay);
     }
