@@ -1,4 +1,4 @@
-import { GameObject } from "engine";
+import { GameObject, pointDirection } from "engine";
 import { Player, PLAYER_RADIUS } from "./player";
 import { DummyPlayer } from "./dummy-player";
 
@@ -54,20 +54,33 @@ export class TargetPointer extends GameObject {
     }
     
     clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number}{
+        
         let xClamped = this.clamp(this.targetPlayer!.x, bounds.left, bounds.right);
         let yClamped = this.clamp(this.targetPlayer!.y, bounds.bottom, bounds.top);
         
-        if(xClamped !== this.targetPlayer!.x && yClamped !== this.targetPlayer!.y){
-            this.targetDirection.x = Math.sign(xClamped - this.x)*1/Math.SQRT2;
-            this.targetDirection.y = Math.sign(yClamped - this.y)*1/Math.SQRT2;
+        let xClampSign = Math.sign(xClamped - this.player.x);
+        let yClampSign = Math.sign(yClamped - this.player.y);
+        
+        let xTolerance = 350;
+        let yTolerance = 200;
+        let xTClamped = this.clamp(xClamped, bounds.left + xTolerance, bounds.right - xTolerance);
+        let yTClamped = this.clamp(yClamped, bounds.bottom + yTolerance, bounds.top - yTolerance);
+        
+        if(xTClamped !== this.targetPlayer!.x && yTClamped !== this.targetPlayer!.y){
+            if(!(xClamped === this.targetPlayer!.x && yClamped === this.targetPlayer!.y)){
+                this.targetDirection.x = xClampSign*1/Math.SQRT2;
+                this.targetDirection.y = yClampSign*1/Math.SQRT2;
+                xClamped = (xClampSign <= 0) ? (bounds.left) : (bounds.right);
+                yClamped = (yClampSign <= 0) ? (bounds.bottom) : (bounds.top);
+            }
         }else if(xClamped !== this.targetPlayer!.x){
             yClamped = (bounds.bottom + bounds.top) / 2;
-            this.targetDirection.x = Math.sign(xClamped - this.x);
+            this.targetDirection.x = xClampSign;
             this.targetDirection.y = 0;
         }else if(yClamped !== this.targetPlayer!.y){
             xClamped = (bounds.left + bounds.right) / 2;
             this.targetDirection.x = 0;
-            this.targetDirection.y = Math.sign(yClamped - this.y);
+            this.targetDirection.y = yClampSign;
         }
         return {x: xClamped, y: yClamped};
     }
