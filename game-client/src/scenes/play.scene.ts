@@ -17,7 +17,7 @@ export class PlayScene extends GameScene {
     
     private initialized = false;
     private playerColor = 'yellow';
-    private networkManager: NetworkManager;
+    networkManager: NetworkManager;
     private playerManager: PlayerManager;
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;

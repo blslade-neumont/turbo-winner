@@ -14,6 +14,13 @@ export class LocalPlayer extends Player {
         super("LocalPlayer", playerId, -20);
     }
     
+    get io() {
+        return (<TurboWinnerGame>this.game).io;
+    }
+    get networkManager() {
+        return (<PlayScene>this.scene).networkManager;
+    }
+    
     private targetPointer: TargetPointer = new TargetPointer(this);
     private damageIndicator: TakeDamageIndicator = new TakeDamageIndicator(this);
     
@@ -31,8 +38,10 @@ export class LocalPlayer extends Player {
         this.damageIndicator.scene.removeObject(this.damageIndicator);
     }
     
-    get io() {
-        return (<TurboWinnerGame>this.game).io;
+    get canMove() {
+        if (this.isDead) return false;
+        if (!this.networkManager.isConnected) return false;
+        return true;
     }
     
     private fireCooldown = 0;
@@ -45,18 +54,18 @@ export class LocalPlayer extends Player {
         // calculate normalized forward vector from mouse and player locations
         let toMouse = {x: mousePosWorld[0] - this.x, y: mousePosWorld[1] - this.y};
         let toMouseLen = Math.sqrt(toMouse.x*toMouse.x + toMouse.y*toMouse.y);
-        if (!this.isDead) {this.forward = {x: toMouse.x / toMouseLen, y: toMouse.y / toMouseLen};}
+        if (this.canMove) {this.forward = {x: toMouse.x / toMouseLen, y: toMouse.y / toMouseLen};}
         
         // get forward-relative movement inputs, and normalize them to ensure pressing multiple keys does not increase player move speed
         let input = {x: 0, y: 0};
         
-        if (!this.isDead){
+        if (this.canMove) {
             if (this.events.isAbstractButtonDown("move-up")) { --input.y; }
             if (this.events.isAbstractButtonDown("move-left")) { --input.x; }
             if (this.events.isAbstractButtonDown("move-down")) { ++input.y; }
             if (this.events.isAbstractButtonDown("move-right")) { ++input.x; }    
         }
-
+        
         let inputLen2 = pointDistance2(0, 0, input.x, input.y);
         if (inputLen2 <= 1) { this.inputAcceleration = input; }
         else {
@@ -81,7 +90,7 @@ export class LocalPlayer extends Player {
     fireBulletTick(delta : number) {
         if (this.events.isMouseButtonDown(MouseButton.Left)) {
             if (this.ignoreMouseDown) { return false; }
-            if (this.fireCooldown <= 0 && !this.isInvulnerable() && !this.isDead) {
+            if (this.fireCooldown <= 0 && !this.isInvulnerable() && this.canMove) {
                 let bullet: Bullet = new Bullet({
                     x: this.x,
                     y: this.y,
