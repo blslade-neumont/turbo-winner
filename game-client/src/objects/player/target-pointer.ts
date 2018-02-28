@@ -1,7 +1,7 @@
 import { GameObject, pointDirection } from "engine";
 import { Player, PLAYER_RADIUS } from "./player";
 import { DummyPlayer } from "./dummy-player";
-
+import { lerp } from '../../util/lerp';
 
 export const LINE_LENGTH = 64;
 export const PERPENDICULAR_OFFSET = 64;
@@ -28,7 +28,7 @@ export class TargetPointer extends GameObject {
         
         if(this.targetPlayer !== undefined){
             this.calculateTargetDirection();
-            this.snapToTarget();
+            this.snapToTarget(delta);
         }
         
         if(this.player.targetID !== -1 || this.targetPlayer === undefined || this.player.targetID !== this.targetPlayer.playerId){
@@ -43,20 +43,21 @@ export class TargetPointer extends GameObject {
         this.targetDirection = normalToTarget;
     }
     
-    snapToTarget(){
+    snapToTarget(delta: number){
         let targetOffset = PLAYER_RADIUS + LINE_LENGTH;
         let bounds = this.scene.camera!.bounds;
         
         let clampedVec = this.clampToCardinal(bounds);
         
-        this.x = clampedVec.x - targetOffset * this.targetDirection.x;
-        this.y = clampedVec.y - targetOffset * this.targetDirection.y;
+        
+        // TODO: Replace with better lerp
+        this.x = lerp(this.x, clampedVec.x - targetOffset * this.targetDirection.x, 5 * delta);
+        this.y = lerp(this.y, clampedVec.y - targetOffset * this.targetDirection.y, 5 * delta);
     }
     
     clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number}{
-        
-        let xClamped = this.clamp(this.targetPlayer!.x, bounds.left, bounds.right);
-        let yClamped = this.clamp(this.targetPlayer!.y, bounds.bottom, bounds.top);
+        let xClamped = this.clamp(this.targetPlayer!.x, bounds.left - PLAYER_RADIUS, bounds.right + PLAYER_RADIUS);
+        let yClamped = this.clamp(this.targetPlayer!.y, bounds.bottom - PLAYER_RADIUS, bounds.top + PLAYER_RADIUS);
         
         let xClampSign = Math.sign(xClamped - this.player.x);
         let yClampSign = Math.sign(yClamped - this.player.y);
@@ -75,10 +76,12 @@ export class TargetPointer extends GameObject {
             }
         }else if(xClamped !== this.targetPlayer!.x){
             yClamped = (bounds.bottom + bounds.top) / 2;
+            xClamped -= xClampSign * (PLAYER_RADIUS / 2);
             this.targetDirection.x = xClampSign;
             this.targetDirection.y = 0;
         }else if(yClamped !== this.targetPlayer!.y){
             xClamped = (bounds.left + bounds.right) / 2;
+            yClamped -= yClampSign * (PLAYER_RADIUS / 2);
             this.targetDirection.x = 0;
             this.targetDirection.y = yClampSign;
         }
