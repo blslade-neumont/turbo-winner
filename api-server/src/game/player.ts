@@ -21,6 +21,7 @@ function chooseRandomColor() {
     return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
+export const ATTACKER_TTL: number = 30;
 export const PLAYER_ACCELERATION: number = 350.0;
 export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
@@ -57,6 +58,7 @@ export class Player extends EventEmitter {
     timeUntilRemoval = 0;
     score = 0;
     targetID = -1;
+    attackers: Array<{id: number, timer: number}> = []
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -109,6 +111,7 @@ export class Player extends EventEmitter {
         }
         
         this.ignorePlayerTimer = Math.max(this.ignorePlayerTimer - delta, 0.0);
+        this.updateAttackers(delta);
         
         if (this.isDisconnected) {
             this.timeUntilRemoval -= delta;
@@ -124,6 +127,30 @@ export class Player extends EventEmitter {
             this.targetAssignmentTimer = TARGET_ASSIGNMENT_TIME;
         }
     }
+
+    attackedByPlayer(player: Player): boolean{
+        return this.attackers.find((attacker) => attacker.id == player.playerId) !== undefined;
+    }
+    
+    private updateAttackers(delta: number){
+        let attackersToRemove: Array<{id: number, timer: number}> = [];
+        for(let i = 0; i < this.attackers.length; ++i){
+            let attacker = this.attackers[i];
+            attacker.timer -= delta;
+            if (attacker.timer <= 0.0){
+                attackersToRemove.push(attacker);
+            }
+        }
+        
+        for (let i = 0; i < attackersToRemove.length; ++i){
+            this.removeAttacker(attackersToRemove[i]);
+        }
+    }
+    
+    private removeAttacker(attacker: {id: number, timer: number}): void {
+        let idx = this.attackers.indexOf(attacker);
+        if (idx !== -1) this.attackers.splice(idx, 1);
+    }
     
     private removeFromGame() {
         if (!this.game) return;
@@ -131,13 +158,19 @@ export class Player extends EventEmitter {
         this.emit('removeFromGame');
     }
     
-    takeDamage(amount: number): boolean {
+    takeDamage(amount: number, attacker: Player|undefined): boolean {
         if (this.isDead) { return false; }
+        
+        if (attacker !== undefined) {
+            this.attackers.push({ id: attacker.playerId, timer: ATTACKER_TTL});
+        }
+        
         this.health -= amount; // todo: clamp here? todo again: check death here
         if (this.health <= 0.0) {
             this.health = 0.0;
             this.respawnTime = RESPAWN_TIME;
             this.isDead = true;
+            this.attackers = [];
             if (this.isDisconnected) this.removeFromGame();
             return true;
         }

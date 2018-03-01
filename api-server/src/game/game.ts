@@ -7,8 +7,9 @@ import { EventEmitter } from 'events';
 
 type Socket = SocketIO.Socket;
 
-export const TEMP_KILL_SCORE = 10;
-export const TEMP_DEATH_SCORE = 25;
+export const KILL_TARGET_SCORE_BONUS = 50;
+export const KILL_INNOCENT_SCORE_PENALTY = 100;
+export const DEATH_SCORE_PENALTY = 10;
 
 export class Game extends EventEmitter {
     constructor() {
@@ -151,14 +152,7 @@ export class Game extends EventEmitter {
                 if (player.isInvulnerable()) continue;
                 if (!doCirclesCollide(bullet.getCollisionCircle(), player.getCollisionCircle())) continue;
                 
-                let damageWasLethal: boolean = player.takeDamage(BULLET_DAMAGE);
-                if (damageWasLethal){
-                    let shooter: Player|undefined = this.players.get(bullet.getIgnoreId());
-                    if (typeof shooter !== "undefined"){
-                        shooter.score += TEMP_KILL_SCORE;
-                    }
-                    player.score = Math.max(player.score - TEMP_DEATH_SCORE, 0.0);
-                }
+                this.handleBulletHit(bullet, player);
                 bulletsToRemove.push(bullet);
                 break; // bullet gone -> stop checking players -> go to next bullet
             }
@@ -167,5 +161,26 @@ export class Game extends EventEmitter {
         for (let bullet of bulletsToRemove) {
             this.removeBullet(bullet);
         }
+    }
+    
+    handleBulletHit(bullet: Bullet, player: Player): void{
+        let shooter: Player|undefined = this.players.get(bullet.getIgnoreId());
+        let damageWasLethal: boolean = player.takeDamage(BULLET_DAMAGE, shooter);
+        
+        if (damageWasLethal){
+            if (typeof shooter !== "undefined"){
+                if (shooter.targetID == player.playerId){
+                    shooter.score += KILL_TARGET_SCORE_BONUS;
+                } else if (this.playerWasInnocent(shooter, player)){
+                    shooter.score = Math.max(shooter.score - KILL_INNOCENT_SCORE_PENALTY, 0.0);
+                } // else do nothing -> self defense
+            }
+            
+            player.score = Math.max(player.score - DEATH_SCORE_PENALTY, 0.0);
+        }
+    }
+    
+    playerWasInnocent(shooter:Player, player:Player): boolean {
+        return !shooter.attackedByPlayer(player);
     }
 }
