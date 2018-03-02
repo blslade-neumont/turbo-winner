@@ -1,15 +1,16 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent } from "engine";
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent } from 'engine';
+import { colors } from 'dbs';
 
 export class ColorMenuObject extends GameObject {
     private radius : number = 32;
     private spacing : number = 64;
     //Selected 0 is reserved for none selected
     private selected : number = 1;
-    private colors : Array<string> = [];
     private numExtras : number = 4;
     private defaultStyle : string = "72px Arial";
     private title : string;
     private selectMessage : string;
+    private colors = colors;
     
     constructor(radius = 32, position = {x: 0, y: 0}, spacing = 64 ){
         super("ColorMenuObject");
@@ -18,33 +19,13 @@ export class ColorMenuObject extends GameObject {
         this.y = position.y;
         this.x = position.x;
         
-        this.colors = ["#800000",
-                       "#ff0000",
-                       "#ffc0cb", 
-                       "#ff7f50", 
-                       "#ffa500", 
-                       "#a52a2a",
-                       "#ffff00", 
-                       "#DFFF00", 
-                       "#00ff00", 
-                       "#008000", 
-                       "#00ffff", 
-                       "#008080", 
-                       "#0000ff", 
-                       "#000080", 
-                       "#800080", 
-                       "#ff00ff", 
-                       "#ffffff", 
-                       "#808080", 
-                       "#000000"];
-        
         this.selected = Math.floor(Math.random() * this.colors.length) + 0;
         
         this.title = "Turbo Winner";
         this.selectMessage = "Please select a color:";
     }
     
-    getColor(logicIndex : number){
+    getColor(logicIndex : number) {
         return this.colors[this.logicIndexToArrayIndex(logicIndex)];
     }
     

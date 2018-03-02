@@ -25,7 +25,8 @@
         "paths": {
             "*": ["node_modules/*", "src/*", "public/assets/*"],
             "engine": ["../engine/src"],
-            "game-client": ["../game-client/src"]
+            "game-client": ["../game-client/src"],
+            "dbs": ["../dbs"]
         },
         "types": [
             "core-js",

@@ -4,6 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 //Declarations
 import { AccountComponent } from './pages/account/account';
 
+import { ColorOptionComponent } from './components/color-option/color-option';
+
 //Imports
 import { SharedModule } from 'shared/shared.module';
 
@@ -14,7 +16,9 @@ const routerConfig: Routes = [
 
 @NgModule({
     declarations: [
-        AccountComponent
+        AccountComponent,
+        
+        ColorOptionComponent
     ],
     imports: [
         RouterModule.forChild(routerConfig), SharedModule.forRoot()

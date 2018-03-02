@@ -19,7 +19,8 @@ var defaultConfig = {
         ],
         alias: {
             "engine$": path.join(__dirname, '../../../engine/src'),
-            "game-client$": path.join(__dirname, '../../../game-client/src')
+            "game-client$": path.join(__dirname, '../../../game-client/src'),
+            "dbs$": path.join(__dirname, '../../../dbs')
         },
         extensions: ['.ts', '.js']
     },

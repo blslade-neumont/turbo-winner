@@ -17,7 +17,8 @@ var defaultConfig = {
             path.join(__dirname, '../../src')
         ],
         alias: {
-            "engine$": path.join(__dirname, '../../../engine')
+            "engine$": path.join(__dirname, '../../../engine'),
+            "dbs$": path.join(__dirname, '../../../dbs')
         },
         extensions: ['.ts', '.js']
     },

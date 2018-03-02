@@ -3,10 +3,32 @@
         <div class="col-12">
             <h1 class="mt-3">Account</h1>
             
-            <ng-container *ngIf="(currentUserObservable | async) as currentUser; else notSignedIn">
-                <p class="lead">You are signed in.</p>
+            <ng-container *ngIf="currentUser; else notSignedIn">
+                <p class="lead">You are signed in as {{currentUser.displayName}}.</p>
                 
-                <pre>{{currentUser | inspect}}</pre>
+                <form>
+                    <div class="form-group">
+                        <label for="color">
+                            Color
+                            <ng-container *ngIf="!color">
+                                (None Selected)
+                            </ng-container>
+                        </label>
+                        <div class="color-options">
+                            <color-option
+                              *ngFor="let colorOpt of colors; let idx = index"
+                              [color]="colorOpt"
+                              [tab-index]="idx"
+                              [is-selected]="color === colorOpt"
+                              (select)="color = colorOpt">
+                            </color-option>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nickname">Nickname</label>
+                        <input type="text" class="form-control" name="nickname" placeholder="Nickname" [(ngModel)]="nickname" />
+                    </div>
+                </form>
                 
                 <a class="btn btn-large btn-primary" (click)="logOut()">Sign Out</a>
             </ng-container>
