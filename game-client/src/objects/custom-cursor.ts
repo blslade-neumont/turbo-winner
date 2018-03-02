@@ -10,26 +10,24 @@ export class CustomCursor extends GameObject{
     
     renderMouseCircle(context : CanvasRenderingContext2D){
         context.beginPath();
-        context.arc(0, 0, 16, 0, 2 * Math.PI, false);
-        context.strokeStyle = this.color
-        context.stroke();
-        context.lineWidth = 5;
+        context.arc(0, 0, 16 / this.scene!.camera!.zoomScale, 0, 2 * Math.PI, false);
+        context.lineWidth = 5 / this.scene!.camera!.zoomScale;
         context.strokeStyle = this.color;
         context.stroke();
     }
     
     renderMouseCross(context : CanvasRenderingContext2D){
-        const lineLength = 24;
+        const lineLength = 24 / this.scene!.camera!.zoomScale;
         context.beginPath();
-        context.moveTo(-24, 0);
+        context.moveTo(-24 / this.scene!.camera!.zoomScale, 0);
         context.lineTo(lineLength, 0);
-        context.lineWidth = 5;
+        context.lineWidth = 5 / this.scene!.camera!.zoomScale;
         context.strokeStyle = this.color;
         context.stroke();
         context.beginPath();
-        context.moveTo(0, -24);
+        context.moveTo(0, -24 / this.scene!.camera!.zoomScale);
         context.lineTo(0, lineLength);
-        context.lineWidth = 5;
+        context.lineWidth = 5 / this.scene!.camera!.zoomScale;
         context.strokeStyle = this.color;
         context.stroke();
     }

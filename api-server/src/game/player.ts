@@ -22,10 +22,10 @@ function chooseRandomColor() {
 }
 
 export const ATTACKER_TTL: number = 30;
-export const PLAYER_ACCELERATION: number = 350.0;
+export const PLAYER_ACCELERATION: number = 5;
 export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
-export const PLAYER_RADIUS = 48;
+export const PLAYER_RADIUS = 0.5;
 export const INVULN_ON_START = 5;
 export const RESPAWN_TIME = 10;
 export const PLAYER_REMOVAL_TIME = 10;
@@ -65,10 +65,10 @@ export class Player extends EventEmitter {
     }
     
     randomizePosition() {
-        let minDist = 10;
-        let maxDist = 1000;
-        let radius = Math.floor(Math.random() * 1000) + 10;
-        let theta = Math.floor(Math.random() * (Math.PI * 2)) + 0;
+        let minDist = 10/96;
+        let maxDist = 1000/96;
+        let radius = Math.floor(Math.random() * maxDist) + minDist;
+        let theta = Math.floor(Math.random() * (Math.PI * 2));
         
         this.x = Math.cos(theta) * radius;
         this.y = Math.sin(theta) * radius;

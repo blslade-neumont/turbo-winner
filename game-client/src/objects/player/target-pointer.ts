@@ -3,9 +3,9 @@ import { Player, PLAYER_RADIUS } from "./player";
 import { DummyPlayer } from "./dummy-player";
 import { lerp } from '../../util/lerp';
 
-export const LINE_LENGTH = 64;
-export const PERPENDICULAR_OFFSET = 64;
-export const BACK_OFFSET = 48;
+export const LINE_LENGTH = 64/96;
+export const PERPENDICULAR_OFFSET = 64/96;
+export const BACK_OFFSET = 48/96;
 
 export class TargetPointer extends GameObject {
     
@@ -57,12 +57,13 @@ export class TargetPointer extends GameObject {
         let toPos = {x: clampedVec.x - targetOffset * this.targetDirection.x, y: clampedVec.y - targetOffset * this.targetDirection.y};
         let offset = {x: toPos.x - this.player.x, y: toPos.y - this.player.y};
         
+        let zoom = this.scene!.camera!.zoomScale;
         if (clampedVec.lerpOffset){
             this.x = this.player.x + lerp(this.lastOffet.x, offset.x, 1.5 * delta);
             this.y = this.player.y + lerp(this.lastOffet.y, offset.y, 1.5 * delta);    
         } else {
-            this.x = lerp(this.x, toPos.x, 3.5 * delta);
-            this.y = lerp(this.y, toPos.y, 3.5 * delta);
+            this.x = lerp(this.x, toPos.x, 5 * delta);
+            this.y = lerp(this.y, toPos.y, 5 * delta);
         }
 
         // for use next frame
@@ -121,8 +122,8 @@ export class TargetPointer extends GameObject {
     
     renderPointer(context: CanvasRenderingContext2D): void{
         context.beginPath();
-        let lineWidth = 10;
-        let pointOffset = 2.5;
+        let lineWidth = 10 / this.scene!.camera!.zoomScale;
+        let pointOffset = 2.5 / this.scene!.camera!.zoomScale;
         
         let perpendicularVec = {x: this.targetDirection.y, y: -this.targetDirection.x};
         

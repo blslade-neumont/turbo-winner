@@ -44,21 +44,23 @@ export class PlayScene extends GameScene {
         
         if (this.initialized) return;
         this.initialized = true;
-        
-        this.customCursor = new CustomCursor("#b22222");
-        this.addObject(this.customCursor);
-        
+
+        let camera = this.camera = new FollowCamera(this);
+        camera.floorCenterPosition = false;
+        camera.maxZoomScale = 96;
+        camera.zoomScale = 96; // arbitrary
+        camera.clearColor = `rgb(128, 255, 64)`;
+                
         for (let i = 0; i < 50; ++i){
             let obj = new Tile();
-            obj.x = i % 10 * 50;
-            obj.y = -250 + i*50;
+            obj.x = i % 10 * (50 / camera.zoomScale);
+            obj.y = (-250/camera.zoomScale) + i*(50 / camera.zoomScale);
             this.addObject(obj);
         }
-        
-        let camera = this.camera = new FollowCamera(this);
-        camera.zoomScale = 1; // arbitrary
-        camera.clearColor = `rgb(128, 255, 64)`;
-        
+                
+        this.customCursor = new CustomCursor("#b22222");
+        this.addObject(this.customCursor);
+
         this.networkManager = new NetworkManager();
         this.addObject(this.networkManager);
         this.playerManager = new PlayerManager(this.networkManager, this.playerColor);

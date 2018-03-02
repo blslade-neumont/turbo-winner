@@ -5,10 +5,10 @@ import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
 import { ScoreDisplay } from "./score-display";
 
-export const PLAYER_ACCELERATION: number = 350.0;
+export const PLAYER_ACCELERATION: number = 500/96;
 export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
-export const PLAYER_RADIUS: number = 48;
+export const PLAYER_RADIUS: number = 0.5;
 export const INVULN_ON_START: number = 5;
 export const RESPAWN_TIME = 10;
 export const PLAYER_REMOVAL_TIME = 10;
@@ -61,17 +61,17 @@ export abstract class Player extends GameObject {
         context.arc(0, 0, PLAYER_RADIUS, 0, 2 * Math.PI, false);
         context.fillStyle = this.color;
         context.fill();
-        context.lineWidth = 5;
+        context.lineWidth = 5/this.scene!.camera!.zoomScale;
         context.strokeStyle = "#003300";
         context.stroke();
     }
     
     renderPlayerPointer(context: CanvasRenderingContext2D): void {
-        const lineLength: number = 64;
+        const lineLength: number = 64/this.scene!.camera!.zoomScale;
         context.beginPath();
         context.moveTo(0, 0);
         context.lineTo(lineLength*this.forward.x, lineLength*this.forward.y);
-        context.lineWidth = 5;
+        context.lineWidth = 5/this.scene!.camera!.zoomScale;
         context.strokeStyle = "#003300";
         context.stroke();
     }
@@ -91,7 +91,7 @@ export abstract class Player extends GameObject {
             
             context.strokeStyle = 'black';
             context.fillStyle = 'white';
-            context.lineWidth = 12 / PLAYER_RADIUS;
+            context.lineWidth = 24 / this.scene!.camera!.zoomScale;
             
             context.beginPath();
             context.ellipse(.4, 0, 2.5, 2.5, -.5 * Math.PI, 0, 2 * Math.PI);
