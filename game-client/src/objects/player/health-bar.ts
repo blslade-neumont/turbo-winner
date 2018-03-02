@@ -24,10 +24,10 @@ export class HealthBar extends GameObject {
     }
     
     renderPlayerHealth(context: CanvasRenderingContext2D): void {
-        const MAX_HB_WIDTH: number = 96;
-        const HB_OFFSET: number = -72;
-        const HB_HEIGHT: number = 16;
-        const HB_STROKE: number = 4;
+        const MAX_HB_WIDTH: number = 1;
+        const HB_OFFSET: number = -.75;
+        const HB_HEIGHT: number = .166;
+        const HB_STROKE: number = .04166;
         const HB_LEFT: number = (MAX_HB_WIDTH / -2);
         const HB_INNER_MAX_WIDTH: number = MAX_HB_WIDTH - HB_STROKE;
         const HB_INNER_HEIGHT: number = HB_HEIGHT - HB_STROKE;

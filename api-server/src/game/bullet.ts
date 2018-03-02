@@ -3,12 +3,12 @@ import { Player } from "./player";
 import { CircleT } from "../util/circle";
 import { Game } from "./game";
 
-const DEFAULT_BULLET_SPEED = 1200;
+const DEFAULT_BULLET_SPEED = 12.5;
 const DEFAULT_TIME_TO_LIVE = 3;
 export const BULLET_DAMAGE = 5;
 
 export class Bullet {
-    private radius : number = 6;
+    private radius : number = 0.0625;
     private ttl: number;
     private x: number;
     private y: number;

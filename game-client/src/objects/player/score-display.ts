@@ -22,7 +22,7 @@ export class ScoreDisplay extends GameObject {
     }
     
     renderPlayerScore(context: CanvasRenderingContext2D): void {
-        this.renderText(context, "24px Arial", "Score: " + this.player.score.toFixed(0), {x: 0, y: -100});
+        this.renderText(context, "0.25px Arial", "Score: " + this.player.score.toFixed(0), {x: 0, y: -1.04166});
     }
     
     renderText(context : CanvasRenderingContext2D, fontStyle : string, text : string, position : {x: number, y: number}, color = "black"){

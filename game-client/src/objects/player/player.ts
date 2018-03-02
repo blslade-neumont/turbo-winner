@@ -5,10 +5,10 @@ import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
 import { ScoreDisplay } from "./score-display";
 
-export const PLAYER_ACCELERATION: number = 350.0;
-export const PLAYER_FRICTION: number = 3.0;
+export const PLAYER_ACCELERATION: number = 3.645833;
+export const PLAYER_FRICTION: number = 0.03125;
 export const MAX_PLAYER_HEALTH: number = 100;
-export const PLAYER_RADIUS: number = 48;
+export const PLAYER_RADIUS: number = 0.5;
 export const INVULN_ON_START: number = 5;
 export const RESPAWN_TIME = 10;
 export const PLAYER_REMOVAL_TIME = 10;
@@ -61,17 +61,17 @@ export abstract class Player extends GameObject {
         context.arc(0, 0, PLAYER_RADIUS, 0, 2 * Math.PI, false);
         context.fillStyle = this.color;
         context.fill();
-        context.lineWidth = 5;
+        context.lineWidth = 0.0520833;
         context.strokeStyle = "#003300";
         context.stroke();
     }
     
     renderPlayerPointer(context: CanvasRenderingContext2D): void {
-        const lineLength: number = 64;
+        const lineLength: number = (2/3);
         context.beginPath();
         context.moveTo(0, 0);
         context.lineTo(lineLength*this.forward.x, lineLength*this.forward.y);
-        context.lineWidth = 5;
+        context.lineWidth = 0.0520833;
         context.strokeStyle = "#003300";
         context.stroke();
     }

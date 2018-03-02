@@ -3,7 +3,7 @@ import merge = require('lodash.merge');
 import { BulletDetailsT } from './bullet-meta';
 import { Player } from '../player/player';
 
-const DEFAULT_BULLET_SPEED = 1200;
+const DEFAULT_BULLET_SPEED = 12.5;
 const DEFAULT_TIME_TO_LIVE = 3;
 
 type BulletOpts = GameObjectOptions & {
@@ -12,7 +12,7 @@ type BulletOpts = GameObjectOptions & {
 };
 
 export class Bullet extends GameObject {
-    private radius : number = 6;
+    private radius : number = 0.0625;
     private ttl: number;
     private _ignorePlayerId: number;
     

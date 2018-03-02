@@ -56,7 +56,9 @@ export class PlayScene extends GameScene {
         }
         
         let camera = this.camera = new FollowCamera(this);
-        camera.zoomScale = 1; // arbitrary
+        camera.floorCenterPosition = false;
+        camera.maxZoomScale = 192;
+        camera.zoomScale = 72; // arbitrary
         camera.clearColor = `rgb(128, 255, 64)`;
         
         this.networkManager = new NetworkManager();
