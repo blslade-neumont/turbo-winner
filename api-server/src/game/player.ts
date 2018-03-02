@@ -182,12 +182,37 @@ export class Player extends EventEmitter {
         players = players.filter(p => p.playerId !== this.playerId);
         players = players.filter(p => !p.isDead);
         players = players.filter(p => !p.isDisconnected);
-        // TODO: This is where a fancier targetting algorythm could go once we have more data like score, time alive, etc...
-        if(players.length !== 0){
-            this.targetRef = players[Math.floor(Math.random() * players.length)];
-            this.targetID = this.targetRef.playerId;
-        }else{
-            this.targetID = -1;
+        
+        if (players.length <= 0) { this.targetID = -1; }
+        else if (players.length === 1) { this.targetID = players[0].playerId; this.targetRef = players[0];}
+        else {
+            let workingArray:Array<number> = []
+            let sumLogs: number = 0.0
+            const min: number = 10;
+            for (let i = 0; i < players.length; ++i){
+               workingArray[i] = Math.log2(players[i].score + min);
+               sumLogs += workingArray[i];
+            }
+            
+            for (let i = 0; i < players.length; ++i){
+                workingArray[i] /= sumLogs;
+            }
+            
+            for (let i = 1; i < players.length; ++i){
+                workingArray[i] = workingArray[i - 1] + workingArray[i];
+            }
+            
+            let choice: number = Math.random()
+            
+            let chosenIndex = players.length - 1;
+            for (let i = chosenIndex; i >= 0; --i){
+                if (choice <= workingArray[i]){
+                    chosenIndex = i;
+                }
+            }
+
+            this.targetID = players[chosenIndex].playerId;
+            this.targetRef = players[chosenIndex];
         }
     }
     
