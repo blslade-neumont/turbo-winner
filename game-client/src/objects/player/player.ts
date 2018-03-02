@@ -5,7 +5,7 @@ import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
 import { ScoreDisplay } from "./score-display";
 
-export const PLAYER_ACCELERATION: number = 500/96;
+export const PLAYER_ACCELERATION: number = 5;
 export const PLAYER_FRICTION: number = 3.0;
 export const MAX_PLAYER_HEALTH: number = 100;
 export const PLAYER_RADIUS: number = 0.5;
