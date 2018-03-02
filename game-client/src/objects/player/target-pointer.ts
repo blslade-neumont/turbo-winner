@@ -121,7 +121,7 @@ export class TargetPointer extends GameObject {
     
     renderPointer(context: CanvasRenderingContext2D): void{
         context.beginPath();
-        let lineWidth = 0.104166;
+        let lineWidth = 10;
         let pointOffset = 2.5;
         
         let perpendicularVec = {x: this.targetDirection.y, y: -this.targetDirection.x};
