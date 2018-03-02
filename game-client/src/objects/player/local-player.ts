@@ -108,11 +108,18 @@ export class LocalPlayer extends Player {
     }
     
     renderRespawnTimer(context: CanvasRenderingContext2D): void {
-        const defaultStyle : string = "72px Arial";
-        context.font = defaultStyle;
-        context.textAlign = "center";
-        context.fillStyle = "black";
-        context.fillText("Respawning in: " + this.respawnTime.toFixed(1), 0.0, 100.0); // TODO: Screen tint?
+        context.save();
+        try{
+            context.translate(0, 150 / this.scene!.camera!.zoomScale);
+            context.scale(1 / this.scene!.camera!.zoomScale, 1 / this.scene!.camera!.zoomScale);
+            context.font = "72px Arial";
+            context.textAlign = "center";
+            context.fillStyle = "black";
+            context.fillText("Respawning in: " + this.respawnTime.toFixed(1), 0.0, 0.0);
+        }finally{
+            context.restore();
+        }
+
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D): void{
