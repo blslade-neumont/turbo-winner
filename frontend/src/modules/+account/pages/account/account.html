@@ -37,7 +37,7 @@
                     </div>
                     <div class="autosave text-muted">
                         <ng-container *ngIf="isSaving">
-                            Saving...
+                            <i class="fas fa-cog fa-spin mr-2"></i>Saving...
                         </ng-container>
                         <span *ngIf="!isSaving" [class.dirty]="isDirty">
                             {{wasSaved ? 'Saved' : 'Up to date'}}
