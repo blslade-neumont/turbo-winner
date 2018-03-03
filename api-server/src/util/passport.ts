@@ -7,7 +7,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 passport.serializeUser(wrapCallback(async function(user: User) {
     return user._id;
 }));
-passport.deserializeUser(wrapCallback(async function(id: number) {
+passport.deserializeUser(wrapCallback(async function(id: string) {
     return await Users.findOne({ id: id });
 }));
 
