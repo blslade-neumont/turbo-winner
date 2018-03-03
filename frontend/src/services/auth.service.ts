@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { map, distinctUntilChanged } from 'rxjs/operators';
+import { map, switchMap, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { User } from 'models';
 import { decodeJwt } from '../utils/decode-jwt';
 import { getCookie } from '../utils/get-cookie';
@@ -15,8 +16,12 @@ export const AUTH_TOKEN_COOKIE = 'auth-token';
 
 @Injectable()
 export class AuthService {
-    constructor() {
+    constructor(private http: HttpClient) {
         this.init();
+    }
+    
+    get apiRoot() {
+        return CONFIG.websocketUrl;
     }
     
     private init() {
@@ -28,6 +33,7 @@ export class AuthService {
         
         this.currentTokenObservable.pipe(
             map(token => {
+                this.token = token;
                 if (!token) return null;
                 let userJson = decodeJwt(token);
                 if (!userJson) {
@@ -37,6 +43,13 @@ export class AuthService {
                 }
                 return User.fromJson(userJson);
             }),
+            switchMap(user => this.http.get<Partial<User>>(
+                `${this.apiRoot}/current-profile`,
+                { headers: { 'Authorization': `Bearer ${this.token}` } }
+            ).pipe(
+                map(val => User.fromJson(val)),
+                startWith(user)
+            )),
             distinctUntilChanged(areEqual)
         ).subscribe(this._currentUserSubject);
         this.currentUserObservable = this._currentUserSubject.asObservable();

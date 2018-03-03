@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { tap, switchMap, debounceTime } from 'rxjs/operators';
@@ -15,12 +16,17 @@ const AUTOSAVE_DEBOUNCE_MILLIS = 600;
 })
 export class AccountComponent extends ComponentBase {
     constructor(
-        private auth: AuthService
+        private auth: AuthService,
+        private http: HttpClient
     ) {
         super();
     }
     
     colors = colors;
+    
+    get apiRoot() {
+        return CONFIG.websocketUrl;
+    }
     
     currentUser: User | null;
     
@@ -37,13 +43,12 @@ export class AccountComponent extends ComponentBase {
         this._autosaveSubject.next(void(0));
     }
     
-    private _nicknameOverride: string | undefined;
+    private _nicknameOverride: string | null | undefined;
     get nickname(): string | null {
         if (typeof this._nicknameOverride !== 'undefined') return this._nicknameOverride;
         return (this.currentUser && this.currentUser.nickname) || null;
     }
     set nickname(val: string | null) {
-        if (!val) return;
         if (this.nickname === val) return;
         this._nicknameOverride = val;
         if (this.currentUser && this.currentUser.nickname === this._nicknameOverride) delete this._nicknameOverride;
@@ -75,10 +80,15 @@ export class AccountComponent extends ComponentBase {
         this.subscriptions.push(autosaveObservable.subscribe());
     }
     
-    save() {
-        return new Promise((resolve, reject) => {
-            setTimeout(resolve, 500);
-        });
+    async save() {
+        if (!this.currentUser) return;
+        let result = await this.http.post<{ color: string, nickname: string }>(
+            `${this.apiRoot}/update-profile`,
+            { color: this.color, nickname: this.nickname },
+            { headers: { 'Authorization': `Bearer ${this.auth.token}` } }
+        ).toPromise();
+        this.currentUser.color = result.color;
+        this.currentUser.nickname = result.nickname;
     }
     
     logIn() {
