@@ -6,6 +6,7 @@ import { PlayerDetailsT } from "./player-meta";
 import { PlayScene } from "../..";
 import { TargetPointer } from "./target-pointer";
 import { TakeDamageIndicator } from "./take-damage-indicator";
+import { ScorePopup } from "./score-popup";
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
@@ -23,7 +24,8 @@ export class LocalPlayer extends Player {
     
     private targetPointer: TargetPointer = new TargetPointer(this);
     private damageIndicator: TakeDamageIndicator = new TakeDamageIndicator(this);
-    
+    private scorePopup: ScorePopup = new ScorePopup(this);
+
     private ignoreMouseDown = false;
     onAddToScene(): void {
         super.onAddToScene();
@@ -32,11 +34,14 @@ export class LocalPlayer extends Player {
         this.ignoreMouseDown = this.events.isMouseButtonDown(MouseButton.Left);
         this.scene.addObject(this.targetPointer);
         this.scene.addObject(this.damageIndicator);
+        this.scene.addObject(this.scorePopup);
+
     }
     onRemoveFromScene(): void {
         super.onRemoveFromScene();
         this.targetPointer.scene.removeObject(this.targetPointer);
         this.damageIndicator.scene.removeObject(this.damageIndicator);
+        this.scorePopup.scene.removeObject(this.scorePopup);
     }
     
     get canMove() {
@@ -139,7 +144,7 @@ export class LocalPlayer extends Player {
         if (typeof vals.respawnTime !== "undefined") { newVals.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== "undefined") { newVals.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }
-        if (typeof vals.score !== "undefined") { newVals.score = vals.score; }
+        if (typeof vals.score !== "undefined") { newVals.score = vals.score; this.scorePopup.beginAnimation(vals.score - this.score); }
         if (typeof vals.targetID !== "undefined") { newVals.targetID = vals.targetID; }
         
         if (!Object.keys(newVals).length) return null;

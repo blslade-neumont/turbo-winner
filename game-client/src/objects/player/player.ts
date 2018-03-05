@@ -4,6 +4,7 @@ import { isSignificantlyDifferent } from "../../util/is-significantly-different"
 import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
 import { ScoreDisplay } from "./score-display";
+import { ScorePopup } from "./score-popup";
 
 export const PLAYER_ACCELERATION: number = 5;
 export const PLAYER_FRICTION: number = 3.0;
@@ -23,7 +24,8 @@ export abstract class Player extends GameObject {
         this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
     }
     
-    public score: number;
+    public score: number = 0;
+    public targetScore: number = 0;
     public color: string;
     public forward = { x: 1, y: 0 };
     public inputAcceleration = { x: 0, y: 0 };
@@ -223,8 +225,14 @@ export abstract class Player extends GameObject {
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
-        if (typeof vals.score !== 'undefined') { this.score = vals.score; }
+        if (typeof vals.score !== 'undefined') { this.targetScore = vals.score; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
+    }
+    
+    lerpScore(){
+        if (this.score !== this.targetScore){
+            this.score = Math.floor(this.score + Math.sign(this.targetScore - this.score));
+        }
     }
     
     tick(delta: number): void {
@@ -243,7 +251,8 @@ export abstract class Player extends GameObject {
         super.tick(delta);
         
         this.invulnTime = Math.max(this.invulnTime - delta, 0.0);
-            
+        this.lerpScore();
+                
         if (this.isDead) {
             this.respawnTime = clamp(this.respawnTime - delta, 0, RESPAWN_TIME);
         }

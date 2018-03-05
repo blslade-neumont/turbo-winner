@@ -27,6 +27,7 @@ export class DummyPlayer extends Player {
         if (this.timer < this.lerpTime){
             this.lerpToTarget(perc, delta);
             this.invulnTime -= delta;
+            this.lerpScore();
             if (this.isDead){
                 this.respawnTime -= delta;
                 this.respawnTime = Math.max(this.respawnTime, 0.0);
