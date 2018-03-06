@@ -9,7 +9,8 @@ import { NetworkManager } from '../network-manager';
 export class PlayerManager extends GameObject {
     constructor(
         private networkManager: NetworkManager,
-        private preferredColor: string
+        private preferredColor: string,
+        private displayName: string
     ) {
         super(`PlayerManager`, { shouldRender: false });
     }
@@ -29,7 +30,8 @@ export class PlayerManager extends GameObject {
     }
     private setUp() {
         this.io.emit('join-game', {
-            color: this.preferredColor
+            color: this.preferredColor,
+            displayName: this.displayName
         });
         
         this.io.on('disconnect', () => {
@@ -38,7 +40,8 @@ export class PlayerManager extends GameObject {
         
         this.io.on('connect', () => {
             this.io.emit('join-game', {
-                color: this.preferredColor
+                color: this.preferredColor,
+                displayName: this.displayName
             });
         });
         

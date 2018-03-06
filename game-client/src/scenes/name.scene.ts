@@ -1,26 +1,26 @@
 import { GameScene, Camera, GameEvent } from 'engine';
 import { PlayScene } from './play.scene';
-import { NameScene } from './name.scene';
-import { ColorMenuObject } from '../objects/color-menu';
 import { ButtonObject } from '../objects/button';
+import { NameMenuObject } from '../objects/name-menu';
 
-export class StartScene extends GameScene {
-    constructor() {
+export class NameScene extends GameScene {
+    constructor(color: string) {
         super();
+        this.color = color;
     }
     
-    private initialized = false;
-    private colorMenu : ColorMenuObject;
+    private color: string;
+    private nameMenu: NameMenuObject;
     
-    private finalizeColorSelection() {
-        this.game.changeScene(new NameScene(this.colorMenu.getSelectedColor()));
+    private initialized = false;
+    
+    private finalizeNameSelection() {
+        this.game.changeScene(new PlayScene(this.color, this.nameMenu.getName()));
     }
     
     handleEvent(event : GameEvent){
-        if ((event.type === 'abstractButtonPressed' && event.name === 'submit') ||
-            (event.type == 'mouseButtonPressed' && this.colorMenu.inSelectedCircle())
-        ) {
-            this.finalizeColorSelection();
+        if (event.type === 'abstractButtonPressed' && event.name === 'alt-submit') {
+            this.finalizeNameSelection();
             return true;
         }
         
@@ -33,16 +33,17 @@ export class StartScene extends GameScene {
         if (this.initialized) return;
         this.initialized = true;
         
-        this.colorMenu = new ColorMenuObject(96, {x: 0, y: 0}, 325);
-        this.addObject(this.colorMenu);
+        this.nameMenu = new NameMenuObject();
+        this.addObject(this.nameMenu);
         
+                
         this.addObject(new ButtonObject({
             x: -100,
             y: 200,
             width: 200,
             height: 60,
-            text: 'Next',
-            action: () => this.finalizeColorSelection()
+            text: 'Done',
+            action: () => this.finalizeNameSelection()
         }));
         
         let camera = this.camera = new Camera(this);

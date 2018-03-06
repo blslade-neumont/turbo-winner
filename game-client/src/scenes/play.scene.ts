@@ -10,9 +10,10 @@ import { Bullet } from "../objects/bullet";
 import { Player } from "../objects/player";
 
 export class PlayScene extends GameScene {
-    constructor(color : string) {
+    constructor(color : string, displayName: string) {
         super();
         this.playerColor = color;
+        this.displayName = displayName;
     }
     
     private initialized = false;
@@ -21,6 +22,7 @@ export class PlayScene extends GameScene {
     private playerManager: PlayerManager;
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;
+    private displayName: string;
     
     getCursor() {
         return ['none'];
@@ -63,7 +65,7 @@ export class PlayScene extends GameScene {
 
         this.networkManager = new NetworkManager();
         this.addObject(this.networkManager);
-        this.playerManager = new PlayerManager(this.networkManager, this.playerColor);
+        this.playerManager = new PlayerManager(this.networkManager, this.playerColor, this.displayName);
         this.addObject(this.playerManager);
         this.bulletManager = new BulletManager(this.playerManager);
         this.addObject(this.bulletManager);

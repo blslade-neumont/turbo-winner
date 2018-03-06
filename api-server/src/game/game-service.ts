@@ -31,6 +31,7 @@ export class GameService {
         
         socket.on('join-game', opts => {
             let color = opts.color;
+            let displayName = opts.displayName;
             if (!game) game = this.game;
             if (!player) {
                 player = game.createPlayerWithUniqueID(socket);
@@ -40,6 +41,7 @@ export class GameService {
                 });
             }
             if (color) player.color = color;
+            if (displayName) player.displayName = displayName;
             game.addPlayer(player);
         });
         

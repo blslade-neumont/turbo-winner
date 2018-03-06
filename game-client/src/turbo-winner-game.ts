@@ -21,6 +21,7 @@ export class TurboWinnerGame extends Game {
         kbProvider.bindAbstractButton('move-down', 'KeyS', 'ArrowDown');
         
         kbProvider.bindAbstractButton('submit', 'Enter', 'Space');
+        kbProvider.bindAbstractButton('alt-submit', 'Enter');
         kbProvider.bindAbstractButton('return', 'Escape');
         
         this.eventQueue.addAbstractButtonProvider(kbProvider);

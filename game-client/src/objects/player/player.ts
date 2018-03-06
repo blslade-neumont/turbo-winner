@@ -23,7 +23,6 @@ export abstract class Player extends GameObject {
     ) {
         super(name, { renderDepth: renderDepth });
         this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
-        this.displayName = "Player";
     }
     
     public score: number = 0;
