@@ -35,16 +35,16 @@ export class NameMenuObject extends GameObject {
     
     renderImplContext2d(context: CanvasRenderingContext2D) {
         this.renderBackground(context);
-        this.renderText(context, "72px Arial", "Please Enter Name:", {x: 0, y: -120});
-        this.renderText(context, "72px Arial", this.nameConstruct, {x: 0, y: 0});
+        this.renderText(context, "48px Arial", "Please Enter Name:", {x: 0, y: -200}, "black", "alphabetic");
+        this.renderText(context, "48px Arial", this.nameConstruct, {x: 0, y: 0});
     }
     
     renderBackground(context: CanvasRenderingContext2D){
-        const WIDTH = 700;
-        const HEIGHT = 150;
+        const WIDTH = 800;
+        const HEIGHT = 120;
         const LEFT = -WIDTH/2;
         const TOP = -HEIGHT/2;
-        
+        context.beginPath();
         context.fillStyle = "white";
         context.fillRect(LEFT, TOP, WIDTH, HEIGHT);
         
@@ -53,10 +53,10 @@ export class NameMenuObject extends GameObject {
         context.strokeRect(LEFT, TOP, WIDTH, HEIGHT);
     }
     
-    renderText(context : CanvasRenderingContext2D, fontStyle : string, text : string, position : {x: number, y: number}, color = "black"){
+    renderText(context : CanvasRenderingContext2D, fontStyle : string, text : string, position : {x: number, y: number}, color = "black", baseline = "middle"){
         context.font = fontStyle;
         context.textAlign = "center";
-        context.textBaseline = "middle";
+        context.textBaseline = baseline;
         context.fillStyle = color;
         context.fillText(text, position.x, position.y);
     }
