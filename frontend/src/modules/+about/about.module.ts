@@ -2,28 +2,29 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 //Declarations
-import { AccountComponent } from './pages/account/account';
+import { AboutComponent } from './pages/about/about';
 
-import { ColorOptionComponent } from './components/color-option/color-option';
+import { AboutTurboWinnerComponent } from './components/about-turbo-winner/about-turbo-winner';
+import { HighScoresComponent } from './components/high-scores/high-scores';
 
 //Imports
 import { SharedModule } from 'shared/shared.module';
 
 //Routing
 const routerConfig: Routes = [
-    {path: '', component: AccountComponent}
+    {path: '', component: AboutComponent}
 ];
 
 @NgModule({
     declarations: [
-        AccountComponent,
+        AboutComponent,
         
-        ColorOptionComponent
+        AboutTurboWinnerComponent, HighScoresComponent
     ],
     imports: [
         RouterModule.forChild(routerConfig), SharedModule.forRoot()
     ],
     exports: []
 })
-export class AccountModule {
+export class AboutModule {
 }
