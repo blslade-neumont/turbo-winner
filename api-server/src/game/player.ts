@@ -59,6 +59,7 @@ export class Player extends EventEmitter {
     score = 0;
     targetID = -1;
     attackers: Array<{id: number, timer: number}> = []
+    displayName: string;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -248,7 +249,8 @@ export class Player extends EventEmitter {
             isDisconnected: this.isDisconnected,
             timeUntilRemoval: this.timeUntilRemoval,
             score: this.score,
-            targetID: this.targetID
+            targetID: this.targetID,
+            displayName: this.displayName
         };
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -274,6 +276,9 @@ export class Player extends EventEmitter {
                     !isSignificantlyDifferent(details.accel!.y, this.previousDetails.accel.y)
                 ) {
                     delete details.accel;
+                }
+                if (this.previousDetails.displayName === details.displayName){
+                    delete details.displayName;
                 }
                 if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)) { delete details.health; }
                 if (details.invulnTime! <= this.previousDetails.invulnTime && !this.forcePlayerUpdate) { delete details.invulnTime; } // need to force sending of invuln time for player respawn... <= optimization was making it only ever send once, when we want it sent each time the player goes invulnerable
@@ -328,6 +333,7 @@ export class Player extends EventEmitter {
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== 'undefined') { this.score = vals.score; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
+        if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName }
     }
     
     getCollisionCircle(): CircleT {

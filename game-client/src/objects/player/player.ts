@@ -5,6 +5,7 @@ import cloneDeep = require("lodash.clonedeep");
 import { HealthBar } from "./health-bar";
 import { ScoreDisplay } from "./score-display";
 import { ScorePopup } from "./score-popup";
+import { NameTag } from "./name-tag";
 
 export const PLAYER_ACCELERATION: number = 5;
 export const PLAYER_FRICTION: number = 3.0;
@@ -22,11 +23,13 @@ export abstract class Player extends GameObject {
     ) {
         super(name, { renderDepth: renderDepth });
         this.mask = new CircleCollisionMask(this, PLAYER_RADIUS);
+        this.displayName = "Player";
     }
     
     public score: number = 0;
     public targetScore: number = 0;
     public color: string;
+    public displayName: string;
     public forward = { x: 1, y: 0 };
     public inputAcceleration = { x: 0, y: 0 };
     public health: number = MAX_PLAYER_HEALTH;
@@ -41,17 +44,20 @@ export abstract class Player extends GameObject {
     
     private healthBar: HealthBar = new HealthBar(this);
     private scoreDisplay: ScoreDisplay = new ScoreDisplay(this);
+    private nameTag: NameTag = new NameTag(this);
     
     onAddToScene() {
         super.onAddToScene();
         this.scene.addObject(this.healthBar);
         this.scene.addObject(this.scoreDisplay);
+        this.scene.addObject(this.nameTag);
     }
     
     onRemoveFromScene() {
         super.onRemoveFromScene();
         this.healthBar.scene.removeObject(this.healthBar);
         this.scoreDisplay.scene.removeObject(this.scoreDisplay);
+        this.nameTag.scene.removeObject(this.nameTag);
     }
     
     isInvulnerable(): boolean {
@@ -162,7 +168,8 @@ export abstract class Player extends GameObject {
             isDisconnected: this.isDisconnected,
             timeUntilRemoval: this.timeUntilRemoval,
             score: this.score,
-            targetID: this.targetID
+            targetID: this.targetID,
+            displayName: this.displayName
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -196,6 +203,9 @@ export abstract class Player extends GameObject {
                 ) {
                     delete details.accel;
                 }
+                if(this.previousDetails.displayName === details.displayName){
+                    delete details.displayName;
+                }
                 Object.assign(this.previousDetails, details);
             }
             else this.previousDetails = currentDetails;
@@ -227,6 +237,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== 'undefined') { this.targetScore = vals.score; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
+        if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName; }
     }
     
     lerpScore(){
