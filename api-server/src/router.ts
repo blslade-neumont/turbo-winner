@@ -98,6 +98,12 @@ export function initializeRoutesAndListen(port: number): Promise<Server> {
             res.status(200).send(user);
         });
         
+        app.get('/highscores', async (req: Request, res: Response) => {
+            let topUsers = await Users.find().sort('score', -1).limit(10).toArray();
+            let topScores = topUsers.map(user => ({ nickname: user.nickname, color: user.color, score: user.score }));
+            res.status(200).json(topScores);
+        });
+        
         const server = app.listen(port, (err: any, result: any) => {
             if (err) return void(reject(err));
             resolve(server);
