@@ -6,6 +6,7 @@ import { AboutComponent } from './pages/about/about';
 
 import { AboutTurboWinnerComponent } from './components/about-turbo-winner/about-turbo-winner';
 import { HighScoresComponent } from './components/high-scores/high-scores';
+import { PlayerThumbnailComponent } from './components/player-thumbnail/player-thumbnail';
 
 //Imports
 import { SharedModule } from 'shared/shared.module';
@@ -19,7 +20,7 @@ const routerConfig: Routes = [
     declarations: [
         AboutComponent,
         
-        AboutTurboWinnerComponent, HighScoresComponent
+        AboutTurboWinnerComponent, HighScoresComponent, PlayerThumbnailComponent
     ],
     imports: [
         RouterModule.forChild(routerConfig), SharedModule.forRoot()

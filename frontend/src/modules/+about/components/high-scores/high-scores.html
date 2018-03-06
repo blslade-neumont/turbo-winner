@@ -5,4 +5,36 @@
     Below is a list of the current players with high scores.
 </p>
 
-High Scores
+<div class="highscores-wrapper">
+    <div *ngIf="(resultsObservable | async) as results; else noResults" class="highscores-table" [class.loading]="isLoading">
+        <div class="highscores-header-row">
+            <div></div>
+            <div>Nickname</div>
+            <div>Score</div>
+        </div>
+        <div class="highscores-row" *ngFor="let result of results">
+            <div>
+                <player-thumbnail [color]="result.color"></player-thumbnail>
+            </div>
+            <div>
+                <span *ngIf="result.nickname; else noNickname">{{result.nickname}}</span>
+                <ng-template #noNickname><em>(No nickname)</em></ng-template>
+            </div>
+            <div>{{result.score || 0}}</div>
+        </div>
+    </div>
+    
+    <ng-template #noResults>
+        <div class="alert alert-warning">
+            <strong>That's an Error</strong>
+            <p class="mb-0">
+                We failed to load the highscore table.
+                The server may be struggling; try refreshing the page.
+            </p>
+        </div>
+    </ng-template>
+    
+    <div *ngIf="isLoading" class="loading-spinner">
+        <i class="fas fa-cog fa-3x fa-spin"></i>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+
+
+:host {
+    position: relative;
+    height: 0;
+}
+
+.player-thumbnail {
+    border: 2px solid black;
+    border-radius: 100%;
+    width: 56px;
+    height: 56px;
+    margin: 4px;
+    position: absolute;
+    
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 40px;
+        height: 4px;
+        left: 24px;
+        top: 24px;
+        background: black;
+        z-index: 25;
+        transform: translateX(-50%) rotate(-30deg) translateX(50%);
+    }
+}

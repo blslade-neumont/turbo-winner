@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ComponentBase } from 'utils/components';
 
 @Component({
@@ -7,9 +6,7 @@ import { ComponentBase } from 'utils/components';
     styleUrls: ['./about.scss']
 })
 export class AboutComponent extends ComponentBase {
-    constructor(
-        private http: HttpClient
-    ) {
+    constructor() {
         super();
     }
 }
