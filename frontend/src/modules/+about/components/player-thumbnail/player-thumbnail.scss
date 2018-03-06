@@ -2,7 +2,14 @@
 
 :host {
     position: relative;
-    height: 0;
+    display: block;
+    width: 64px;
+    height: 64px;
+}
+
+.wrapper {
+    position: absolute;
+    top: 0;
 }
 
 .player-thumbnail {
@@ -12,6 +19,7 @@
     height: 56px;
     margin: 4px;
     position: absolute;
+    top: 0;
     
     &:after {
         content: '';

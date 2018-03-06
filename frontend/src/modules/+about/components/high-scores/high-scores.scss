@@ -19,6 +19,7 @@
             
             & > * {
                 display: table-cell;
+                vertical-align: top;
                 
                 &:first-of-type {
                     width: 100px;
