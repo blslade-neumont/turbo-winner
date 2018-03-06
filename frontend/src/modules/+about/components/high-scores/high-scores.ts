@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/Observable/interval';
-import 'rxjs/add/Observable/of';
+import { interval as rxjsInterval } from 'rxjs/observable/interval';
+import { of as rxjsOf } from 'rxjs/observable/of';
 import { map, tap, startWith, switchMap, catchError } from 'rxjs/operators';
 import { ComponentBase } from 'utils/components';
 
@@ -32,7 +32,7 @@ export class HighScoresComponent extends ComponentBase {
     
     ngOnInit() {
         super.ngOnInit();
-        this.resultsObservable = Observable.interval(REFRESH_INTERVAL).pipe(
+        this.resultsObservable = rxjsInterval(REFRESH_INTERVAL).pipe(
             startWith(0),
             tap(() => this.isLoading = true),
             switchMap(() => {
@@ -40,7 +40,7 @@ export class HighScoresComponent extends ComponentBase {
                     tap(() => this.isLoading = false)
                 )
             }),
-            catchError(() => (this.isLoading = false, Observable.of(null))),
+            catchError(() => (this.isLoading = false, rxjsOf(null))),
             startWith([])
         );
     }
