@@ -11,6 +11,7 @@ export const PLAYER_RADIUS: number = 0.5;
 export const INVULN_ON_START: number = 5;
 export const RESPAWN_TIME = 10;
 export const PLAYER_REMOVAL_TIME = 10;
+export const SCORE_LERP_TIME = 2.0;
 
 export abstract class Player extends GameObject {
     constructor(
@@ -41,6 +42,9 @@ export abstract class Player extends GameObject {
     private healthBar: HealthBar = new HealthBar(this);
     private scoreDisplay: ScoreDisplay = new ScoreDisplay(this);
     private nameTag: NameTag = new NameTag(this);
+    private scoreLerpTime: number = 0.0;
+    private lastScore: number = 0;
+    private scoreLerping: boolean = false;
     
     onAddToScene() {
         super.onAddToScene();
@@ -231,14 +235,20 @@ export abstract class Player extends GameObject {
         if (typeof vals.respawnTime !== "undefined") { this.respawnTime = vals.respawnTime; }
         if (typeof vals.isDisconnected !== 'undefined') { this.isDisconnected = vals.isDisconnected; }
         if (typeof vals.timeUntilRemoval !== 'undefined') { this.timeUntilRemoval = vals.timeUntilRemoval; }
-        if (typeof vals.score !== 'undefined') { this.targetScore = vals.score; }
+        if (typeof vals.score !== 'undefined') { this.targetScore = vals.score; this.scoreLerpTime = SCORE_LERP_TIME; this.lastScore = this.score; this.scoreLerping = true; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
         if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName; }
     }
     
-    lerpScore(){
+    lerpScore(delta: number){
+        this.scoreLerpTime -= delta;
+        if (this.scoreLerpTime <= 0.0){
+            this.scoreLerping = false;
+            this.scoreLerpTime = 0.0;
+        }
         if (this.score !== this.targetScore){
-            this.score = Math.floor(this.score + Math.sign(this.targetScore - this.score));
+            let t: number = this.scoreLerpTime / SCORE_LERP_TIME;
+            this.score = Math.floor(t*this.lastScore + (1.0-t)*this.targetScore);
         }
     }
     
@@ -258,7 +268,7 @@ export abstract class Player extends GameObject {
         super.tick(delta);
         
         this.invulnTime = Math.max(this.invulnTime - delta, 0.0);
-        this.lerpScore();
+        this.lerpScore(delta);
                 
         if (this.isDead) {
             this.respawnTime = clamp(this.respawnTime - delta, 0, RESPAWN_TIME);
