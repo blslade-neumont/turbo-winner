@@ -41,6 +41,8 @@ export class Player extends EventEmitter {
     
     public game: Game | null;
     
+    googleId: string;
+    
     x = 0;
     y = 0;
     hspeed = 0;
