@@ -70,7 +70,8 @@ export class GameService {
             player.displayName = opts.displayName;
             if (user) {
                 user = (await Users.findOne({ googleId: user.googleId }))!;
-                player.score = user.score;
+                if (!user.score || isNaN(user.score)) { player.score = 0; }
+                else { player.score = user.score; }
                 player.googleId = user.googleId;
             }
             game.addPlayer(player);
