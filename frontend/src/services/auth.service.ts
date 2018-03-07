@@ -31,6 +31,8 @@ export class AuthService {
             if (key == AUTH_TOKEN_LOCAL_STORAGE) this.sendNextToken();
         });
         
+        this.currentTokenObservable = this._currentToken.asObservable();
+        
         this.currentTokenObservable.pipe(
             map(token => {
                 this.token = token;
@@ -43,13 +45,14 @@ export class AuthService {
                 }
                 return User.fromJson(userJson);
             }),
-            switchMap(user => this.http.get<Partial<User>>(
-                `${this.apiRoot}/current-profile`,
-                { headers: { 'Authorization': `Bearer ${this.token}` } }
-            ).pipe(
-                map(val => User.fromJson(val)),
-                startWith(user)
-            )),
+            switchMap(user => {
+                return this.http.get<Partial<User>>(
+                    `${this.apiRoot}/current-profile`,
+                    { headers: { 'Authorization': `Bearer ${this.token}` } }
+                ).pipe(
+                    map(val => User.fromJson(val))
+                );
+            }),
             distinctUntilChanged(areEqual)
         ).subscribe(this._currentUserSubject);
         this.currentUserObservable = this._currentUserSubject.asObservable();
@@ -76,9 +79,7 @@ export class AuthService {
     }
     
     private _currentToken: Subject<string | null>;
-    public get currentTokenObservable(): Observable<string | null> {
-        return this._currentToken.asObservable();
-    }
+    currentTokenObservable: Observable<string | null>;
     
     private clearToken() {
         if (this.token) {
