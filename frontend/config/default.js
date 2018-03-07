@@ -10,5 +10,7 @@ module.exports = {
     debugLog: {
         playerCreate: false,
         playerUpdate: false
-    }
-}
+    },
+    
+    forceHttps: false
+};

@@ -1,5 +1,5 @@
 
 
 module.exports = {
-    
-}
+    forceHttps: true
+};

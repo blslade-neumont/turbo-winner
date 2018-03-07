@@ -14,4 +14,11 @@ export class AppComponent extends ComponentBase {
     ) {
         super();
     }
+    
+    ngOnInit(){
+        if (CONFIG.forceHttps && document.location.protocol === 'http:') {
+            document.location.href = document.location.href.replace('http:', 'https:');
+        }
+        super.ngOnInit();
+    }
 }
