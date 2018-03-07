@@ -1,10 +1,8 @@
-import { GameObject } from "engine";
-import { Player, MAX_PLAYER_HEALTH } from "./player";
-
+import { GameObject } from 'engine';
+import { Player, MAX_PLAYER_HEALTH } from '../player';
 
 export class HealthBar extends GameObject {
-    
-    constructor(player : Player){
+    constructor(player: Player) {
         super("PlayerHealthBar", { renderDepth: -200 });
         this.player = player;
     }

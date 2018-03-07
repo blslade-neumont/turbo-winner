@@ -1,11 +1,8 @@
-import { GameObject, CircleCollisionMask, clamp } from "engine";
-import { PlayerDetailsT } from "./player-meta";
-import { isSignificantlyDifferent } from "../../util/is-significantly-different";
-import cloneDeep = require("lodash.clonedeep");
-import { HealthBar } from "./health-bar";
-import { ScoreDisplay } from "./score-display";
-import { ScorePopup } from "./score-popup";
-import { NameTag } from "./name-tag";
+import { GameObject, CircleCollisionMask, clamp } from 'engine';
+import { PlayerDetailsT } from './player-meta';
+import { isSignificantlyDifferent } from '../../util/is-significantly-different';
+import { HealthBar, ScoreDisplay, ScorePopup, NameTag } from './decorators';
+import cloneDeep = require('lodash.clonedeep');
 
 export const PLAYER_ACCELERATION: number = 5;
 export const PLAYER_FRICTION: number = 3.0;

@@ -1,21 +1,20 @@
-import { GameObject, pointDirection } from "engine";
-import { Player, PLAYER_RADIUS } from "./player";
-import { DummyPlayer } from "./dummy-player";
-import { lerp } from '../../util/lerp';
+import { GameObject, pointDirection } from 'engine';
+import { Player, PLAYER_RADIUS } from '../player';
+import { DummyPlayer } from '../dummy-player';
+import { lerp } from '../../../util/lerp';
 
 export const LINE_LENGTH = 64/96;
 export const PERPENDICULAR_OFFSET = 64/96;
 export const BACK_OFFSET = 48/96;
 
 export class TargetPointer extends GameObject {
-    
     private player: Player;
     private targetPlayer: DummyPlayer | undefined;
     private targetDirection: {x: number, y: number};
     private lastOffet: {x: number, y: number};
     private lastPlayer: {x: number, y: number};
     
-    constructor(player: Player){
+    constructor(player: Player) {
         super("TargetPointer", {renderDepth: -150});
         this.player = player;
         this.lastOffet = {x: 0, y: 0};

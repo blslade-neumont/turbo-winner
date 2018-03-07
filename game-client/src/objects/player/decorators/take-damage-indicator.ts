@@ -1,5 +1,5 @@
 import { GameObject, clamp } from 'engine';
-import { Player } from './player';
+import { Player } from '../player';
 
 export class TakeDamageIndicator extends GameObject {
     constructor(private player: Player) {

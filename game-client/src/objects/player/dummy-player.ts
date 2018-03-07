@@ -1,5 +1,5 @@
-import { Player, RESPAWN_TIME, PLAYER_ACCELERATION } from "./player";
-import { PlayerDetailsT } from "./player-meta";
+import { Player, RESPAWN_TIME, PLAYER_ACCELERATION } from './player';
+import { PlayerDetailsT } from './player-meta';
 import { lerp } from '../../util/lerp';
 import cloneDeep = require('lodash.clonedeep');
 

@@ -1,12 +1,10 @@
-import { GameObject, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection, GameScene, pointDistance2 } from "engine";
-import { Player } from "./player";
-import { TurboWinnerGame } from "../../turbo-winner-game";
-import { Bullet } from "../bullet/bullet";
-import { PlayerDetailsT } from "./player-meta";
-import { PlayScene } from "../..";
-import { TargetPointer } from "./target-pointer";
-import { TakeDamageIndicator } from "./take-damage-indicator";
-import { ScorePopup } from "./score-popup";
+import { GameObject, DefaultGraphicsAdapter, GameEvent, Camera, MouseButton, pointDirection, GameScene, pointDistance2 } from 'engine';
+import { Player } from './player';
+import { TurboWinnerGame } from '../../turbo-winner-game';
+import { Bullet } from '../bullet/bullet';
+import { PlayerDetailsT } from './player-meta';
+import { PlayScene } from '../../scenes/play.scene';
+import { TargetPointer, TakeDamageIndicator, ScorePopup } from './decorators';
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 

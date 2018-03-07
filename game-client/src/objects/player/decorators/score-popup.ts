@@ -1,11 +1,11 @@
-import { GameObject } from "engine";
-import { Player, MAX_PLAYER_HEALTH } from "./player";
+import { GameObject } from 'engine';
+import { Player, MAX_PLAYER_HEALTH } from '../player';
 
 export const SCORE_ANIMATION_TIME = 3.0;
 export const BIG_SCORE_SCALE = 3.0;
+
 export class ScorePopup extends GameObject {
-    
-    constructor(player : Player){
+    constructor(player: Player) {
         super("PlayerScorePopup", { renderDepth: -275 });
         this.player = player;
     }
