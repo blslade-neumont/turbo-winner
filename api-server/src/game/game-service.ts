@@ -43,7 +43,7 @@ export class GameService {
             let user: User | null = (opts.authToken && parseAuthToken(opts.authToken)) || null;
             if (user) {
                 if (this.inGameMap.get(user.googleId)) {
-                    socket.send('already-in-game');
+                    socket.emit('already-in-game');
                     return;
                 }
                 this.inGameMap.set(user.googleId, true);

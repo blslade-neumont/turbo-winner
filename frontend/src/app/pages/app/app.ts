@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { ComponentBase } from 'utils/components';
 import { AuthService, SocketService } from 'services';
 
@@ -10,9 +11,11 @@ import { AuthService, SocketService } from 'services';
 export class AppComponent extends ComponentBase {
     constructor(
         auth: AuthService,
-        socketService: SocketService
+        socketService: SocketService,
+        private router: Router
     ) {
         super();
+        (<any>window).router = this.router;
     }
     
     ngOnInit(){

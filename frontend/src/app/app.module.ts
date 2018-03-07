@@ -10,10 +10,6 @@ import { HomeComponent } from './pages/home/home';
 
 import { NotFoundComponent } from './pages/not-found/not-found';
 
-import { PageHeaderComponent } from './components/page-header/page-header';
-import { PageFooterComponent } from './components/page-footer/page-footer';
-import { PageNavComponent } from './components/page-nav/page-nav';
-
 //Imports
 import { ServicesModule } from 'services/services.module';
 import { SharedModule } from 'shared/shared.module';
@@ -33,9 +29,8 @@ const routerConfig: Routes = [
 @NgModule({
     declarations: [
         AppComponent, LayoutComponent, HomeComponent,
-        NotFoundComponent,
         
-        PageHeaderComponent, PageFooterComponent, PageNavComponent
+        NotFoundComponent
     ],
     imports: [RouterModule.forRoot(routerConfig), ServicesModule, SharedModule.forRoot(), BrowserModule],
     bootstrap: [AppComponent]

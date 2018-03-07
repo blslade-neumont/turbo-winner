@@ -52,6 +52,12 @@ export class PlayerManager extends GameObject {
         this.io.on('remove-player', (pid: number) => {
             if (pid !== this._localPlayerId) this.removePlayer(pid);
         });
+        
+        this.io.on('already-in-game', () => {
+            let router = (<any>window).router;
+            if (router) router.navigate(['/play', 'auth-error']);
+            else alert(`Failed to join game. You're already playing using this account in a different tab.`);
+        });
     }
     private joinGame() {
         this.io.emit('join-game', {
