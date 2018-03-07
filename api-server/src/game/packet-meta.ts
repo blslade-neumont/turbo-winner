@@ -27,3 +27,10 @@ export type BulletDetailsT = {
     vspeed: number,
     ignorePlayerId: number,
 };
+
+export type BlockDetailsT = {
+    x: number,
+    y: number,
+    hspeed: number, 
+    vspeed: number
+};

@@ -8,6 +8,7 @@ import { Tile } from '../objects/tile';
 import { StartScene } from './start.scene';
 import { Bullet } from "../objects/bullet";
 import { Player } from "../objects/player";
+import { Block } from '../objects/block';
 
 export class PlayScene extends GameScene {
     constructor(color : string, displayName: string) {
@@ -59,7 +60,12 @@ export class PlayScene extends GameScene {
             obj.y = (-250/camera.zoomScale) + i*(50 / camera.zoomScale);
             this.addObject(obj);
         }
-                
+        
+        let sampleBlock = new Block();
+        sampleBlock.x = 5;
+        sampleBlock.y = 5;
+        this.addObject(sampleBlock);
+        
         this.customCursor = new CustomCursor("#b22222");
         this.addObject(this.customCursor);
 
