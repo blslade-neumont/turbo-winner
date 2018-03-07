@@ -10,7 +10,8 @@ export class PlayerManager extends GameObject {
     constructor(
         private networkManager: NetworkManager,
         private preferredColor: string,
-        private displayName: string
+        private displayName: string,
+        private authToken: string | null
     ) {
         super(`PlayerManager`, { shouldRender: false });
     }
@@ -29,25 +30,19 @@ export class PlayerManager extends GameObject {
         this.setUp();
     }
     private setUp() {
-        this.io.emit('join-game', {
-            color: this.preferredColor,
-            displayName: this.displayName
-        });
+        this.joinGame();
         
         this.io.on('disconnect', () => {
             this.networkManager.isConnected = false;
         });
         
         this.io.on('connect', () => {
-            this.io.emit('join-game', {
-                color: this.preferredColor,
-                displayName: this.displayName
-            });
+            this.joinGame();
         });
         
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
             this.networkManager.isConnected = true;
-            this.createLocalPlayer(pid, details);
+            this.clearWorldAndCreateLocalPlayer(pid, details);
         });
         
         this.io.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {
@@ -56,6 +51,13 @@ export class PlayerManager extends GameObject {
         
         this.io.on('remove-player', (pid: number) => {
             if (pid !== this._localPlayerId) this.removePlayer(pid);
+        });
+    }
+    private joinGame() {
+        this.io.emit('join-game', {
+            color: this.preferredColor,
+            displayName: this.displayName,
+            authToken: this.authToken
         });
     }
     
@@ -73,7 +75,7 @@ export class PlayerManager extends GameObject {
     }
     
     private localPlayer: LocalPlayer | null = null;
-    private createLocalPlayer(pid: number, details: PlayerDetailsT) {
+    private clearWorldAndCreateLocalPlayer(pid: number, details: PlayerDetailsT) {
         //Delete all current players
         let allPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         allPlayers.forEach(player => {

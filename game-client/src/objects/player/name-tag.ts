@@ -20,13 +20,14 @@ export class NameTag extends GameObject{
         this.renderNameTag(context);
     }
     
-    renderNameTag(context: CanvasRenderingContext2D): void{
+    renderNameTag(context: CanvasRenderingContext2D): void {
         context.save();
-        try{
+        try {
             context.translate(0, -128 / this.scene!.camera!.zoomScale);
             context.scale(1 / this.scene!.camera!.zoomScale, 1 / this.scene!.camera!.zoomScale);
-            this.renderText(context, "24px Arial", this.player.displayName + " #" + this.player.playerId, {x: 0, y: 0});
-        }finally{
+            this.renderText(context, "24px Arial", this.player.displayName, {x: 0, y: 0});
+        }
+        finally {
             context.restore();
         }
     }

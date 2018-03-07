@@ -5,25 +5,24 @@ import { BulletManager } from '../objects/bullet/bullet-manager';
 import { NetworkManager } from '../objects/network-manager';
 import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
-import { StartScene } from './start.scene';
 import { Bullet } from "../objects/bullet";
 import { Player } from "../objects/player";
 import { Block } from '../objects/block';
 
 export class PlayScene extends GameScene {
-    constructor(color : string, displayName: string) {
+    constructor(
+        private playerColor: string,
+        private displayName: string,
+        private authToken: string | null
+    ) {
         super();
-        this.playerColor = color;
-        this.displayName = displayName;
     }
     
     private initialized = false;
-    private playerColor = 'yellow';
     networkManager: NetworkManager;
     private playerManager: PlayerManager;
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;
-    private displayName: string;
     
     getCursor() {
         return ['none'];
@@ -35,8 +34,8 @@ export class PlayScene extends GameScene {
     
     handleEvent(event: GameEvent) {
         if ((event.type === 'abstractButtonPressed' && event.name === 'return')) {
-            this.game.changeScene(new StartScene());
-            return true;
+            // this.game.changeScene(new StartScene());
+            // return true;
         }
         
         return super.handleEvent(event);
@@ -71,7 +70,7 @@ export class PlayScene extends GameScene {
 
         this.networkManager = new NetworkManager();
         this.addObject(this.networkManager);
-        this.playerManager = new PlayerManager(this.networkManager, this.playerColor, this.displayName);
+        this.playerManager = new PlayerManager(this.networkManager, this.playerColor, this.displayName, this.authToken);
         this.addObject(this.playerManager);
         this.bulletManager = new BulletManager(this.playerManager);
         this.addObject(this.bulletManager);

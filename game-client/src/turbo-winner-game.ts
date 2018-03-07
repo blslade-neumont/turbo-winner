@@ -1,16 +1,35 @@
 import { Game, GameOptions, KeyboardAbstractButtonProvider } from 'engine';
-import { StartScene } from './scenes/start.scene';
+import { ColorSelectScene } from './scenes/color-select.scene';
+import { NameSelectScene } from './scenes/name-select.scene';
+import { PlayScene } from './scenes/play.scene';
 
 export type Socket = SocketIOClient.Socket;
+
+export type TurboWinnerGameOptions = GameOptions & {
+    playerColor?: string,
+    playerDisplayName?: string,
+    authToken?: string | null
+};
 
 export class TurboWinnerGame extends Game {
     constructor(
         readonly io: Socket,
-        opts?: GameOptions
+        opts?: TurboWinnerGameOptions
     ) {
         super(opts);
+        
+        if (opts) {
+            if (typeof opts.playerColor !== 'undefined') this.playerColor = opts.playerColor;
+            if (typeof opts.playerDisplayName !== 'undefined') this.playerDisplayName = opts.playerDisplayName;
+            if (typeof opts.authToken !== 'undefined') this.authToken = opts.authToken;
+        }
+        
         this.initAbstractButtons();
     }
+    
+    playerColor: string | null = null;
+    playerDisplayName: string | null = null;
+    authToken: string | null = null;
     
     private initAbstractButtons() {
         let kbProvider = new KeyboardAbstractButtonProvider(this.eventQueue);
@@ -29,6 +48,12 @@ export class TurboWinnerGame extends Game {
     
     start() {
         super.start();
-        this.changeScene(new StartScene());
+        this.advanceToGame();
+    }
+    
+    advanceToGame() {
+        if (!this.playerColor) this.changeScene(new ColorSelectScene());
+        else if (!this.playerDisplayName) this.changeScene(new NameSelectScene());
+        else this.changeScene(new PlayScene(this.playerColor, this.playerDisplayName, this.authToken));
     }
 }

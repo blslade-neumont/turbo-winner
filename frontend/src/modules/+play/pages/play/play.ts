@@ -1,7 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { take } from 'rxjs/operators';
 import { ComponentBase } from 'utils/components';
-import { SocketService } from 'services';
+import { SocketService, AuthService } from 'services';
 
 import { TurboWinnerGame } from 'game-client';
 import { DefaultGraphicsAdapter } from 'engine';
@@ -12,7 +13,8 @@ import { DefaultGraphicsAdapter } from 'engine';
 })
 export class PlayComponent extends ComponentBase {
     constructor(
-        private socketService: SocketService
+        private socketService: SocketService,
+        private auth: AuthService
     ) {
         super();
     }
@@ -28,11 +30,22 @@ export class PlayComponent extends ComponentBase {
         let graphicsAdapter = new DefaultGraphicsAdapter();
         (<any>graphicsAdapter)._canvas = canvas; //HACK HACK
         
-        this.game = new TurboWinnerGame(this.socketService.io, {
-            graphicsAdapter: graphicsAdapter,
-            moveCanvas: false
-        });
-        this.game.start();
+        this.subscriptions.push(this.auth.currentUserObservable.pipe(take(1)).subscribe(cuser => {
+            let playerColor: string = '';
+            let playerDisplayName: string = '';
+            if (cuser) {
+                playerColor = cuser.color;
+                playerDisplayName = cuser.nickname;
+            }
+            this.game = new TurboWinnerGame(this.socketService.io, {
+                graphicsAdapter: graphicsAdapter,
+                moveCanvas: false,
+                playerColor: playerColor,
+                playerDisplayName: playerDisplayName,
+                authToken: this.auth.token
+            });
+            this.game.start();
+        }));
     }
     
     ngOnDestroy() {

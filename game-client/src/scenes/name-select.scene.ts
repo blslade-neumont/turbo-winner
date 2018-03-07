@@ -1,24 +1,24 @@
 import { GameScene, Camera, GameEvent } from 'engine';
-import { PlayScene } from './play.scene';
-import { ButtonObject } from '../objects/button';
 import { NameMenuObject } from '../objects/name-menu';
+import { ButtonObject } from '../objects/button';
+import { TurboWinnerGame } from '../turbo-winner-game';
 
-export class NameScene extends GameScene {
-    constructor(color: string) {
+export class NameSelectScene extends GameScene {
+    constructor() {
         super();
-        this.color = color;
     }
     
-    private color: string;
     private nameMenu: NameMenuObject;
     
     private initialized = false;
     
     private finalizeNameSelection() {
-        this.game.changeScene(new PlayScene(this.color, this.nameMenu.getName()));
+        if (!(this.game instanceof TurboWinnerGame)) throw new Error(`Can't set playerDisplayName on the current game.`);
+        this.game.playerDisplayName = this.nameMenu.getName();
+        this.game.advanceToGame();
     }
     
-    handleEvent(event : GameEvent){
+    handleEvent(event: GameEvent) {
         if (event.type === 'abstractButtonPressed' && event.name === 'alt-submit') {
             this.finalizeNameSelection();
             return true;

@@ -1,10 +1,9 @@
 import { GameScene, Camera, GameEvent } from 'engine';
-import { PlayScene } from './play.scene';
-import { NameScene } from './name.scene';
 import { ColorMenuObject } from '../objects/color-menu';
 import { ButtonObject } from '../objects/button';
+import { TurboWinnerGame } from '../turbo-winner-game';
 
-export class StartScene extends GameScene {
+export class ColorSelectScene extends GameScene {
     constructor() {
         super();
     }
@@ -13,10 +12,12 @@ export class StartScene extends GameScene {
     private colorMenu : ColorMenuObject;
     
     private finalizeColorSelection() {
-        this.game.changeScene(new NameScene(this.colorMenu.getSelectedColor()));
+        if (!(this.game instanceof TurboWinnerGame)) throw new Error(`Can't set playerColor on the current game.`);
+        this.game.playerColor = this.colorMenu.getSelectedColor();
+        this.game.advanceToGame();
     }
     
-    handleEvent(event : GameEvent){
+    handleEvent(event: GameEvent) {
         if ((event.type === 'abstractButtonPressed' && event.name === 'submit') ||
             (event.type == 'mouseButtonPressed' && this.colorMenu.inSelectedCircle())
         ) {
