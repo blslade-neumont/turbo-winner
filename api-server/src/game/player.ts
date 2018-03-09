@@ -34,7 +34,7 @@ export const TARGET_ASSIGNMENT_TIME = 100;
 export class Player extends EventEmitter {
     constructor(
         readonly playerId: number,
-        readonly socket: Socket
+        private _socket: Socket | null
     ) {
         super();
     }
@@ -63,6 +63,13 @@ export class Player extends EventEmitter {
     attackers: Array<{id: number, timer: number}> = []
     displayName: string;
     didAttackersChange: boolean = true;
+    
+    get socket() {
+        return this._socket;
+    }
+    set socket(val) {
+        this._socket = val;
+    }
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;

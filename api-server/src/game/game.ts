@@ -63,6 +63,7 @@ export class Game extends EventEmitter {
         let isPreexisting = prev === player;
         if (!isPreexisting && !!prev) throw new Error(`A player with that ID already exists!`);
         
+        if (!player.socket) throw new Error(`Can't add a player without a socket.`);
         player.isDisconnected = false;
         player.timeUntilRemoval = 0;
         this.attachSocketEvents(player);
@@ -99,7 +100,7 @@ export class Game extends EventEmitter {
     }
     
     private attachSocketEvents(player: Player) {
-        let socket = player.socket;
+        let socket = player.socket!;
         
         socket.on('update-player', (pid: number, details: Partial<PlayerDetailsT> | null) => {
             if (!details || !player || player.playerId !== pid) return;
@@ -114,8 +115,8 @@ export class Game extends EventEmitter {
         });
     }
     private detachSocketEvents(player: Player) {
-        let socket = player.socket;
-        
+        let socket = player.socket!;
+        player.socket = null;
         socket.removeAllListeners('update-player');
         socket.removeAllListeners('fire-bullet');
     }
