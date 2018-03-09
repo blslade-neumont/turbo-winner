@@ -17,7 +17,8 @@ export type PlayerDetailsT = {
     timeUntilRemoval: number,
     score: number,
     targetID: number,
-    displayName: string
+    displayName: string,
+    attackers: Array<{id: number, timer: number}> 
 };
 
 export type BulletDetailsT = {

@@ -62,6 +62,7 @@ export class Player extends EventEmitter {
     targetID = -1;
     attackers: Array<{id: number, timer: number}> = []
     displayName: string;
+    didAttackersChange: boolean = true;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -153,6 +154,7 @@ export class Player extends EventEmitter {
     private removeAttacker(attacker: {id: number, timer: number}): void {
         let idx = this.attackers.indexOf(attacker);
         if (idx !== -1) this.attackers.splice(idx, 1);
+        this.didAttackersChange = true;
     }
     
     private removeFromGame() {
@@ -161,11 +163,23 @@ export class Player extends EventEmitter {
         this.emit('removeFromGame');
     }
     
+    addAttacker(attacker: Player){
+        let checkIndex = this.attackers.findIndex((value) => value.id == attacker.playerId );
+        
+        if (checkIndex === -1){
+            this.attackers.push({ id: attacker.playerId, timer: ATTACKER_TTL});
+        } else {
+            this.attackers[checkIndex].timer = ATTACKER_TTL;
+        }
+        
+        this.didAttackersChange = true;
+    }
+    
     takeDamage(amount: number, attacker: Player|undefined): boolean {
         if (this.isDead) { return false; }
         
         if (attacker !== undefined) {
-            this.attackers.push({ id: attacker.playerId, timer: ATTACKER_TTL});
+            this.addAttacker(attacker);
         }
         
         this.health -= amount; // todo: clamp here? todo again: check death here
@@ -174,6 +188,7 @@ export class Player extends EventEmitter {
             this.respawnTime = RESPAWN_TIME;
             this.isDead = true;
             this.attackers = [];
+            this.didAttackersChange = true;
             if (this.isDisconnected) this.removeFromGame();
             return true;
         }
@@ -252,7 +267,8 @@ export class Player extends EventEmitter {
             timeUntilRemoval: this.timeUntilRemoval,
             score: this.score,
             targetID: this.targetID,
-            displayName: this.displayName
+            displayName: this.displayName,
+            attackers: this.attackers
         };
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -282,6 +298,9 @@ export class Player extends EventEmitter {
                 if (this.previousDetails.displayName === details.displayName){
                     delete details.displayName;
                 }
+                if (!this.didAttackersChange){ // TODO: ONLY SEND TO LOCAL PLAYER
+                    delete details.attackers;
+                }
                 if (!isSignificantlyDifferent(details.health!, this.previousDetails.health)) { delete details.health; }
                 if (details.invulnTime! <= this.previousDetails.invulnTime && !this.forcePlayerUpdate) { delete details.invulnTime; } // need to force sending of invuln time for player respawn... <= optimization was making it only ever send once, when we want it sent each time the player goes invulnerable
                 if (details.respawnTime! <= this.previousDetails.respawnTime && !this.forcePlayerUpdate) { delete details.respawnTime; }
@@ -294,6 +313,7 @@ export class Player extends EventEmitter {
         }
         
         this.forcePlayerUpdate = false; // only force once
+        this.didAttackersChange = false; // only force send attackers once
 
         if (!Object.keys(details).length) { return null; }
         return details;
@@ -315,9 +335,11 @@ export class Player extends EventEmitter {
         delete vals.timeUntilRemoval;
         delete vals.score;
         delete vals.targetID;
+        delete vals.attackers;
         if (!Object.keys(vals).length) return null;
         return vals;
     }
+    
     setDetails(vals: Partial<PlayerDetailsT> | null) {
         if (!vals) return;
         if (typeof vals.x !== 'undefined') { this.x = vals.x; }
@@ -336,6 +358,7 @@ export class Player extends EventEmitter {
         if (typeof vals.score !== 'undefined') { this.score = vals.score; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
         if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName }
+        if (typeof vals.attackers !== 'undefined') { this.attackers = vals.attackers }
     }
     
     getCollisionCircle(): CircleT {

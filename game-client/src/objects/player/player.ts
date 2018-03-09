@@ -38,14 +38,15 @@ export abstract class Player extends GameObject {
     public timeUntilRemoval = 0;
     
     public targetID = -1;
-    
+    public attackers: Array<{id: number, timer: number}> = []
+
     private healthBar: HealthBar = new HealthBar(this);
     private scoreDisplay: ScoreDisplay = new ScoreDisplay(this);
     private nameTag: NameTag = new NameTag(this);
     private scoreLerpTime: number = 0.0;
     private lastScore: number = 0;
     private scoreLerping: boolean = false;
-    
+
     onAddToScene() {
         super.onAddToScene();
         this.scene.addObject(this.healthBar);
@@ -169,7 +170,8 @@ export abstract class Player extends GameObject {
             timeUntilRemoval: this.timeUntilRemoval,
             score: this.score,
             targetID: this.targetID,
-            displayName: this.displayName
+            displayName: this.displayName,
+            attackers: this.attackers
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -183,6 +185,7 @@ export abstract class Player extends GameObject {
         delete details.timeUntilRemoval;
         delete details.score;
         delete details.targetID;
+        delete details.attackers;
         
         if (!force) {
             if (this.previousDetails) {
@@ -238,6 +241,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.score !== 'undefined') { this.targetScore = vals.score; this.scoreLerpTime = SCORE_LERP_TIME; this.lastScore = this.score; this.scoreLerping = true; }
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
         if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName; }
+        if (typeof vals.attackers !== 'undefined') { this.attackers = vals.attackers; }
     }
     
     lerpScore(delta: number){

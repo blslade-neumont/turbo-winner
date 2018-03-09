@@ -5,6 +5,7 @@ import { Bullet } from '../bullet/bullet';
 import { PlayerDetailsT } from './player-meta';
 import { PlayScene } from '../../scenes/play.scene';
 import { TargetPointer, TakeDamageIndicator, ScorePopup } from './decorators';
+import { AttackerPointerManager } from './decorators/attacker-pointer-manager';
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
@@ -23,6 +24,7 @@ export class LocalPlayer extends Player {
     private targetPointer: TargetPointer = new TargetPointer(this);
     private damageIndicator: TakeDamageIndicator = new TakeDamageIndicator(this);
     private scorePopup: ScorePopup = new ScorePopup(this);
+    private attackerPointerManager: AttackerPointerManager = new AttackerPointerManager(this);
 
     private ignoreMouseDown = false;
     onAddToScene(): void {
@@ -33,6 +35,7 @@ export class LocalPlayer extends Player {
         this.scene.addObject(this.targetPointer);
         this.scene.addObject(this.damageIndicator);
         this.scene.addObject(this.scorePopup);
+        this.scene.addObject(this.attackerPointerManager);
 
     }
     onRemoveFromScene(): void {
@@ -40,12 +43,37 @@ export class LocalPlayer extends Player {
         this.targetPointer.scene.removeObject(this.targetPointer);
         this.damageIndicator.scene.removeObject(this.damageIndicator);
         this.scorePopup.scene.removeObject(this.scorePopup);
+        this.attackerPointerManager.scene.removeObject(this.attackerPointerManager);
     }
     
     get canMove() {
         if (this.isDead) return false;
         if (!this.networkManager.isConnected) return false;
         return true;
+    }
+    
+    onReceiveAttackers(): void {
+        this.attackerPointerManager.replaceAttackers(this.attackers.filter((a) => a.id !== this.targetID), (<PlayScene>this.scene!).getDummyPlayers());
+    }
+    
+    private updateAttackers(delta: number){
+        let attackersToRemove: Array<{id: number, timer: number}> = [];
+        for(let i = 0; i < this.attackers.length; ++i){
+            let attacker = this.attackers[i];
+            attacker.timer -= delta;
+            if (attacker.timer <= 0.0){
+                attackersToRemove.push(attacker);
+            }
+        }
+        
+        for (let i = 0; i < attackersToRemove.length; ++i){
+            this.removeAttacker(attackersToRemove[i]);
+        }
+    }
+    
+    private removeAttacker(attacker: {id: number, timer: number}): void {
+        let idx = this.attackers.indexOf(attacker);
+        if (idx !== -1) this.attackers.splice(idx, 1);
     }
     
     private fireCooldown = 0;
@@ -89,6 +117,7 @@ export class LocalPlayer extends Player {
         }
         
         this.fireBulletTick(delta);
+        this.updateAttackers(delta);
     }
     
     fireBulletTick(delta : number) {
@@ -144,6 +173,7 @@ export class LocalPlayer extends Player {
         if (typeof vals.timeUntilRemoval !== "undefined") { newVals.timeUntilRemoval = vals.timeUntilRemoval; }
         if (typeof vals.score !== "undefined") { newVals.score = vals.score; this.scorePopup.beginAnimation(vals.score - this.score); }
         if (typeof vals.targetID !== "undefined") { newVals.targetID = vals.targetID; }
+        if (typeof vals.attackers !== "undefined") { newVals.attackers = vals.attackers; this.onReceiveAttackers(); }
         
         if (!Object.keys(newVals).length) return null;
         return newVals;

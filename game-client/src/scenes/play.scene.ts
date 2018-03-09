@@ -6,7 +6,7 @@ import { NetworkManager } from '../objects/network-manager';
 import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
 import { Bullet } from "../objects/bullet";
-import { Player } from "../objects/player";
+import { Player, DummyPlayer } from "../objects/player";
 import { Block } from '../objects/block';
 
 export class PlayScene extends GameScene {
@@ -26,6 +26,10 @@ export class PlayScene extends GameScene {
     
     getCursor() {
         return ['none'];
+    }
+    
+    getDummyPlayers(): Array<DummyPlayer>{
+        return this.playerManager.getDummyPlayers();
     }
     
     get io() {

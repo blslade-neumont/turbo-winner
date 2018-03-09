@@ -12,13 +12,11 @@ export class TargetPointer extends GameObject {
     private targetPlayer: DummyPlayer | undefined;
     private targetDirection: {x: number, y: number};
     private lastOffet: {x: number, y: number};
-    private lastPlayer: {x: number, y: number};
     
     constructor(player: Player) {
         super("TargetPointer", {renderDepth: -150});
         this.player = player;
         this.lastOffet = {x: 0, y: 0};
-        this.lastPlayer = {x: this.player.x, y: this.player.y};
     }
     
     onAddToScene(){
@@ -56,7 +54,6 @@ export class TargetPointer extends GameObject {
         let toPos = {x: clampedVec.x - targetOffset * this.targetDirection.x, y: clampedVec.y - targetOffset * this.targetDirection.y};
         let offset = {x: toPos.x - this.player.x, y: toPos.y - this.player.y};
         
-        let zoom = this.scene!.camera!.zoomScale;
         if (clampedVec.lerpOffset){
             this.x = this.player.x + lerp(this.lastOffet.x, offset.x, 1.5 * delta);
             this.y = this.player.y + lerp(this.lastOffet.y, offset.y, 1.5 * delta);    
@@ -67,7 +64,6 @@ export class TargetPointer extends GameObject {
 
         // for use next frame
         this.lastOffet = {x: this.x - this.player.x, y: this.y - this.player.y};
-        this.lastPlayer = {x: this.player.x, y: this.player.y};
     }
     
     clampToCardinal(bounds:{left: number;right: number;top: number;bottom: number;}): {x: number, y:number, lerpOffset: boolean}{

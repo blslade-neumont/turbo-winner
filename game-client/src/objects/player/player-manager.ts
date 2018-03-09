@@ -123,4 +123,10 @@ export class PlayerManager extends GameObject {
             this.scene!.removeObject(player);
         }
     }
+    
+    getDummyPlayers(): Array<DummyPlayer>{
+        let players = this.game !== null ? Array.from(this.players.keys()).map(pid => this.players.get(pid)!) : [];
+        players = players.filter(p => p.playerId !== this.localPlayerId);
+        return <Array<DummyPlayer>>players;
+    }
 }
