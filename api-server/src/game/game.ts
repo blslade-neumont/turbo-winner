@@ -12,8 +12,14 @@ export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
 
 export class Game extends EventEmitter {
-    constructor() {
+    constructor(
+        readonly gameId: number
+    ) {
         super();
+    }
+    
+    get channel() {
+        return `game:${this.gameId}`;
     }
     
     private _lastTime: Date;
@@ -96,7 +102,7 @@ export class Game extends EventEmitter {
     removePlayer(player: Player) {
         this.players.delete(player.playerId);
         player.game = null;
-        io!.emit('remove-player', player.playerId);
+        io!.in(this.channel).emit('remove-player', player.playerId);
     }
     
     private attachSocketEvents(player: Player) {
@@ -108,10 +114,10 @@ export class Game extends EventEmitter {
             player.setDetails(details);
         });
         
-        socket.on('fire-bullet', (details: BulletDetailsT) =>{
-            if(!player || player.playerId !== details.ignorePlayerId) return;
+        socket.on('fire-bullet', (details: BulletDetailsT) => {
+            if (!player || player.game !== this || player.playerId !== details.ignorePlayerId) return;
             this.addBullet(details);
-            io!.emit('create-bullet', details);
+            io!.in(this.channel).emit('create-bullet', details);
         });
     }
     private detachSocketEvents(player: Player) {
@@ -125,7 +131,7 @@ export class Game extends EventEmitter {
         let detailsPacket = player.getDetails(force);
         if (!detailsPacket) return;
         if (socket) socket.emit('update-player', player.playerId, detailsPacket);
-        else io!.emit('update-player', player.playerId, detailsPacket);
+        else io!.in(this.channel).emit('update-player', player.playerId, detailsPacket);
     }
     
     bullets: Bullet[] = [];

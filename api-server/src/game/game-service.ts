@@ -21,6 +21,13 @@ export class GameService {
     
     inGameMap = new Map<string, Player | null>();
     
+    nextGameId: number = 1000;
+    createGameWithUniqueID(): Game {
+        let game = new Game(this.nextGameId++);
+        game.start();
+        return game;
+    }
+    
     game: Game;
     
     //TODO: allow multiple games to occur at the same time if there are too many players
@@ -31,8 +38,7 @@ export class GameService {
     async start() {
         console.log(`Game version: ${GameVersion}`);
         
-        this.game = new Game();
-        this.game.start();
+        this.game = this.createGameWithUniqueID();
         
         this.io.on('connection', this.handleSocketConnection.bind(this));
     }

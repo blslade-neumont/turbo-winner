@@ -34,12 +34,33 @@ export const TARGET_ASSIGNMENT_TIME = 100;
 export class Player extends EventEmitter {
     constructor(
         readonly playerId: number,
-        private _socket: Socket | null
+        socket: Socket | null
     ) {
         super();
+        this.socket = socket;
     }
     
-    public game: Game | null;
+    private _game: Game | null;
+    get game() {
+        return this._game;
+    }
+    set game(val) {
+        if (val === this._game) return;
+        if (this._game && this.socket) this.socket.leave(this._game.channel);
+        this._game = val;
+        if (this._game && this.socket) this.socket.join(this._game.channel);
+    }
+    
+    private _socket: Socket | null;
+    get socket() {
+        return this._socket;
+    }
+    set socket(val) {
+        if (val === this._socket) return;
+        if (this.game && this._socket) this._socket.leave(this.game.channel);
+        this._socket = val;
+        if (this.game && this._socket) this._socket.join(this.game.channel);
+    }
     
     googleId: string;
     
@@ -63,13 +84,6 @@ export class Player extends EventEmitter {
     attackers: Array<{id: number, timer: number}> = []
     displayName: string;
     didAttackersChange: boolean = true;
-    
-    get socket() {
-        return this._socket;
-    }
-    set socket(val) {
-        this._socket = val;
-    }
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
