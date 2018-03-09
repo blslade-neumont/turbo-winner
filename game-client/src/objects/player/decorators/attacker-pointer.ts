@@ -111,7 +111,7 @@ export class AttackerPointer extends GameObject {
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D): void {
-        if(!this.player.isDead && this.enabled){
+        if(!this.player.isDead && this.enabled && this.attacker && !this.attacker.isDead){
             let alpha = this.getRenderAlpha();
             if (!alpha) return;
             
