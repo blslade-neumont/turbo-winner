@@ -14,7 +14,8 @@ import { DefaultGraphicsAdapter } from 'engine';
 export class PlayComponent extends ComponentBase {
     constructor(
         private socketService: SocketService,
-        private auth: AuthService
+        private auth: AuthService,
+        private router: Router
     ) {
         super();
     }
@@ -46,13 +47,22 @@ export class PlayComponent extends ComponentBase {
             });
             this.game.start();
         }));
+        
+        this.socketService.io.on('already-in-game', () => {
+            let router = (<any>window).router;
+            if (router) router.navigate(['/play', 'auth-error']);
+            else alert(`Failed to join game. You're already playing using this account in a different tab.`);
+        });
     }
     
     ngOnDestroy() {
         super.ngOnDestroy();
+        
         if (this.game) {
             this.game.stop();
             this.game = null;
         }
+        
+        this.socketService.io.off('already-in-game');
     }
 }

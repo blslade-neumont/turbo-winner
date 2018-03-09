@@ -12,13 +12,13 @@ export class AppComponent extends ComponentBase {
     constructor(
         auth: AuthService,
         socketService: SocketService,
-        private router: Router
+        router: Router
     ) {
         super();
-        (<any>window).router = this.router;
+        (<any>window).router = router;
     }
     
-    ngOnInit(){
+    ngOnInit() {
         if (CONFIG.forceHttps && document.location.protocol === 'http:') {
             document.location.href = document.location.href.replace('http:', 'https:');
         }
