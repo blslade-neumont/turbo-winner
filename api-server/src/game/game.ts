@@ -169,11 +169,14 @@ export class Game extends EventEmitter {
         
         if (damageWasLethal){
             if (typeof shooter !== "undefined"){
+                let playerWasInnocent = this.playerWasInnocent(shooter, playerWhoDied);
                 if (shooter.targetID == playerWhoDied.playerId){
                     shooter.score += KILL_TARGET_SCORE_BONUS;
-                } else if (this.playerWasInnocent(shooter, playerWhoDied)){
+                } else if (playerWasInnocent){
                     shooter.score = Math.max(shooter.score - KILL_INNOCENT_SCORE_PENALTY, 0.0);
-                } else { // self defense -> you killed someone who attacked you
+                } 
+                
+                if (!playerWasInnocent){
                     // if kill someone who attacked you, you got revenge, remove them from attackers
                     shooter.removeAttackerPlayer(playerWhoDied);
                 }

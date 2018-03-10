@@ -3,18 +3,18 @@ import { Player, PLAYER_RADIUS } from '../player';
 import { DummyPlayer } from '../dummy-player';
 import { lerp } from '../../../util/lerp';
 import { isSignificantlyDifferent } from '../../../util/is-significantly-different';
+import { Poolable } from '../../object-pooler';
 
 export const LINE_LENGTH = 48/96;
 export const PERPENDICULAR_OFFSET = 48/96;
 export const BACK_OFFSET = 32/96;
 export const TIMER_FLASH_THRESHOLD = 5.0;
 
-export class AttackerPointer extends GameObject {
+export class AttackerPointer extends Poolable {
     private player: Player;
     private attacker: DummyPlayer | undefined;
     private toLocalPlayer: {x: number, y: number};
     private lastOffet: {x: number, y: number};
-    private enabled: boolean = false;
     private timer: number = 0.0;
     
     getTimer(){
@@ -27,15 +27,22 @@ export class AttackerPointer extends GameObject {
         this.lastOffet = {x: 0, y: 0};
     }
     
+    public canBeFoundBy<T>(object: T): boolean {
+        if (object instanceof DummyPlayer) {
+            return this.isAttacker(object);
+        } else {
+            throw new Error("Cannot find AttackerPointer by non-dummy-player");
+        }
+    }
+    
     isAttacker(attacker: DummyPlayer){
         if (!this.attacker) { return false; }
         return this.attacker.playerId === attacker.playerId;
     }
     
-    enablePointer(attacker: DummyPlayer, timer: number){
-        this.attacker = attacker;
-        this.enabled = true;
-        this.timer = timer;
+    protected onEnable(args : any[]): void{
+        this.attacker = args[0];
+        this.timer = args[1];
         this.initPos();
     }
     
@@ -49,15 +56,10 @@ export class AttackerPointer extends GameObject {
         this.y = clampedVec.y + targetOffset * this.toLocalPlayer.y;
     }
     
-    disablePointer(){
+    onDisable(){
         this.attacker = undefined;
-        this.enabled = false;
     }
     
-    isEnabled(): boolean{
-        return this.enabled;
-    }
-
     tick(delta: number): void{
         super.tick(delta);
         
@@ -144,7 +146,7 @@ export class AttackerPointer extends GameObject {
                        (-perpendicularVec.y*PERPENDICULAR_OFFSET) - (this.toLocalPlayer.y*BACK_OFFSET) );
         
         context.lineWidth = lineWidth;
-        context.strokeStyle = "#FF0000";
+        context.strokeStyle = "#b22222";
         context.stroke();
     }
 }

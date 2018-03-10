@@ -2,9 +2,12 @@ import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions,
 import merge = require('lodash.merge');
 import { BulletDetailsT } from './bullet-meta';
 import { Player } from '../player/player';
+import { LocalPlayer } from '../player/local-player';
+import { PlayScene } from '../..';
 
 const DEFAULT_BULLET_SPEED = 1200/96;
 const DEFAULT_TIME_TO_LIVE = 3;
+const BULLET_BAD_X_TTL = 5.0;
 
 type BulletOpts = GameObjectOptions & {
     ignorePlayerId: number,
@@ -60,12 +63,29 @@ export class Bullet extends GameObject {
         
         for (let trigger of this.mask.triggers) {
             let gobj = trigger.gameObject;
-            if (gobj instanceof Player && this.shouldIgnorePlayer(gobj)) { continue; }
-            if (gobj instanceof Player && gobj.isInvulnerable()) { continue; }
+            
+            if (gobj instanceof Player){
+                if (this.shouldIgnorePlayer(gobj)) { continue; }
+                if (gobj.isInvulnerable()) { continue; }
+                
+                let whoFiredMe: Player|undefined = (<PlayScene>this.scene!).getPlayerByID(this.ignorePlayerId);
+                if (whoFiredMe !== undefined
+                 && whoFiredMe.targetID !== gobj.playerId
+                 && this.playerWasInnocent(whoFiredMe, gobj)
+                 && whoFiredMe.playerId === (<PlayScene>this.scene!).getLocalPlayerID()
+                 && !gobj.isDead){
+                    (<LocalPlayer>whoFiredMe).addBadHit(BULLET_BAD_X_TTL, this.x, this.y);
+                }    
+            }
+            
             //If we're colliding with anything but the player that we should ignore, delete the bullet
             if(this.scene)this.scene.removeObject(this);
             break;
         }
+    }
+    
+    playerWasInnocent(shooter:Player, playerWhoDied:Player): boolean {
+        return !shooter.attackedByPlayer(playerWhoDied);
     }
     
     shouldIgnorePlayer(player: Player): boolean;

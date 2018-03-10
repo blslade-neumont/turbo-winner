@@ -23,9 +23,17 @@ export class PlayScene extends GameScene {
     private playerManager: PlayerManager;
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;
-    
+
     getCursor() {
         return ['none'];
+    }
+    
+    getLocalPlayerID(): number{
+        return this.playerManager.localPlayerId;
+    }
+    
+    getPlayerByID(id: number): Player|undefined {
+        return this.playerManager.getPlayerMapping().get(id);
     }
     
     getDummyPlayers(): Array<DummyPlayer>{

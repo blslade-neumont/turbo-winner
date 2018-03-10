@@ -5,7 +5,9 @@ import { Bullet } from '../bullet/bullet';
 import { PlayerDetailsT } from './player-meta';
 import { PlayScene } from '../../scenes/play.scene';
 import { TargetPointer, TakeDamageIndicator, ScorePopup } from './decorators';
-import { AttackerPointerManager } from './decorators/attacker-pointer-manager';
+import { ObjectPooler } from '../object-pooler';
+import { AttackerPointer } from './decorators/attacker-pointer';
+import { BadHitDisplay } from '../bullet/bad-hit-display';
 
 const DEFAULT_MAX_FIRE_COOLDOWN = 1/4;
 
@@ -24,8 +26,9 @@ export class LocalPlayer extends Player {
     private targetPointer: TargetPointer = new TargetPointer(this);
     private damageIndicator: TakeDamageIndicator = new TakeDamageIndicator(this);
     private scorePopup: ScorePopup = new ScorePopup(this);
-    private attackerPointerManager: AttackerPointerManager = new AttackerPointerManager(this);
-
+    private attackerPointerManager: ObjectPooler<AttackerPointer, Player> = new ObjectPooler<AttackerPointer, Player>(this, 10, AttackerPointer);
+    private badHitIndicatorManager: ObjectPooler<BadHitDisplay, Player> = new ObjectPooler<BadHitDisplay, Player>(this, 25, BadHitDisplay);
+    
     private ignoreMouseDown = false;
     onAddToScene(): void {
         super.onAddToScene();
@@ -36,7 +39,7 @@ export class LocalPlayer extends Player {
         this.scene.addObject(this.damageIndicator);
         this.scene.addObject(this.scorePopup);
         this.scene.addObject(this.attackerPointerManager);
-
+        this.scene.addObject(this.badHitIndicatorManager);
     }
     onRemoveFromScene(): void {
         super.onRemoveFromScene();
@@ -44,6 +47,7 @@ export class LocalPlayer extends Player {
         this.damageIndicator.scene.removeObject(this.damageIndicator);
         this.scorePopup.scene.removeObject(this.scorePopup);
         this.attackerPointerManager.scene.removeObject(this.attackerPointerManager);
+        this.badHitIndicatorManager.scene.removeObject(this.badHitIndicatorManager);
     }
     
     get canMove() {
@@ -53,7 +57,22 @@ export class LocalPlayer extends Player {
     }
     
     onReceiveAttackers(): void {
-        this.attackerPointerManager.replaceAttackers(this.attackers.filter((a) => a.id !== this.targetID), (<PlayScene>this.scene!).getDummyPlayers());
+        let idTimers = this.attackers.filter((a) => a.id !== this.targetID);
+        let dummyPlayers = (<PlayScene>this.scene!).getDummyPlayers();
+        
+        let args: any[][] = [];
+        for (let i = 0; i < idTimers.length; ++i){
+            let thisDummy = dummyPlayers.find((value) => value.playerId === idTimers[i].id);
+            if (thisDummy) {
+                 args.push([thisDummy, idTimers[i].timer]);
+            }
+        }
+        
+        this.attackerPointerManager.replacePooledObjects(args);
+    }
+    
+    addBadHit(timer: number, x: number, y: number): void{
+        this.badHitIndicatorManager.add([timer, x, y]);
     }
     
     private updateAttackers(delta: number){
