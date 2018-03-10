@@ -163,24 +163,27 @@ export class Game extends EventEmitter {
         }
     }
     
-    handleBulletHit(bullet: Bullet, player: Player): void{
+    handleBulletHit(bullet: Bullet, playerWhoDied: Player): void{
         let shooter: Player|undefined = this.players.get(bullet.getIgnoreId());
-        let damageWasLethal: boolean = player.takeDamage(BULLET_DAMAGE, shooter);
+        let damageWasLethal: boolean = playerWhoDied.takeDamage(BULLET_DAMAGE, shooter);
         
         if (damageWasLethal){
             if (typeof shooter !== "undefined"){
-                if (shooter.targetID == player.playerId){
+                if (shooter.targetID == playerWhoDied.playerId){
                     shooter.score += KILL_TARGET_SCORE_BONUS;
-                } else if (this.playerWasInnocent(shooter, player)){
+                } else if (this.playerWasInnocent(shooter, playerWhoDied)){
                     shooter.score = Math.max(shooter.score - KILL_INNOCENT_SCORE_PENALTY, 0.0);
-                } // else do nothing -> self defense
+                } else { // self defense -> you killed someone who attacked you
+                    // if kill someone who attacked you, you got revenge, remove them from attackers
+                    shooter.removeAttackerPlayer(playerWhoDied);
+                }
             }
             
-            player.score = Math.max(player.score - DEATH_SCORE_PENALTY, 0.0);
+            playerWhoDied.score = Math.max(playerWhoDied.score - DEATH_SCORE_PENALTY, 0.0);
         }
     }
     
-    playerWasInnocent(shooter:Player, player:Player): boolean {
-        return !shooter.attackedByPlayer(player);
+    playerWasInnocent(shooter:Player, playerWhoDied:Player): boolean {
+        return !shooter.attackedByPlayer(playerWhoDied);
     }
 }

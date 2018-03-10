@@ -175,6 +175,12 @@ export class Player extends EventEmitter {
         this.didAttackersChange = true;
     }
     
+    removeAttackerPlayer(attacker: Player): void {
+        let idx = this.attackers.findIndex((value) => value.id == attacker.playerId);
+        if (idx !== -1) this.attackers.splice(idx, 1);
+        this.didAttackersChange = true;
+    }
+    
     takeDamage(amount: number, attacker: Player|undefined): boolean {
         if (this.isDead) { return false; }
         
