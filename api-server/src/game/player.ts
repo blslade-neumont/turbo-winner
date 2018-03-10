@@ -209,7 +209,7 @@ export class Player extends EventEmitter {
             this.addAttacker(attacker);
         }
         
-        this.health -= amount; // todo: clamp here? todo again: check death here
+        this.health -= amount;
         if (this.health <= 0.0) {
             this.health = 0.0;
             this.respawnTime = RESPAWN_TIME;
@@ -222,7 +222,7 @@ export class Player extends EventEmitter {
         return false;
     }
     
-    assignTarget(){
+    assignTarget() {
         let players = this.game !== null ? Array.from(this.game!.players.keys()).map(pid => this.game!.players.get(pid)!) : [];
         players = players.filter(p => p.playerId !== this.playerId);
         players = players.filter(p => !p.isDead);

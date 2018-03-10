@@ -78,7 +78,7 @@ export class GameService {
             if (!player) {
                 player = game.createPlayerWithUniqueID(socket);
                 player.once('removeFromGame', async () => {
-                    if (!player || player.socket !== socket) return;
+                    if (!player) return;
                     if (user) {
                         this.inGameMap.set(user.googleId, null);
                         await Users.update({ googleId: user.googleId }, {
