@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { map, take, filter } from 'rxjs/operators';
 import { ComponentBase } from 'utils/components';
 import { SocketService, AuthService } from 'services';
 
@@ -31,7 +31,12 @@ export class PlayComponent extends ComponentBase {
         let graphicsAdapter = new DefaultGraphicsAdapter();
         (<any>graphicsAdapter)._canvas = canvas; //HACK HACK
         
-        this.subscriptions.push(this.auth.currentUserObservable.pipe(take(1)).subscribe(cuser => {
+        let currentUserObservable = this.auth.currentUserObservable.pipe(
+            filter(Boolean),
+            map(cuser_r => cuser_r!.result),
+            take(1)
+        );
+        this.subscriptions.push(currentUserObservable.subscribe(cuser => {
             let playerColor: string = '';
             let playerDisplayName: string = '';
             if (cuser) {

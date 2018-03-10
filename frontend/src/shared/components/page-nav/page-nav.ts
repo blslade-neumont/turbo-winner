@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { ComponentBase } from 'utils/components';
 import { AuthService } from 'services';
 import { User } from 'models';
+import { Result } from 'utils/result';
 
 @Component({
     selector: 'page-nav',
@@ -16,7 +17,7 @@ export class PageNavComponent extends ComponentBase {
         super();
     }
     
-    currentUserObservable: Observable<User | null>;
+    currentUserObservable: Observable<Result<User>>;
     
     ngOnInit() {
         super.ngOnInit();

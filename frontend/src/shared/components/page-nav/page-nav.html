@@ -6,25 +6,33 @@
         </button>
         
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                <ng-container *ngLet="(currentUserObservable | async) as currentUser">
-                    <li *ngIf="!!currentUser" class="nav-item mr-4">
-                        <span class="navbar-text">
-                            Welcome, <strong>{{currentUser.displayName}}</strong>
-                        </span>
-                    </li>
-                    
-                    <li class="nav-item" [routerLinkActive]="['active']">
-                        <a class="nav-link" [routerLink]="['/about']">About</a>
-                    </li>
-                    <li class="nav-item" [routerLinkActive]="['active']">
-                        <a class="nav-link" [routerLink]="['/play']">Play</a>
-                    </li>
-                    
-                    <li class="nav-item" [routerLinkActive]="['active']">
-                        <a class="nav-link" [routerLink]="['/account']">{{!!currentUser ? 'Account' : 'Sign In'}}</a>
+            <ul class="navbar-nav ml-auto" *ngLet="(currentUserObservable | async) as currentUser_r">
+                <ng-container *ngIf="!currentUser_r; else currentUserLoaded">
+                    <li class="nav-item mr-4">
+                        <span class="navbar-text"><i class="fas fa-cog fa-spin"></i></span>
                     </li>
                 </ng-container>
+                
+                <ng-template #currentUserLoaded>
+                    <ng-container *ngLet="currentUser_r.result as currentUser">
+                        <li *ngIf="!!currentUser" class="nav-item mr-4">
+                            <span class="navbar-text">
+                                Welcome, <strong>{{currentUser.displayName}}</strong>
+                            </span>
+                        </li>
+                        
+                        <li class="nav-item" [routerLinkActive]="['active']">
+                            <a class="nav-link" [routerLink]="['/account']">{{!!currentUser ? 'Account' : 'Sign In'}}</a>
+                        </li>
+                    </ng-container>
+                </ng-template>
+                
+                <li class="nav-item" [routerLinkActive]="['active']">
+                    <a class="nav-link" [routerLink]="['/about']">About</a>
+                </li>
+                <li class="nav-item" [routerLinkActive]="['active']">
+                    <a class="nav-link" [routerLink]="['/play']">Play</a>
+                </li>
             </ul>
         </div>
     </div>

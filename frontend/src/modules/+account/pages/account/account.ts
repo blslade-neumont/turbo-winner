@@ -29,6 +29,7 @@ export class AccountComponent extends ComponentBase {
     }
     
     currentUser: User | null;
+    isLoadingUser = true;
     
     private _colorOverride: string | undefined;
     get color(): string | null {
@@ -63,7 +64,9 @@ export class AccountComponent extends ComponentBase {
     ngOnInit() {
         super.ngOnInit();
         
-        this.subscriptions.push(this.auth.currentUserObservable.subscribe(cuser => {
+        this.subscriptions.push(this.auth.currentUserObservable.subscribe(cuser_r => {
+            let cuser = cuser_r && cuser_r.result;
+            this.isLoadingUser = !cuser_r;
             this.currentUser = cuser;
         }));
         

@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { of as rxjsOf } from 'rxjs/observable/of';
 import { map, switchMap, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { User } from 'models';
-import { decodeJwt } from '../utils/decode-jwt';
-import { getCookie } from '../utils/get-cookie';
-import { setCookie } from '../utils/set-cookie';
-import { deleteCookie } from '../utils/delete-cookie';
+import { decodeJwt } from 'utils/decode-jwt';
+import { getCookie } from 'utils/get-cookie';
+import { setCookie } from 'utils/set-cookie';
+import { deleteCookie } from 'utils/delete-cookie';
+import { Result } from 'utils/result';
 import areEqual = require('lodash.isequal');
 
 export const AUTH_TOKEN_LOCAL_STORAGE = 'auth-token';
@@ -46,11 +48,13 @@ export class AuthService {
                 return User.fromJson(userJson);
             }),
             switchMap(user => {
+                if (!user) return rxjsOf({ result: null });
                 return this.http.get<Partial<User>>(
                     `${this.apiRoot}/current-profile`,
                     { headers: { 'Authorization': `Bearer ${this.token}` } }
                 ).pipe(
-                    map(val => User.fromJson(val))
+                    map(val => ({ result: User.fromJson(val) })),
+                    startWith(null)
                 );
             }),
             distinctUntilChanged(areEqual)
@@ -120,6 +124,6 @@ export class AuthService {
         this.clearToken();
     }
     
-    private _currentUserSubject: Subject<User | null> = new BehaviorSubject<User | null>(null);
-    currentUserObservable: Observable<User | null>;
+    private _currentUserSubject: Subject<Result<User>> = new BehaviorSubject<Result<User>>(null);
+    currentUserObservable: Observable<Result<User>>;
 }
