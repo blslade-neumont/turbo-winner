@@ -31,13 +31,10 @@ export class PlayerManager extends GameObject {
     }
     private setUp() {
         this.joinGame();
+        this.io.on('connect', () => this.joinGame());
         
         this.io.on('disconnect', () => {
             this.networkManager.isConnected = false;
-        });
-        
-        this.io.on('connect', () => {
-            this.joinGame();
         });
         
         this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
@@ -118,9 +115,8 @@ export class PlayerManager extends GameObject {
         }
     }
     
-    getDummyPlayers(): Array<DummyPlayer>{
+    getDummyPlayers(): DummyPlayer[] {
         let players = this.game !== null ? Array.from(this.players.keys()).map(pid => this.players.get(pid)!) : [];
-        players = players.filter(p => p.playerId !== this.localPlayerId);
-        return <Array<DummyPlayer>>players;
+        return <DummyPlayer[]>players.filter(p => p.playerId !== this.localPlayerId && p instanceof DummyPlayer);
     }
 }
