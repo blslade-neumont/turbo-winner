@@ -54,21 +54,23 @@ export class GameService {
             //If the auth has changed, ensure the game and player reflect the new auth token
             if (game && player && player.socket !== socket) game = player = null;
             let user: User | null = (opts.authToken && parseAuthToken(opts.authToken)) || null;
-            if (user) {
-                let userPlayer = this.inGameMap.get(user.googleId)
-                if (userPlayer) {
-                    if (!userPlayer.isDisconnected) {
-                        socket.emit('already-in-game');
-                        return;
+            if (!player || ((!user || player.googleId !== user.googleId) && (user || !!player.googleId)) || player.socket !== socket) {
+                if (user) {
+                    let userPlayer = this.inGameMap.get(user.googleId)
+                    if (userPlayer) {
+                        if (!userPlayer.isDisconnected) {
+                            socket.emit('already-in-game');
+                            return;
+                        }
+                        [game, player] = [userPlayer.game, userPlayer];
+                        if (player.socket) player.socket.emit('already-in-game');
+                        player.socket = socket;
                     }
-                    [game, player] = [userPlayer.game, userPlayer];
-                    if (player.socket) player.socket.emit('already-in-game');
-                    player.socket = socket;
                 }
-            }
-            else if (player && player.googleId) {
-                player.socket = null;
-                game = player = null;
+                else if (player && player.googleId) {
+                    player.socket = null;
+                    game = player = null;
+                }
             }
             
             //If the socket doesn't have a game and player assigned, create a new player in the default game
