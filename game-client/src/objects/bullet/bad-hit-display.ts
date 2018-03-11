@@ -61,7 +61,7 @@ export class BadHitDisplay extends Poolable {
             context.font = "bold 104px Arial";
             context.textAlign = "center";
             context.fillStyle = "#b22222";
-            let str = String.fromCharCode(parseInt('0x2715', 16));
+            let str = String.fromCharCode(parseInt('0xd7', 16));
             context.fillText(str, 0.0, 0.0);
             context.strokeStyle = "#003300";
             context.lineWidth = 2;
