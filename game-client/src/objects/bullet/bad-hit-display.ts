@@ -8,7 +8,6 @@ import { Poolable } from '../object-pooler';
 export const LINE_LENGTH = 48/96;
 export const PERPENDICULAR_OFFSET = 48/96;
 export const BACK_OFFSET = 32/96;
-export const TIMER_FLASH_THRESHOLD = 3.0;
 
 export class BadHitDisplay extends Poolable {
     private player: Player;
@@ -47,26 +46,9 @@ export class BadHitDisplay extends Poolable {
         return Math.max(Math.min(val, hi), low);
     }
     
-    getRenderAlpha(): number {
-        let showPercent = 1;
-        if (this.timer > 0 && this.timer <= TIMER_FLASH_THRESHOLD) { showPercent = Math.abs((((Math.sqrt(this.timer) * 100) % 7) / 3.5) - 1); }
-        return showPercent;
-    }
-    
     renderImplContext2d(context: CanvasRenderingContext2D): void {
         if(!this.player.isDead && this.enabled){
-            let alpha = this.getRenderAlpha();
-            if (!alpha) return;
-            
-            let prevGlobalAlpha = context.globalAlpha;
-            try {
-                context.globalAlpha *= alpha;
-                
-                this.renderPointer(context);
-            }
-            finally {
-                context.globalAlpha = prevGlobalAlpha;
-            }
+            this.renderPointer(context);
         }
     }
     
@@ -76,10 +58,14 @@ export class BadHitDisplay extends Poolable {
             let zoomScale = 1 / this.scene!.camera!.zoomScale;
             context.translate(this.x * zoomScale, this.y * zoomScale);
             context.scale(zoomScale, zoomScale);
-            context.font = "72px Arial";
+            context.font = "bold 104px Arial";
             context.textAlign = "center";
             context.fillStyle = "#b22222";
-            context.fillText('X', 0.0, 0.0);
+            let str = String.fromCharCode(parseInt('0x2715', 16));
+            context.fillText(str, 0.0, 0.0);
+            context.strokeStyle = "#003300";
+            context.lineWidth = 2;
+            context.strokeText(str, 0.0, 0.0);
         }finally{
             context.restore();
         }

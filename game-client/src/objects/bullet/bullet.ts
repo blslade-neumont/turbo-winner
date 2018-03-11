@@ -7,7 +7,7 @@ import { PlayScene } from '../..';
 
 const DEFAULT_BULLET_SPEED = 1200/96;
 const DEFAULT_TIME_TO_LIVE = 3;
-const BULLET_BAD_X_TTL = 5.0;
+const BULLET_BAD_X_TTL = 1.0;
 
 type BulletOpts = GameObjectOptions & {
     ignorePlayerId: number,
