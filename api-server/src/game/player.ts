@@ -84,6 +84,7 @@ export class Player extends EventEmitter {
     attackers: Array<{id: number, timer: number}> = []
     displayName: string;
     didAttackersChange: boolean = true;
+    accelerationMultiplier: number = 1.0;
     
     isInvulnerable(): boolean{
         return this.invulnTime > 0.0;
@@ -104,7 +105,7 @@ export class Player extends EventEmitter {
     
     tick(delta: number) {
         // adjust the player's velocity according to the inputs specified
-        let moveAmount = PLAYER_ACCELERATION * delta;
+        let moveAmount: number = PLAYER_ACCELERATION * delta * this.accelerationMultiplier;
         let movement = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
         
         this.hspeed += movement.x;
@@ -295,7 +296,8 @@ export class Player extends EventEmitter {
             score: this.score,
             targetID: this.targetID,
             displayName: this.displayName,
-            attackers: this.attackers
+            attackers: this.attackers,
+            accelerationMultiplier: this.accelerationMultiplier
         };
         
         let details = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -306,6 +308,7 @@ export class Player extends EventEmitter {
                 if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) { delete details.y; }
                 if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
                 if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
+                if (!isSignificantlyDifferent(details.accelerationMultiplier!, this.previousDetails.accelerationMultiplier)) { delete details.accelerationMultiplier; }
                 if (!isSignificantlyDifferent(details.score!, this.previousDetails.score)) { delete details.score; }
                 if (details.targetID === this.previousDetails.targetID) { delete details.targetID; }
                 if (details.color === this.previousDetails.color) { delete details.color; }
@@ -386,6 +389,7 @@ export class Player extends EventEmitter {
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
         if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName }
         if (typeof vals.attackers !== 'undefined') { this.attackers = vals.attackers }
+        if (typeof vals.accelerationMultiplier !== 'undefined') { this.accelerationMultiplier = vals.accelerationMultiplier }
     }
     
     getCollisionCircle(): CircleT {

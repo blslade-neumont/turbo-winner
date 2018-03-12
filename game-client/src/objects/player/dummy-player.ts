@@ -51,7 +51,7 @@ export class DummyPlayer extends Player {
     
     updateTarget(delta: number): void {
         // adjust the player's velocity according to the inputs specified
-        let moveAmount = PLAYER_ACCELERATION * delta;
+        let moveAmount: number = PLAYER_ACCELERATION * delta * this.accelerationMultiplier;
         let movement = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
         
         this.hspeed += movement.x;

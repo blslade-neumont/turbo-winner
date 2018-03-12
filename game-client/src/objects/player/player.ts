@@ -176,7 +176,8 @@ export abstract class Player extends GameObject {
             score: this.score,
             targetID: this.targetID,
             displayName: this.displayName,
-            attackers: this.attackers
+            attackers: this.attackers,
+            accelerationMultiplier: this.accelerationMultiplier
         };
         
         let details: Partial<PlayerDetailsT> = <Partial<PlayerDetailsT>>cloneDeep(currentDetails);
@@ -198,6 +199,7 @@ export abstract class Player extends GameObject {
                 if (!isSignificantlyDifferent(details.y!, this.previousDetails.y)) { delete details.y; }
                 if (!isSignificantlyDifferent(details.hspeed!, this.previousDetails.hspeed, .1)) { delete details.hspeed; }
                 if (!isSignificantlyDifferent(details.vspeed!, this.previousDetails.vspeed, .1)) { delete details.vspeed; }
+                if (!isSignificantlyDifferent(details.accelerationMultiplier!, this.previousDetails.accelerationMultiplier)) { delete details.accelerationMultiplier; }
                 if (details.color === this.previousDetails.color)  { delete details.color; }
                 if (this.previousDetails.forward &&
                     !isSignificantlyDifferent(details.forward!.x, this.previousDetails.forward.x) &&
@@ -247,6 +249,7 @@ export abstract class Player extends GameObject {
         if (typeof vals.targetID !== 'undefined') { this.targetID = vals.targetID; }
         if (typeof vals.displayName !== 'undefined') { this.displayName = vals.displayName; }
         if (typeof vals.attackers !== 'undefined') { this.attackers = vals.attackers; }
+        if (typeof vals.accelerationMultiplier !== 'undefined') { this.accelerationMultiplier = vals.accelerationMultiplier; }
     }
     
     lerpScore(delta: number){
