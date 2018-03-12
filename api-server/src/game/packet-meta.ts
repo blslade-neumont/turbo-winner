@@ -18,7 +18,7 @@ export type PlayerDetailsT = {
     score: number,
     targetID: number,
     displayName: string,
-    attackers: Array<{id: number, timer: number}> ,
+    attackers: Array<{id: number, timer: number}>,
     accelerationMultiplier: number
 };
 
@@ -32,8 +32,6 @@ export type BulletDetailsT = {
 
 export type BlockDetailsT = {
     x: number,
-    y: number,
-    hspeed: number, 
-    vspeed: number,
+    y: number
     radius: number
 };

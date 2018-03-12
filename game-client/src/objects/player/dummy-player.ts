@@ -84,7 +84,7 @@ export class DummyPlayer extends Player {
         delete nolerpVals.y;
         delete nolerpVals.forward;
         super.setDetails(nolerpVals);
-        
+                
         this.timer = 0.0;
         if (!this.hasSetDetails || vals.ignoreAuthority) {
             this.hasSetDetails = true;

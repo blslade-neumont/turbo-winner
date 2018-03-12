@@ -5,13 +5,14 @@ import { PlayerDetailsT, BulletDetailsT, BlockDetailsT } from './packet-meta';
 import { doCirclesCollide } from '../util/do-circles-collide';
 import { EventEmitter } from 'events';
 import { Block } from './block';
+import { CircleT } from '../util/circle';
 
 type Socket = SocketIO.Socket;
 
 export const KILL_TARGET_SCORE_BONUS = 50;
 export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
-export const NUM_BLOCKS = 10;
+export const NUM_BLOCKS = 25;
 
 export class Game extends EventEmitter {
     constructor(
@@ -36,11 +37,28 @@ export class Game extends EventEmitter {
     
     private createWorld(){
         for (let i = 0; i < NUM_BLOCKS; ++i){
-            let block = new Block({x: 0.0, y: 0.0, hspeed: 0.0, vspeed: 0.0, radius: Math.random()*0.5+0.5});
-            block.randomizePosition();
-            this._obstacles.push(block);
+            let block = new Block({x: 0.0, y: 0.0, radius: Math.random()*0.75+1.25});
+            
+            let didPass = false;
+            for (let i = 0; i < 10; ++i) {
+                block.randomizePosition();
+                didPass = !this.doesIntersectAnyBlocks(block.getCollisionCircle());
+                if (didPass) { break; }
+            }
+            if (didPass) { this._obstacles.push(block); }
         }
     }
+    
+    private doesIntersectAnyBlocks(circle: CircleT): boolean{
+        for (let block of this._obstacles){
+            if (doCirclesCollide(circle, block.getCollisionCircle())){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     stop() {
         if (this._gameTickInterval) {
             clearInterval(this._gameTickInterval);
