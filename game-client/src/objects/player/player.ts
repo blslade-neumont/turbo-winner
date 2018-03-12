@@ -156,7 +156,7 @@ export abstract class Player extends GameObject {
         return this.attackers.find((attacker) => attacker.id == player.playerId) !== undefined;
     }
     
-    private previousDetails: PlayerDetailsT = <any>{};
+    private previousDetails: PlayerDetailsT;
     getDetails(force: boolean = false): Partial<PlayerDetailsT> | null {
         let currentDetails: PlayerDetailsT = {
             x: this.x,
