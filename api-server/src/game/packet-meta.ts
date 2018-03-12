@@ -32,6 +32,6 @@ export type BulletDetailsT = {
 
 export type BlockDetailsT = {
     x: number,
-    y: number
+    y: number,
     radius: number
 };

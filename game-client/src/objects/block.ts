@@ -6,8 +6,8 @@ export type BlockDetailsT = {
     radius: number
 };
 
-export class Block extends GameObject{
-    constructor(details: BlockDetailsT){
+export class Block extends GameObject {
+    constructor(details: BlockDetailsT) {
         super("Block", {renderDepth: 100});
         this.x = details.x;
         this.y = details.y;
@@ -20,7 +20,6 @@ export class Block extends GameObject{
     public coverRadius : number;
     
     renderImplContext2d(context: CanvasRenderingContext2D) {
-        
         context.beginPath();
         context.arc(0, 0, this.coverRadius, 0, 2 * Math.PI, false);
         context.fillStyle = this.color;
@@ -29,5 +28,4 @@ export class Block extends GameObject{
         context.strokeStyle = "#003300";
         context.stroke();
     }
-    
 }
