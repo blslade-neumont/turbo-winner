@@ -38,4 +38,7 @@ export class Block {
         this.vspeed *= xRatio;
     }
     
+    getDetails(): BlockDetailsT{
+        return {x: this.x, y: this.y, hspeed: this.hspeed, vspeed: this.vspeed, radius: this.radius};
+    }
 }

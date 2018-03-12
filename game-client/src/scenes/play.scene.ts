@@ -72,11 +72,6 @@ export class PlayScene extends GameScene {
             this.addObject(obj);
         }
         
-        let sampleBlock = new Block();
-        sampleBlock.x = 5;
-        sampleBlock.y = 5;
-        this.addObject(sampleBlock);
-        
         this.customCursor = new CustomCursor("#b22222");
         this.addObject(this.customCursor);
 

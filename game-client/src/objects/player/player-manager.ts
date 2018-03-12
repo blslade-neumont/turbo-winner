@@ -5,6 +5,7 @@ import { Player } from './player';
 import { DummyPlayer } from './dummy-player';
 import { LocalPlayer } from './local-player';
 import { NetworkManager } from '../network-manager';
+import { BlockDetailsT, Block } from '../block';
 
 export class PlayerManager extends GameObject {
     constructor(
@@ -37,9 +38,9 @@ export class PlayerManager extends GameObject {
             this.networkManager.isConnected = false;
         });
         
-        this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT) => {
+        this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT, world: BlockDetailsT[]) => {
             this.networkManager.isConnected = true;
-            this.clearWorldAndCreateLocalPlayer(pid, details);
+            this.clearWorldAndCreateLocalPlayer(pid, details, world);
         });
         
         this.io.on('update-player', (pid: number, details: Partial<PlayerDetailsT>) => {
@@ -72,13 +73,19 @@ export class PlayerManager extends GameObject {
     }
     
     private localPlayer: LocalPlayer | null = null;
-    private clearWorldAndCreateLocalPlayer(pid: number, details: PlayerDetailsT) {
+    private worldBlocks: Block[] = [];
+    private clearWorldAndCreateLocalPlayer(pid: number, details: PlayerDetailsT, world: BlockDetailsT[]) {
         //Delete all current players
         let allPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         allPlayers.forEach(player => {
             this.scene!.removeObject(player);
         });
         this.players.clear();
+        
+        for (let i = 0; i < this.worldBlocks.length; ++i){
+            this.scene!.removeObject(this.worldBlocks[i]);
+        }
+        this.worldBlocks = [];
         
         if (CONFIG.debugLog.playerCreate) console.log(`Creating local player: ${pid}`);
         
@@ -92,6 +99,11 @@ export class PlayerManager extends GameObject {
         
         //Initialize the local player with the correct values (do not sanitize)
         this.updatePlayer(pid, details, false);
+        
+        for (let i = 0; i < world.length; ++i){
+            let block = new Block(world[i]);
+            this.scene!.addObject(block);
+        }
     }
     
     private updatePlayer(pid: number, details: Partial<PlayerDetailsT> | null, sanitize = true) {

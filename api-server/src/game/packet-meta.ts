@@ -33,5 +33,6 @@ export type BlockDetailsT = {
     x: number,
     y: number,
     hspeed: number, 
-    vspeed: number
+    vspeed: number,
+    radius: number
 };

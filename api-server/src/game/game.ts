@@ -1,15 +1,17 @@
 import { Player, PLAYER_REMOVAL_TIME } from './player';
 import { Bullet, BULLET_DAMAGE } from "./bullet";
 import { io } from '../sockets';
-import { PlayerDetailsT, BulletDetailsT } from './packet-meta';
+import { PlayerDetailsT, BulletDetailsT, BlockDetailsT } from './packet-meta';
 import { doCirclesCollide } from '../util/do-circles-collide';
 import { EventEmitter } from 'events';
+import { Block } from './block';
 
 type Socket = SocketIO.Socket;
 
 export const KILL_TARGET_SCORE_BONUS = 50;
 export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
+export const NUM_BLOCKS = 5;
 
 export class Game extends EventEmitter {
     constructor(
@@ -24,9 +26,20 @@ export class Game extends EventEmitter {
     
     private _lastTime: Date;
     private _gameTickInterval: any = null;
+    private _obstacles: Block[] = [];
+    
     start() {
         this._lastTime = new Date();
         this._gameTickInterval = setInterval(() => this.onTick(), 1000 / 30);
+        this.createWorld();
+    }
+    
+    private createWorld(){
+        for (let i = 0; i < NUM_BLOCKS; ++i){
+            let block = new Block({x: 0.0, y: 0.0, hspeed: 0.0, vspeed: 0.0, radius: Math.random()*0.5+0.5});
+            block.randomizePosition();
+            this._obstacles.push(block);
+        }
     }
     stop() {
         if (this._gameTickInterval) {
@@ -64,6 +77,15 @@ export class Game extends EventEmitter {
         return new Player(this.nextPlayerId++, socket);
     }
     
+    private getWorld() : BlockDetailsT[] {
+        let blockDetails: BlockDetailsT[] = [];
+        for (let i = 0; i < this._obstacles.length; ++i){
+            let block = this._obstacles[i];
+            blockDetails.push(block.getDetails());
+        }
+        
+        return blockDetails;
+    }
     addPlayer(player: Player) {
         let prev = this.players.get(player.playerId) || null;
         let isPreexisting = prev === player;
@@ -77,7 +99,7 @@ export class Game extends EventEmitter {
         if (!isPreexisting) player.randomizePosition();
         
         //Send initial player state to the new player
-        player.socket.emit('assign-player-id', player.playerId, player.getDetails(true));
+        player.socket.emit('assign-player-id', player.playerId, player.getDetails(true), this.getWorld());
         
         //Send other players' state to the new player
         let otherPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
@@ -152,6 +174,20 @@ export class Game extends EventEmitter {
         //Rather than modifying the array while we're iterating through it,
         //keep track of bullets that should be removed and delete them afterwards
         let bulletsToRemove = [];
+        
+        for (let bullet of this.bullets){
+            for (let block of this._obstacles){
+                if (doCirclesCollide(bullet.getCollisionCircle(), block.getCollisionCircle())) {
+                     bulletsToRemove.push(bullet);
+                     break;
+                }
+            }
+        }
+        
+        // pre-remove bullets to remove
+        for (let bullet of bulletsToRemove) {
+            this.removeBullet(bullet);
+        }
         
         for (let bullet of this.bullets) {
             for (let player of players) {

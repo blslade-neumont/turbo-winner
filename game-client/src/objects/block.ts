@@ -2,9 +2,22 @@ import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, CircleCollisionMas
 
 export const BLOCK_FRICTION : number = 5.0;
 
+export type BlockDetailsT = {
+    x: number,
+    y: number,
+    hspeed: number, 
+    vspeed: number,
+    radius: number
+};
+
 export class Block extends GameObject{
-    constructor(){
+    constructor(details: BlockDetailsT){
         super("Block", {renderDepth: 100});
+        this.x = details.x;
+        this.y = details.y;
+        this.coverRadius = details.radius;
+        this.hspeed = details.hspeed;
+        this.vspeed = details.vspeed;
     }
     
     private color : string = "#968053";
