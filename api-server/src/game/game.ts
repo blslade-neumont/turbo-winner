@@ -11,7 +11,7 @@ type Socket = SocketIO.Socket;
 export const KILL_TARGET_SCORE_BONUS = 50;
 export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
-export const NUM_BLOCKS = 5;
+export const NUM_BLOCKS = 10;
 
 export class Game extends EventEmitter {
     constructor(

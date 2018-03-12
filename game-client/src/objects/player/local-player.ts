@@ -137,6 +137,8 @@ export class LocalPlayer extends Player {
         
         this.fireBulletTick(delta);
         this.updateAttackers(delta);
+        
+        this.accelerationMultiplier = this.events.isMouseButtonDown(MouseButton.Left) ? 1.0 : 2.0;
     }
     
     fireBulletTick(delta : number) {

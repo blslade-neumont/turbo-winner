@@ -46,7 +46,8 @@ export abstract class Player extends GameObject {
     private scoreLerpTime: number = 0.0;
     private lastScore: number = 0;
     private scoreLerping: boolean = false;
-
+    protected accelerationMultiplier = 1.0;
+    
     onAddToScene() {
         super.onAddToScene();
         this.scene.addObject(this.healthBar);
@@ -262,7 +263,7 @@ export abstract class Player extends GameObject {
     
     tick(delta: number): void {
         // adjust the player's velocity according to the inputs specified
-        let moveAmount: number = PLAYER_ACCELERATION * delta;
+        let moveAmount: number = PLAYER_ACCELERATION * delta * this.accelerationMultiplier;
         let movement: {x: number, y: number}  = { x: this.inputAcceleration.x * moveAmount, y: this.inputAcceleration.y * moveAmount };
         
         this.hspeed += movement.x;

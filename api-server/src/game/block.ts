@@ -19,8 +19,8 @@ export class Block {
     public game : Game | null;
     
     randomizePosition() {
-        let minDist = 1;
-        let maxDist = 15;
+        let minDist = 5;
+        let maxDist = 35;
         let radius = Math.floor(Math.random() * maxDist) + minDist;
         let theta = Math.floor(Math.random() * (Math.PI * 2));
         
