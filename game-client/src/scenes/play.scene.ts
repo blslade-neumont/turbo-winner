@@ -53,7 +53,7 @@ export class PlayScene extends GameScene {
         camera.floorCenterPosition = false;
         camera.maxZoomScale = 96;
         camera.zoomScale = 96; // arbitrary
-        camera.clearColor = `rgb(128, 255, 64)`;
+        camera.clearColor = `#a3b35b`;
         
         for (let i = 0; i < 50; ++i){
             let obj = new Tile();
