@@ -5,9 +5,9 @@ import { lerp } from '../../util/lerp';
 import { isSignificantlyDifferent } from '../../util/is-significantly-different';
 import { Poolable } from '../object-pooler';
 
-export const LINE_LENGTH = 48/96;
-export const PERPENDICULAR_OFFSET = 48/96;
-export const BACK_OFFSET = 32/96;
+const LINE_LENGTH = 48/96;
+const PERPENDICULAR_OFFSET = 48/96;
+const BACK_OFFSET = 32/96;
 
 export class BadHitDisplay extends Poolable {
     private player: Player;

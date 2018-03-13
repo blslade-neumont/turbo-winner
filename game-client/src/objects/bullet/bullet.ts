@@ -3,7 +3,7 @@ import merge = require('lodash.merge');
 import { BulletDetailsT } from './bullet-meta';
 import { Player } from '../player/player';
 import { LocalPlayer } from '../player/local-player';
-import { PlayScene } from '../..';
+import { PlayScene } from '../../scenes/play.scene';
 
 const DEFAULT_BULLET_SPEED = 1200/96;
 const DEFAULT_TIME_TO_LIVE = 3;

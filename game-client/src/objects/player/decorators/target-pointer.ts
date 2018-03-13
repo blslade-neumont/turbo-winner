@@ -3,9 +3,9 @@ import { Player, PLAYER_RADIUS } from '../player';
 import { DummyPlayer } from '../dummy-player';
 import { lerp } from '../../../util/lerp';
 
-export const LINE_LENGTH = 64/96;
-export const PERPENDICULAR_OFFSET = 64/96;
-export const BACK_OFFSET = 48/96;
+const LINE_LENGTH = 64/96;
+const PERPENDICULAR_OFFSET = 64/96;
+const BACK_OFFSET = 48/96;
 
 export class TargetPointer extends GameObject {
     private player: Player;

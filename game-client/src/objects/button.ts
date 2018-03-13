@@ -1,6 +1,6 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, MouseButton, GameScene, GameObjectOptions } from "engine";
+import { GameObject, GameEvent, MouseButton, GameScene, GameObjectOptions } from "engine";
 
-type ChangeButtonOptions = GameObjectOptions & {
+export type ButtonOptions = GameObjectOptions & {
     width?: number,
     height?: number,
     text?: string,
@@ -24,7 +24,7 @@ export class ButtonObject extends GameObject {
     
     public text: string;
     
-    constructor(opts: ChangeButtonOptions) {
+    constructor(opts: ButtonOptions) {
         super("ChangeButton", opts);
         this._w = typeof opts.width === 'undefined' ? 50 : opts.width;
         this._h = typeof opts.height === 'undefined' ? 50 : opts.height;

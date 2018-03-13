@@ -1,6 +1,6 @@
-import {GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameEvent, Camera} from "engine";
+import { GameObject, GameEvent, Camera } from 'engine';
 
-export class CustomCursor extends GameObject{
+export class CustomCursor extends GameObject {
     private color: string = "purple";
     
     constructor(color: string) {

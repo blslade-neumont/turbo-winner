@@ -5,7 +5,8 @@ import { Player } from './player';
 import { DummyPlayer } from './dummy-player';
 import { LocalPlayer } from './local-player';
 import { NetworkManager } from '../network-manager';
-import { BlockDetailsT, Block } from '../block';
+import { Block } from '../obstacles/block';
+import { WorldDetailsT } from '../obstacles/packet-meta';
 
 export class PlayerManager extends GameObject {
     constructor(
@@ -38,7 +39,7 @@ export class PlayerManager extends GameObject {
             this.networkManager.isConnected = false;
         });
         
-        this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT, world: BlockDetailsT[]) => {
+        this.io.on('assign-player-id', (pid: number, details: PlayerDetailsT, world: WorldDetailsT) => {
             this.networkManager.isConnected = true;
             this.clearWorldAndCreateLocalPlayer(pid, details, world);
         });
@@ -74,7 +75,7 @@ export class PlayerManager extends GameObject {
     
     private localPlayer: LocalPlayer | null = null;
     private worldBlocks: Block[] = [];
-    private clearWorldAndCreateLocalPlayer(pid: number, details: PlayerDetailsT, world: BlockDetailsT[]) {
+    private clearWorldAndCreateLocalPlayer(pid: number, details: PlayerDetailsT, world: WorldDetailsT) {
         //Delete all current players
         let allPlayers = Array.from(this.players.keys()).map(pid => this.players.get(pid)!);
         allPlayers.forEach(player => {
@@ -100,9 +101,8 @@ export class PlayerManager extends GameObject {
         //Initialize the local player with the correct values (do not sanitize)
         this.updatePlayer(pid, details, false);
         
-        for (let i = 0; i < world.length; ++i){
-            let block = new Block(world[i]);
-            this.scene!.addObject(block);
+        for (let block of world.blocks) {
+            this.scene!.addObject(new Block(block));
         }
     }
     

@@ -1,7 +1,7 @@
 import { Player, PLAYER_REMOVAL_TIME } from './player';
 import { Bullet, BULLET_DAMAGE } from "./bullet";
 import { io } from '../sockets';
-import { PlayerDetailsT, BulletDetailsT, BlockDetailsT } from './packet-meta';
+import { PlayerDetailsT, BulletDetailsT, BlockDetailsT, WorldDetailsT } from './packet-meta';
 import { doCirclesCollide } from '../util/do-circles-collide';
 import { EventEmitter } from 'events';
 import { Block } from './block';
@@ -12,7 +12,10 @@ type Socket = SocketIO.Socket;
 export const KILL_TARGET_SCORE_BONUS = 50;
 export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
-export const NUM_BLOCKS = 25;
+
+export const NUM_BOULDERS = 30;
+export const NUM_PALM_TREE_GROVES = 10;
+export const NUM_PALM_TREES_PER_GROVE = 3;
 
 export class Game extends EventEmitter {
     constructor(
@@ -35,9 +38,15 @@ export class Game extends EventEmitter {
         this.createWorld();
     }
     
-    private createWorld(){
-        for (let i = 0; i < NUM_BLOCKS; ++i){
-            let block = new Block({x: 0.0, y: 0.0, radius: Math.random()*0.75+1.25});
+    private createWorld() {
+        for (let i = 0; i < NUM_BOULDERS; ++i) {
+            let block = new Block({
+                //Position will be set later
+                x: 0.0,
+                y: 0.0,
+                radius: (Math.random() * 0.75) + 1.25,
+                type: 'boulder'
+            });
             
             let didPass = false;
             for (let i = 0; i < 10; ++i) {
@@ -47,16 +56,46 @@ export class Game extends EventEmitter {
             }
             if (didPass) { this._obstacles.push(block); }
         }
-    }
-    
-    private doesIntersectAnyBlocks(circle: CircleT): boolean{
-        for (let block of this._obstacles){
-            if (doCirclesCollide(circle, block.getCollisionCircle())){
-                return true;
+        
+        for (let i = 0; i < NUM_PALM_TREE_GROVES; ++i) {
+            let block = new Block({
+                //Position will be set later
+                x: 0.0,
+                y: 0.0,
+                radius: (Math.random() * 0.15) + .3,
+                type: 'palm-tree'
+            });
+            
+            let didPass = false;
+            for (let w = 0; w < 10; ++w) {
+                block.randomizePosition();
+                didPass = !this.doesIntersectAnyBlocks(block.getCollisionCircle());
+                if (didPass) { break; }
+            }
+            if (didPass) { this._obstacles.push(block); }
+            
+            for (let q = 1; q < NUM_PALM_TREES_PER_GROVE; q++) {
+                let nextBlock = new Block({
+                    //Position will be set later
+                    x: 0.0,
+                    y: 0.0,
+                    radius: (Math.random() * 0.15) + .3,
+                    type: 'palm-tree'
+                });
+                
+                let didPass = false;
+                for (let w = 0; w < 10; ++w) {
+                    nextBlock.randomizePosition({ x: block.x, y: block.y }, .5, 4);
+                    didPass = !this.doesIntersectAnyBlocks(nextBlock.getCollisionCircle());
+                    if (didPass) { break; }
+                }
+                if (didPass) { this._obstacles.push(nextBlock); }
             }
         }
-        
-        return false;
+    }
+    
+    private doesIntersectAnyBlocks(circle: CircleT): boolean {
+        return this._obstacles.some(block => doCirclesCollide(circle, block.getCollisionCircle()));
     }
     
     stop() {
@@ -95,14 +134,10 @@ export class Game extends EventEmitter {
         return new Player(this.nextPlayerId++, socket);
     }
     
-    private getWorld() : BlockDetailsT[] {
-        let blockDetails: BlockDetailsT[] = [];
-        for (let i = 0; i < this._obstacles.length; ++i){
-            let block = this._obstacles[i];
-            blockDetails.push(block.getDetails());
-        }
-        
-        return blockDetails;
+    private getWorld(): WorldDetailsT {
+        return {
+            blocks: this._obstacles.map(block => block.getDetails())
+        };
     }
     addPlayer(player: Player) {
         let prev = this.players.get(player.playerId) || null;

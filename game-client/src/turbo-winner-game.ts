@@ -3,7 +3,7 @@ import { ColorSelectScene } from './scenes/color-select.scene';
 import { NameSelectScene } from './scenes/name-select.scene';
 import { PlayScene } from './scenes/play.scene';
 
-export type Socket = SocketIOClient.Socket;
+type Socket = SocketIOClient.Socket;
 
 export type TurboWinnerGameOptions = GameOptions & {
     playerColor?: string,

@@ -5,9 +5,8 @@ import { BulletManager } from '../objects/bullet/bullet-manager';
 import { NetworkManager } from '../objects/network-manager';
 import { PlayerManager } from '../objects/player/player-manager';
 import { Tile } from '../objects/tile';
-import { Bullet } from "../objects/bullet";
-import { Player, DummyPlayer } from "../objects/player";
-import { Block } from '../objects/block';
+import { Bullet } from '../objects/bullet';
+import { Player, DummyPlayer } from '../objects/player';
 
 export class PlayScene extends GameScene {
     constructor(
@@ -23,20 +22,20 @@ export class PlayScene extends GameScene {
     private playerManager: PlayerManager;
     private bulletManager: BulletManager;
     private customCursor: CustomCursor;
-
+    
     getCursor() {
         return ['none'];
     }
     
-    getLocalPlayerID(): number{
+    getLocalPlayerID(): number {
         return this.playerManager.localPlayerId;
     }
     
-    getPlayerByID(id: number): Player|undefined {
+    getPlayerByID(id: number): Player | undefined {
         return this.playerManager.getPlayerMapping().get(id);
     }
     
-    getDummyPlayers(): Array<DummyPlayer>{
+    getDummyPlayers(): DummyPlayer[] {
         return this.playerManager.getDummyPlayers();
     }
     
@@ -44,27 +43,18 @@ export class PlayScene extends GameScene {
         return (<TurboWinnerGame>this.game).io;
     }
     
-    handleEvent(event: GameEvent) {
-        if ((event.type === 'abstractButtonPressed' && event.name === 'return')) {
-            // this.game.changeScene(new StartScene());
-            // return true;
-        }
-        
-        return super.handleEvent(event);
-    }
-    
     start() {
         super.start();
         
         if (this.initialized) return;
         this.initialized = true;
-
+        
         let camera = this.camera = new FollowCamera(this);
         camera.floorCenterPosition = false;
         camera.maxZoomScale = 96;
         camera.zoomScale = 96; // arbitrary
         camera.clearColor = `rgb(128, 255, 64)`;
-                
+        
         for (let i = 0; i < 50; ++i){
             let obj = new Tile();
             obj.x = i % 10 * (50 / camera.zoomScale);
@@ -74,7 +64,7 @@ export class PlayScene extends GameScene {
         
         this.customCursor = new CustomCursor("#b22222");
         this.addObject(this.customCursor);
-
+        
         this.networkManager = new NetworkManager();
         this.addObject(this.networkManager);
         this.playerManager = new PlayerManager(this.networkManager, this.playerColor, this.displayName, this.authToken);

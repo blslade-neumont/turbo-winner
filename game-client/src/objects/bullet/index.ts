@@ -1,5 +1,8 @@
 
 
 export * from './bullet';
-export * from './bullet-meta';
+
+export * from './bad-hit-display';
 export * from './bullet-manager';
+
+export * from './bullet-meta';

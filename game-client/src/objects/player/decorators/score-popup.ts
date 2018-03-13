@@ -1,8 +1,8 @@
 import { GameObject } from 'engine';
 import { Player, MAX_PLAYER_HEALTH } from '../player';
 
-export const SCORE_ANIMATION_TIME = 3.0;
-export const BIG_SCORE_SCALE = 3.0;
+const SCORE_ANIMATION_TIME = 3.0;
+const BIG_SCORE_SCALE = 3.0;
 
 export class ScorePopup extends GameObject {
     constructor(player: Player) {
@@ -17,7 +17,7 @@ export class ScorePopup extends GameObject {
     private scoreText: string = "+0";
     private scoreColor: string = "Green";
     
-    tick(delta: number){
+    tick(delta: number) {
         this.x = this.player.x;
         this.y = this.player.y;
         

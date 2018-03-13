@@ -1,7 +1,7 @@
 import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter } from "engine";
 
-export class Tile extends GameObject{
-    constructor(){
+export class Tile extends GameObject {
+    constructor() {
         super("Tile", { renderDepth: 100 });
     }
     
