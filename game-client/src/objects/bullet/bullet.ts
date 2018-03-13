@@ -1,4 +1,4 @@
-import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions, CircleCollisionMask } from 'engine';
+import { GameObject, GraphicsAdapter, DefaultGraphicsAdapter, GameObjectOptions, CircleCollisionMask, degToRad } from 'engine';
 import merge = require('lodash.merge');
 import { BulletDetailsT } from './bullet-meta';
 import { Player } from '../player/player';
@@ -39,10 +39,30 @@ export class Bullet extends GameObject {
     }
     
     renderImplContext2d(context: CanvasRenderingContext2D) {
-        context.beginPath();
-        context.arc(0, 0, this.radius, 0 , 2 * Math.PI, false);
-        context.fillStyle = "#000000";
-        context.fill();
+        context.save();
+        try {
+            context.translate(-this.radius, 0);
+            context.rotate(-degToRad(this.direction));
+            context.scale(this.speed / 5, .5);
+            
+            context.fillStyle = "#20000080";
+            if (localStorage['rainbow']) context.fillStyle = `hsla(${Math.floor(this.animationAge * 360) % 360}deg, 100%, 50%, .5)`;
+            
+            context.beginPath();
+            context.arc(0, 0, this.radius, 0, 2 * Math.PI);
+            context.fill();
+            
+            context.beginPath();
+            context.arc(0, 0, this.radius * .8, 0, 2 * Math.PI);
+            context.fill();
+            
+            context.beginPath();
+            context.arc(0, 0, this.radius * .6, 0, 2 * Math.PI);
+            context.fill();
+        }
+        finally {
+            context.restore();
+        }
     }
     
     getDetails() {
@@ -64,7 +84,8 @@ export class Bullet extends GameObject {
         for (let trigger of this.mask.triggers) {
             let gobj = trigger.gameObject;
             
-            if (gobj instanceof Player){
+            if (gobj instanceof Bullet) continue;
+            if (gobj instanceof Player) {
                 if (this.shouldIgnorePlayer(gobj)) { continue; }
                 if (gobj.isInvulnerable()) { continue; }
                 
@@ -75,7 +96,7 @@ export class Bullet extends GameObject {
                  && whoFiredMe.playerId === (<PlayScene>this.scene!).getLocalPlayerID()
                  && !gobj.isDead){
                     (<LocalPlayer>whoFiredMe).addBadHit(BULLET_BAD_X_TTL, this.x, this.y);
-                }    
+                }
             }
             
             //If we're colliding with anything but the player that we should ignore, delete the bullet
