@@ -14,8 +14,9 @@ export const KILL_INNOCENT_SCORE_PENALTY = 100;
 export const DEATH_SCORE_PENALTY = 10;
 
 export const NUM_BOULDERS = 30;
-export const NUM_PALM_TREE_GROVES = 10;
-export const NUM_PALM_TREES_PER_GROVE = 3;
+export const NUM_PALM_TREE_GROVES = 15;
+export const MIN_PALM_TREES_PER_GROVE = 3;
+export const MAX_PALM_TREES_PER_GROVE = 5;
 
 export class Game extends EventEmitter {
     constructor(
@@ -74,7 +75,8 @@ export class Game extends EventEmitter {
             }
             if (didPass) { this._obstacles.push(block); }
             
-            for (let q = 1; q < NUM_PALM_TREES_PER_GROVE; q++) {
+            let numTrees = Math.floor(Math.random() * (MAX_PALM_TREES_PER_GROVE - MIN_PALM_TREES_PER_GROVE)) + MIN_PALM_TREES_PER_GROVE;
+            for (let q = 1; q < numTrees; q++) {
                 let nextBlock = new Block({
                     //Position will be set later
                     x: 0.0,
