@@ -1,12 +1,15 @@
-import { GameScene, FollowCamera, GameEvent, GraphicsAdapter, DefaultGraphicsAdapter } from 'engine';
+import { GameScene, FollowCamera, GameEvent, GraphicsAdapter, DefaultGraphicsAdapter, pointDistance } from 'engine';
 import { TurboWinnerGame } from '../turbo-winner-game';
 import { CustomCursor } from '../objects/custom-cursor';
 import { BulletManager } from '../objects/bullet/bullet-manager';
 import { NetworkManager } from '../objects/network-manager';
 import { PlayerManager } from '../objects/player/player-manager';
-import { Tile } from '../objects/tile';
+import { Flower } from '../objects/flower';
 import { Bullet } from '../objects/bullet';
 import { Player, DummyPlayer } from '../objects/player';
+
+const FLOWER_COUNT = 300;
+const MAX_FLOWER_DIST = 50;
 
 export class PlayScene extends GameScene {
     constructor(
@@ -55,10 +58,14 @@ export class PlayScene extends GameScene {
         camera.zoomScale = 96; // arbitrary
         camera.clearColor = `#a3b35b`;
         
-        for (let i = 0; i < 50; ++i){
-            let obj = new Tile();
-            obj.x = i % 10 * (50 / camera.zoomScale);
-            obj.y = (-250/camera.zoomScale) + i*(50 / camera.zoomScale);
+        for (let i = 0; i < FLOWER_COUNT; ++i) {
+            let x: number, y: number;
+            do {
+                x = ((Math.random() * 2) - 1) * MAX_FLOWER_DIST;
+                y = ((Math.random() * 2) - 1) * MAX_FLOWER_DIST;
+            }
+            while (pointDistance(x, y, 0, 0) > MAX_FLOWER_DIST)
+            let obj = new Flower({ x: x, y: y });
             this.addObject(obj);
         }
         
