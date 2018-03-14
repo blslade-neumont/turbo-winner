@@ -28,8 +28,8 @@ export class BlockOverlay extends GameObject {
                 this.leaves.push({
                     direction: ((Math.PI * 2) / segmentNum) * q + Math.random() / 3,
                     width: (Math.random() * .2) + .8,
-                    length: (Math.random() * .5) + 1.5,
-                    segments: 20 + Math.floor(10 * Math.random()),
+                    length: (Math.random() * 1.0) + 3.0,
+                    segments: 10 + Math.floor(5 * Math.random()),
                     relativeScale: 1,
                     relativeScaleTo: 1
                 });
@@ -67,6 +67,14 @@ export class BlockOverlay extends GameObject {
     private renderPalmTree(context: CanvasRenderingContext2D) {
         context.fillStyle = PALM_TREE_LEAVES_COLOR;
         context.lineWidth = 1/96;
+        
+        let bounds = this.scene!.camera!.bounds;
+        bounds.left -= 5;
+        bounds.right += 5;
+        bounds.top += 5;
+        bounds.bottom -= 5;
+                
+        if (this.x < bounds.left || this.x > bounds.right || this.y > bounds.top || this.y < bounds.bottom) { return; }
         
         for (let leaf of this.leaves) {
             context.save();
